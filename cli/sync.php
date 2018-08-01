@@ -22,7 +22,7 @@
  *   - you need to change the "www-data" to match the apache user account
  *   - use "su" if "sudo" not available
  *
- * @package    enrol_paypal
+ * @package    enrol_ecommerce
  * @copyright  2012 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -57,7 +57,7 @@ Example:
 }
 
 if (!enrol_is_enabled('paypal')) {
-    echo('enrol_paypal plugin is disabled'."\n");
+    echo('enrol_ecommerce plugin is disabled'."\n");
     exit(2);
 }
 
@@ -67,7 +67,7 @@ if (empty($options['verbose'])) {
     $trace = new text_progress_trace();
 }
 
-/** @var $plugin enrol_paypal_plugin */
+/** @var $plugin enrol_ecommerce_plugin */
 $plugin = enrol_get_plugin('paypal');
 
 $result = $plugin->sync($trace);

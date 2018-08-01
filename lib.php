@@ -19,7 +19,7 @@
  *
  * This plugin allows you to set up paid courses.
  *
- * @package    enrol_paypal
+ * @package    enrol_ecommerce
  * @copyright  2010 Eugene Venter
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author  Eugene Venter - based on code by Martin Dougiamas and others
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_paypal_plugin extends enrol_plugin {
+class enrol_ecommerce_plugin extends enrol_plugin {
 
     public function get_currencies() {
         // See https://www.paypal.com/cgi-bin/webscr?cmd=p/sell/mc/mc_intro-outside,
@@ -72,7 +72,7 @@ class enrol_paypal_plugin extends enrol_plugin {
             break;
         }
         if ($found) {
-            return array(new pix_icon('icon', get_string('pluginname', 'enrol_paypal'), 'enrol_paypal'));
+            return array(new pix_icon('icon', get_string('pluginname', 'enrol_ecommerce'), 'enrol_ecommerce'));
         }
         return array();
     }
@@ -194,7 +194,7 @@ class enrol_paypal_plugin extends enrol_plugin {
         }
 
         if (abs($cost) < 0.01) { // no cost, other enrolment methods (instances) should be used
-            echo '<p>'.get_string('nocost', 'enrol_paypal').'</p>';
+            echo '<p>'.get_string('nocost', 'enrol_ecommerce').'</p>';
         } else {
 
             // Calculate localised and "." cost, make sure we send PayPal the same value,
@@ -312,35 +312,35 @@ class enrol_paypal_plugin extends enrol_plugin {
         $mform->setType('name', PARAM_TEXT);
 
         $options = $this->get_status_options();
-        $mform->addElement('select', 'status', get_string('status', 'enrol_paypal'), $options);
+        $mform->addElement('select', 'status', get_string('status', 'enrol_ecommerce'), $options);
         $mform->setDefault('status', $this->get_config('status'));
 
-        $mform->addElement('text', 'cost', get_string('cost', 'enrol_paypal'), array('size' => 4));
+        $mform->addElement('text', 'cost', get_string('cost', 'enrol_ecommerce'), array('size' => 4));
         $mform->setType('cost', PARAM_RAW);
         $mform->setDefault('cost', format_float($this->get_config('cost'), 2, true));
 
         $paypalcurrencies = $this->get_currencies();
-        $mform->addElement('select', 'currency', get_string('currency', 'enrol_paypal'), $paypalcurrencies);
+        $mform->addElement('select', 'currency', get_string('currency', 'enrol_ecommerce'), $paypalcurrencies);
         $mform->setDefault('currency', $this->get_config('currency'));
 
         $roles = $this->get_roleid_options($instance, $context);
-        $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_paypal'), $roles);
+        $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_ecommerce'), $roles);
         $mform->setDefault('roleid', $this->get_config('roleid'));
 
         $options = array('optional' => true, 'defaultunit' => 86400);
-        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_paypal'), $options);
+        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_ecommerce'), $options);
         $mform->setDefault('enrolperiod', $this->get_config('enrolperiod'));
-        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_paypal');
+        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_ecommerce');
 
         $options = array('optional' => true);
-        $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_paypal'), $options);
+        $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_ecommerce'), $options);
         $mform->setDefault('enrolstartdate', 0);
-        $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_paypal');
+        $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_ecommerce');
 
         $options = array('optional' => true);
-        $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_paypal'), $options);
+        $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_ecommerce'), $options);
         $mform->setDefault('enrolenddate', 0);
-        $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_paypal');
+        $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_ecommerce');
 
         if (enrol_accessing_via_instance($instance)) {
             $warningtext = get_string('instanceeditselfwarningtext', 'core_enrol');
@@ -363,12 +363,12 @@ class enrol_paypal_plugin extends enrol_plugin {
         $errors = array();
 
         if (!empty($data['enrolenddate']) and $data['enrolenddate'] < $data['enrolstartdate']) {
-            $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_paypal');
+            $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_ecommerce');
         }
 
         $cost = str_replace(get_string('decsep', 'langconfig'), '.', $data['cost']);
         if (!is_numeric($cost)) {
-            $errors['cost'] = get_string('costerror', 'enrol_paypal');
+            $errors['cost'] = get_string('costerror', 'enrol_ecommerce');
         }
 
         $validstatus = array_keys($this->get_status_options());

@@ -17,7 +17,7 @@
 /**
  * Paypal utility script
  *
- * @package    enrol_paypal
+ * @package    enrol_ecommerce
  * @copyright  2004 onwards Martin Dougiamas (http://dougiamas.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

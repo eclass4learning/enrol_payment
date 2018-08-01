@@ -17,20 +17,20 @@
 /**
  * Process expirations task.
  *
- * @package   enrol_paypal
+ * @package   enrol_ecommerce
  * @author    Farhan Karmali <farhan6318@gmail.com>
  * @copyright Farhan Karmali
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_paypal\task;
+namespace enrol_ecommerce\task;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * Process expirations task.
  *
- * @package   enrol_paypal
+ * @package   enrol_ecommerce
  * @author    Farhan Karmali <farhan6318@gmail.com>
  * @copyright Farhan Karmali
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -43,7 +43,7 @@ class process_expirations extends \core\task\scheduled_task {
      * @return string
      */
     public function get_name() {
-        return get_string('processexpirationstask', 'enrol_paypal');
+        return get_string('processexpirationstask', 'enrol_ecommerce');
     }
 
     /**

@@ -15,15 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for enrol_paypal.
+ * Privacy Subsystem implementation for enrol_ecommerce.
  *
- * @package    enrol_paypal
+ * @package    enrol_ecommerce
  * @category   privacy
  * @copyright  2018 Shamim Rezaie <shamim@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_paypal\privacy;
+namespace enrol_ecommerce\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -34,7 +34,7 @@ use core_privacy\local\request\helper;
 use core_privacy\local\request\writer;
 
 /**
- * Privacy Subsystem implementation for enrol_paypal.
+ * Privacy Subsystem implementation for enrol_ecommerce.
  *
  * @copyright  2018 Shamim Rezaie <shamim@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -53,41 +53,41 @@ class provider implements
         $collection->add_external_location_link(
             'paypal.com',
             [
-                'os0'        => 'privacy:metadata:enrol_paypal:paypal_com:os0',
-                'custom'     => 'privacy:metadata:enrol_paypal:paypal_com:custom',
-                'first_name' => 'privacy:metadata:enrol_paypal:paypal_com:first_name',
-                'last_name'  => 'privacy:metadata:enrol_paypal:paypal_com:last_name',
-                'address'    => 'privacy:metadata:enrol_paypal:paypal_com:address',
-                'city'       => 'privacy:metadata:enrol_paypal:paypal_com:city',
-                'email'      => 'privacy:metadata:enrol_paypal:paypal_com:email',
-                'country'    => 'privacy:metadata:enrol_paypal:paypal_com:country',
+                'os0'        => 'privacy:metadata:enrol_ecommerce:paypal_com:os0',
+                'custom'     => 'privacy:metadata:enrol_ecommerce:paypal_com:custom',
+                'first_name' => 'privacy:metadata:enrol_ecommerce:paypal_com:first_name',
+                'last_name'  => 'privacy:metadata:enrol_ecommerce:paypal_com:last_name',
+                'address'    => 'privacy:metadata:enrol_ecommerce:paypal_com:address',
+                'city'       => 'privacy:metadata:enrol_ecommerce:paypal_com:city',
+                'email'      => 'privacy:metadata:enrol_ecommerce:paypal_com:email',
+                'country'    => 'privacy:metadata:enrol_ecommerce:paypal_com:country',
             ],
-            'privacy:metadata:enrol_paypal:paypal_com'
+            'privacy:metadata:enrol_ecommerce:paypal_com'
         );
 
-        // The enrol_paypal has a DB table that contains user data.
+        // The enrol_ecommerce has a DB table that contains user data.
         $collection->add_database_table(
-                'enrol_paypal',
+                'enrol_ecommerce',
                 [
-                    'business'            => 'privacy:metadata:enrol_paypal:enrol_paypal:business',
-                    'receiver_email'      => 'privacy:metadata:enrol_paypal:enrol_paypal:receiver_email',
-                    'receiver_id'         => 'privacy:metadata:enrol_paypal:enrol_paypal:receiver_id',
-                    'item_name'           => 'privacy:metadata:enrol_paypal:enrol_paypal:item_name',
-                    'courseid'            => 'privacy:metadata:enrol_paypal:enrol_paypal:courseid',
-                    'userid'              => 'privacy:metadata:enrol_paypal:enrol_paypal:userid',
-                    'instanceid'          => 'privacy:metadata:enrol_paypal:enrol_paypal:instanceid',
-                    'memo'                => 'privacy:metadata:enrol_paypal:enrol_paypal:memo',
-                    'tax'                 => 'privacy:metadata:enrol_paypal:enrol_paypal:tax',
-                    'option_selection1_x' => 'privacy:metadata:enrol_paypal:enrol_paypal:option_selection1_x',
-                    'payment_status'      => 'privacy:metadata:enrol_paypal:enrol_paypal:payment_status',
-                    'pending_reason'      => 'privacy:metadata:enrol_paypal:enrol_paypal:pending_reason',
-                    'reason_code'         => 'privacy:metadata:enrol_paypal:enrol_paypal:reason_code',
-                    'txn_id'              => 'privacy:metadata:enrol_paypal:enrol_paypal:txn_id',
-                    'parent_txn_id'       => 'privacy:metadata:enrol_paypal:enrol_paypal:parent_txn_id',
-                    'payment_type'        => 'privacy:metadata:enrol_paypal:enrol_paypal:payment_type',
-                    'timeupdated'         => 'privacy:metadata:enrol_paypal:enrol_paypal:timeupdated'
+                    'business'            => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:business',
+                    'receiver_email'      => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:receiver_email',
+                    'receiver_id'         => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:receiver_id',
+                    'item_name'           => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:item_name',
+                    'courseid'            => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:courseid',
+                    'userid'              => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:userid',
+                    'instanceid'          => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:instanceid',
+                    'memo'                => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:memo',
+                    'tax'                 => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:tax',
+                    'option_selection1_x' => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:option_selection1_x',
+                    'payment_status'      => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:payment_status',
+                    'pending_reason'      => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:pending_reason',
+                    'reason_code'         => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:reason_code',
+                    'txn_id'              => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:txn_id',
+                    'parent_txn_id'       => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:parent_txn_id',
+                    'payment_type'        => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:payment_type',
+                    'timeupdated'         => 'privacy:metadata:enrol_ecommerce:enrol_ecommerce:timeupdated'
                 ],
-                'privacy:metadata:enrol_paypal:enrol_paypal'
+                'privacy:metadata:enrol_ecommerce:enrol_ecommerce'
         );
 
         return $collection;
@@ -105,7 +105,7 @@ class provider implements
         // Values of ep.receiver_email and ep.business are already normalised to lowercase characters by PayPal,
         // therefore there is no need to use LOWER() on them in the following query.
         $sql = "SELECT ctx.id
-                  FROM {enrol_paypal} ep
+                  FROM {enrol_ecommerce} ep
                   JOIN {enrol} e ON ep.instanceid = e.id
                   JOIN {context} ctx ON e.courseid = ctx.instanceid AND ctx.contextlevel = :contextcourse
              LEFT JOIN {user} u ON u.id = :emailuserid AND (
@@ -145,7 +145,7 @@ class provider implements
         // Values of ep.receiver_email and ep.business are already normalised to lowercase characters by PayPal,
         // therefore there is no need to use LOWER() on them in the following query.
         $sql = "SELECT ep.*
-                  FROM {enrol_paypal} ep
+                  FROM {enrol_ecommerce} ep
                   JOIN {enrol} e ON ep.instanceid = e.id
                   JOIN {context} ctx ON e.courseid = ctx.instanceid AND ctx.contextlevel = :contextcourse
              LEFT JOIN {user} u ON u.id = :emailuserid AND (
@@ -170,7 +170,7 @@ class provider implements
         // and therefore when we can export the complete data for the last course.
         $lastcourseid = null;
 
-        $strtransactions = get_string('transactions', 'enrol_paypal');
+        $strtransactions = get_string('transactions', 'enrol_ecommerce');
         $transactions = [];
         $paypalrecords = $DB->get_recordset_sql($sql, $params);
         foreach ($paypalrecords as $paypalrecord) {
@@ -241,7 +241,7 @@ class provider implements
             return;
         }
 
-        $DB->delete_records('enrol_paypal', array('courseid' => $context->instanceid));
+        $DB->delete_records('enrol_ecommerce', array('courseid' => $context->instanceid));
     }
 
     /**
@@ -270,17 +270,17 @@ class provider implements
 
         $select = "userid = :userid AND courseid $insql";
         $params = $inparams + ['userid' => $user->id];
-        $DB->delete_records_select('enrol_paypal', $select, $params);
+        $DB->delete_records_select('enrol_ecommerce', $select, $params);
 
         // We do not want to delete the payment record when the user is just the receiver of payment.
         // In that case, we just delete the receiver's info from the transaction record.
 
         $select = "business = :business AND courseid $insql";
         $params = $inparams + ['business' => \core_text::strtolower($user->email)];
-        $DB->set_field_select('enrol_paypal', 'business', '', $select, $params);
+        $DB->set_field_select('enrol_ecommerce', 'business', '', $select, $params);
 
         $select = "receiver_email = :receiver_email AND courseid $insql";
         $params = $inparams + ['receiver_email' => \core_text::strtolower($user->email)];
-        $DB->set_field_select('enrol_paypal', 'receiver_email', '', $select, $params);
+        $DB->set_field_select('enrol_ecommerce', 'receiver_email', '', $select, $params);
     }
 }

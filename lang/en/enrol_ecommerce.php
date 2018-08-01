@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'enrol_paypal', language 'en'.
+ * Strings for component 'enrol_ecommerce', language 'en'.
  *
- * @package    enrol_paypal
+ * @package    enrol_ecommerce
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,35 +54,35 @@ $string['paypal:manage'] = 'Manage enrolled users';
 $string['paypal:unenrol'] = 'Unenrol users from course';
 $string['paypal:unenrolself'] = 'Unenrol self from the course';
 $string['paypalaccepted'] = 'PayPal payments accepted';
-$string['pluginname'] = 'PayPal';
-$string['pluginname_desc'] = 'The PayPal module allows you to set up paid courses.  If the cost for any course is zero, then students are not asked to pay for entry.  There is a site-wide cost that you set here as a default for the whole site and then a course setting that you can set for each course individually. The course cost overrides the site cost.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal'] = 'Information about the PayPal transactions for PayPal enrolments.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:business'] = 'Email address or PayPal account ID of the payment recipient (that is, the merchant).';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:courseid'] = 'The ID of the course that is sold.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:instanceid'] = 'The ID of the enrolment instance in the course.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:item_name'] = 'The full name of the course that its enrolment has been sold.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:memo'] = 'A note that was entered by the buyer in PayPal website payments note field.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:option_selection1_x'] = 'Full name of the buyer.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:parent_txn_id'] = 'In the case of a refund, reversal, or canceled reversal, this would be the transaction ID of the original transaction.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:payment_status'] = 'The status of the payment.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:payment_type'] = 'Holds whether the payment was funded with an eCheck (echeck), or was funded with PayPal balance, credit card, or instant transfer (instant).';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:pending_reason'] = 'The reason why payment status is pending (if that is).';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:reason_code'] = 'The reason why payment status is Reversed, Refunded, Canceled_Reversal, or Denied (if the status is one of them).';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:receiver_email'] = 'Primary email address of the payment recipient (that is, the merchant).';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:receiver_id'] = 'Unique PayPal account ID of the payment recipient (i.e., the merchant).';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:tax'] = 'Amount of tax charged on payment.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:timeupdated'] = 'The time of Moodle being notified by PayPal about the payment.';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:txn_id'] = 'The merchant\'s original transaction identification number for the payment from the buyer, against which the case was registered';
-$string['privacy:metadata:enrol_paypal:enrol_paypal:userid'] = 'The ID of the user who bought the course enrolment.';
-$string['privacy:metadata:enrol_paypal:paypal_com'] = 'The PayPal enrolment plugin transmits user data from Moodle to the PayPal website.';
-$string['privacy:metadata:enrol_paypal:paypal_com:address'] = 'Address of the user who is buying the course.';
-$string['privacy:metadata:enrol_paypal:paypal_com:city'] = 'City of the user who is buying the course.';
-$string['privacy:metadata:enrol_paypal:paypal_com:country'] = 'Country of the user who is buying the course.';
-$string['privacy:metadata:enrol_paypal:paypal_com:custom'] = 'A hyphen-separated string that contains ID of the user (the buyer), ID of the course, ID of the enrolment instance.';
-$string['privacy:metadata:enrol_paypal:paypal_com:email'] = 'Email address of the user who is buying the course.';
-$string['privacy:metadata:enrol_paypal:paypal_com:first_name'] = 'First name of the user who is buying the course.';
-$string['privacy:metadata:enrol_paypal:paypal_com:last_name'] = 'Last name of the user who is buying the course.';
-$string['privacy:metadata:enrol_paypal:paypal_com:os0'] = 'Full name of the buyer.';
+$string['pluginname'] = 'E-Commerce';
+$string['pluginname_desc'] = 'The E-Commerce module allows you to set up paid courses.  If the cost for any course is zero, then students are not asked to pay for entry.  There is a site-wide cost that you set here as a default for the whole site and then a course setting that you can set for each course individually. The course cost overrides the site cost.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce'] = 'Information about the PayPal transactions for PayPal enrolments.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:business'] = 'Email address or PayPal account ID of the payment recipient (that is, the merchant).';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:courseid'] = 'The ID of the course that is sold.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:instanceid'] = 'The ID of the enrolment instance in the course.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:item_name'] = 'The full name of the course that its enrolment has been sold.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:memo'] = 'A note that was entered by the buyer in PayPal website payments note field.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:option_selection1_x'] = 'Full name of the buyer.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:parent_txn_id'] = 'In the case of a refund, reversal, or canceled reversal, this would be the transaction ID of the original transaction.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:payment_status'] = 'The status of the payment.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:payment_type'] = 'Holds whether the payment was funded with an eCheck (echeck), or was funded with PayPal balance, credit card, or instant transfer (instant).';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:pending_reason'] = 'The reason why payment status is pending (if that is).';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:reason_code'] = 'The reason why payment status is Reversed, Refunded, Canceled_Reversal, or Denied (if the status is one of them).';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:receiver_email'] = 'Primary email address of the payment recipient (that is, the merchant).';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:receiver_id'] = 'Unique PayPal account ID of the payment recipient (i.e., the merchant).';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:tax'] = 'Amount of tax charged on payment.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:timeupdated'] = 'The time of Moodle being notified by PayPal about the payment.';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:txn_id'] = 'The merchant\'s original transaction identification number for the payment from the buyer, against which the case was registered';
+$string['privacy:metadata:enrol_ecommerce:enrol_ecommerce:userid'] = 'The ID of the user who bought the course enrolment.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com'] = 'The PayPal enrolment plugin transmits user data from Moodle to the PayPal website.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com:address'] = 'Address of the user who is buying the course.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com:city'] = 'City of the user who is buying the course.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com:country'] = 'Country of the user who is buying the course.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com:custom'] = 'A hyphen-separated string that contains ID of the user (the buyer), ID of the course, ID of the enrolment instance.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com:email'] = 'Email address of the user who is buying the course.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com:first_name'] = 'First name of the user who is buying the course.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com:last_name'] = 'Last name of the user who is buying the course.';
+$string['privacy:metadata:enrol_ecommerce:paypal_com:os0'] = 'Full name of the buyer.';
 $string['processexpirationstask'] = 'PayPal enrolment send expiry notifications task';
 $string['sendpaymentbutton'] = 'Send payment via PayPal';
 $string['status'] = 'Allow PayPal enrolments';

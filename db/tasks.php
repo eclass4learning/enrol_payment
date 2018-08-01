@@ -18,7 +18,7 @@
  * Task definition for enrol_ecommerce.
  * @author    Farhan Karmali <farhan6318@gmail.com>
  * @copyright Farhan Karmali
- * @package   enrol_paypal
+ * @package   enrol_ecommerce
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
