@@ -89,3 +89,5 @@ $string['status'] = 'Allow PayPal enrolments';
 $string['status_desc'] = 'Allow users to use PayPal to enrol into a course by default.';
 $string['transactions'] = 'PayPal transactions';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
+$string['sendcoursewelcomemessage'] = 'Send course welcome message';
+$string['sendcoursewelcomemessage_help'] = 'When a user self enrols in the course, they may be sent a welcome message email. If sent from the course contact (by default the teacher), and more than one user has this role, the email is sent from the first user to be assigned the role.';

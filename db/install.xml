@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="ecommerce" COMMENT="Holds all known information about eCommerce transactions">
+    <TABLE NAME="enrol_ecommerce" COMMENT="Holds all known information about eCommerce transactions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="business" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>

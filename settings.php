@@ -30,7 +30,7 @@ if ($ADMIN->fulltree) {
     //--- settings ------------------------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('enrol_ecommerce_settings', '', get_string('pluginname_desc', 'enrol_ecommerce')));
 
-    $settings->add(new admin_setting_configtext('enrol_ecommerce/ecommercebusiness', get_string('businessemail', 'enrol_ecommerce'), get_string('businessemail_desc', 'enrol_ecommerce'), '', PARAM_EMAIL));
+    $settings->add(new admin_setting_configtext('enrol_ecommerce/paypalbusiness', get_string('businessemail', 'enrol_ecommerce'), get_string('businessemail_desc', 'enrol_ecommerce'), '', PARAM_EMAIL));
 
     $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/mailstudents', get_string('mailstudents', 'enrol_ecommerce'), '', 0));
 
@@ -71,4 +71,10 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configduration('enrol_ecommerce/enrolperiod',
         get_string('enrolperiod', 'enrol_ecommerce'), get_string('enrolperiod_desc', 'enrol_ecommerce'), 0));
+
+    $settings->add(new admin_setting_configselect('enrol_ecommerce/sendcoursewelcomemessage',
+            get_string('sendcoursewelcomemessage', 'enrol_ecommerce'),
+            get_string('sendcoursewelcomemessage_help', 'enrol_ecommerce'),
+            ENROL_SEND_EMAIL_FROM_COURSE_CONTACT,
+            enrol_send_welcome_email_options()));
 }

@@ -99,8 +99,8 @@ $context = context_course::instance($course->id, MUST_EXIST);
 
 $PAGE->set_context($context);
 
-$plugin_instance = $DB->get_record("enrol", array("id" => $data->instanceid, "enrol" => "paypal", "status" => 0), "*", MUST_EXIST);
-$plugin = enrol_get_plugin('paypal');
+$plugin_instance = $DB->get_record("enrol", array("id" => $data->instanceid, "enrol" => "ecommerce", "status" => 0), "*", MUST_EXIST);
+$plugin = enrol_get_plugin('ecommerce');
 
 /// Open a connection back to PayPal to validate the data
 $paypaladdr = empty($CFG->usepaypalsandbox) ? 'ipnpb.paypal.com' : 'ipnpb.sandbox.paypal.com';
@@ -245,6 +245,9 @@ if (strlen($result) > 0) {
 
         // Enrol user
         $plugin->enrol_user($plugin_instance, $user->id, $plugin_instance->roleid, $timestart, $timeend);
+        if ($plugin_instance->customint4 != ENROL_DO_NOT_SEND_EMAIL) {
+            $plugin->email_welcome_message($plugin_instance, $user);
+        }
 
         // Pass $view=true to filter hidden caps if the user cannot see them
         if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
