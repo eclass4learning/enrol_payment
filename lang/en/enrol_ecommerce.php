@@ -39,6 +39,8 @@ $string['enrolperiod_desc'] = 'Default length of time that the enrolment is vali
 $string['enrolperiod_help'] = 'Length of time that the enrolment is valid, starting with the moment the user is enrolled. If disabled, the enrolment duration will be unlimited.';
 $string['enrolstartdate'] = 'Start date';
 $string['enrolstartdate_help'] = 'If enabled, users can be enrolled from this date onward only.';
+$string['enrolgroup'] = 'Group to enroll users into';
+$string['enrolnogroup'] = '(No group selected)';
 $string['errdisabled'] = 'The PayPal enrolment plugin is disabled and does not handle payment notifications.';
 $string['erripninvalid'] = 'Instant payment notification has not been verified by PayPal.';
 $string['errpaypalconnect'] = 'Could not connect to {$a->url} to verify the instant payment notification: {$a->result}';
@@ -91,3 +93,12 @@ $string['transactions'] = 'PayPal transactions';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
 $string['sendcoursewelcomemessage'] = 'Send course welcome message';
 $string['sendcoursewelcomemessage_help'] = 'When a user self enrols in the course, they may be sent a welcome message email. If sent from the course contact (by default the teacher), and more than one user has this role, the email is sent from the first user to be assigned the role.';
+$string['customwelcomemessage'] = 'Custom welcome message';
+$string['customwelcomemessage_help'] = 'A custom welcome message may be added as plain text or Moodle-auto format, including HTML tags and multi-lang tags.
+
+The following placeholders may be included in the message:
+
+* Course name {$a->coursename}
+* Link to user\'s profile page {$a->profileurl}
+* User email {$a->email}
+* User fullname {$a->fullname}';

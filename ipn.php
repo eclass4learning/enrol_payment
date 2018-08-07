@@ -38,6 +38,7 @@ require_once("lib.php");
 require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot . '/group/lib.php');
 
 // PayPal does not like when we return error messages here,
 // the custom handler just logs exceptions and stops.
@@ -245,7 +246,11 @@ if (strlen($result) > 0) {
 
         // Enrol user
         $plugin->enrol_user($plugin_instance, $user->id, $plugin_instance->roleid, $timestart, $timeend);
-        if ($plugin_instance->customint4 != ENROL_DO_NOT_SEND_EMAIL) {
+        if ($plugin_instance->customint2) {
+            groups_add_member($plugin_instance->customint2, $user);
+        }
+
+        if ($plugin_instance->customint1 != ENROL_DO_NOT_SEND_EMAIL) {
             $plugin->email_welcome_message($plugin_instance, $user);
         }
 

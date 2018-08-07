@@ -232,7 +232,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
 
         $subject = get_string('welcometocourse', 'enrol_self', format_string($course->fullname, true, array('context'=>$context)));
 
-        $sendoption = $instance->customint4;
+        $sendoption = $instance->customint1;
         $contact = $this->get_welcome_email_contact($sendoption, $context);
 
         // Directly emailing welcome message rather than using messaging.
@@ -433,13 +433,21 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $mform->setDefault('enrolenddate', 0);
         $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_ecommerce');
 
-        $mform->addElement('select', 'customint4', get_string('sendcoursewelcomemessage', 'enrol_self'),
+        $mform->addElement('select', 'customint1', get_string('sendcoursewelcomemessage', 'enrol_ecommerce'),
                 enrol_send_welcome_email_options());
-        $mform->addHelpButton('customint4', 'sendcoursewelcomemessage', 'enrol_self');
+        $mform->addHelpButton('customint1', 'sendcoursewelcomemessage', 'enrol_ecommerce');
 
         $options = array('cols' => '60', 'rows' => '8');
-        $mform->addElement('textarea', 'customtext1', get_string('customwelcomemessage', 'enrol_self'), $options);
-        $mform->addHelpButton('customtext1', 'customwelcomemessage', 'enrol_self');
+        $mform->addElement('textarea', 'customtext1', get_string('customwelcomemessage', 'enrol_ecommerce'), $options);
+        $mform->addHelpButton('customtext1', 'customwelcomemessage', 'enrol_ecommerce');
+
+        $groups = groups_get_all_groups($instance->courseid);
+        $options = array();
+        $options[0] = get_string('enrolnogroup', 'enrol_ecommerce');
+        foreach($groups as $group) {
+            $options[$group->id] = $group->name;
+        }
+        $mform->addElement('select', 'customint2', get_string('enrolgroup', 'enrol_ecommerce'), $options);
 
         if (enrol_accessing_via_instance($instance)) {
             $warningtext = get_string('instanceeditselfwarningtext', 'core_enrol');
