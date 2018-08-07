@@ -388,6 +388,22 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         return $roles;
     }
 
+    /**
+     * Return a JSON string to put in the customtext2 field.
+     *
+     * @param string $discount_code
+     * @param int $discount_type
+     * @param float $discount_value
+     * @return string
+     */
+    private function pack_discount_info($discount_code, $discount_type, $discount_value) {
+        $r = array();
+        $r['discount_code'] = $discount_code;
+        $r['discount_type'] = $discount_type;
+        $r['discount_value'] = $discount_value;
+
+        return json_encode($r);
+    }
 
     /**
      * Add elements to the edit instance form.
@@ -449,6 +465,24 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         }
         $mform->addElement('select', 'customint2', get_string('enrolgroup', 'enrol_ecommerce'), $options);
 
+        //Discount type radio buttons
+        $radioarray=array();
+        $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('nodiscount', 'enrol_ecommerce'), 0);
+        $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('percentdiscount', 'enrol_ecommerce'), 1);
+        $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('valuediscount', 'enrol_ecommerce'), 2);
+        $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_ecommerce'), array(' '), false);
+
+        //Discount amount - integer
+        $mform->addElement('text', 'customint4', get_string('discountamount', 'enrol_ecommerce'), array('size' => 4));
+        $mform->setType('customint4', PARAM_RAW);
+        $mform->setDefault('customint4', format_float($this->get_config('cost'), 2, true));
+        $mform->disabledIf('customint4', 'customint3', 'eq', 0);
+
+        //Discount code - text
+        $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_ecommerce'));
+        $mform->setType('customtext2', PARAM_TEXT);
+        $mform->disabledIf('customtext2', 'customint3', 'eq', 0);
+
         if (enrol_accessing_via_instance($instance)) {
             $warningtext = get_string('instanceeditselfwarningtext', 'core_enrol');
             $mform->addElement('static', 'selfwarn', get_string('instanceeditselfwarning', 'core_enrol'), $warningtext);
@@ -478,6 +512,11 @@ class enrol_ecommerce_plugin extends enrol_plugin {
             $errors['cost'] = get_string('costerror', 'enrol_ecommerce');
         }
 
+        $discount_amount = str_replace(get_string('decsep', 'langconfig'), '.', $data['customint4']);
+        if (!is_numeric($discount_amount)) {
+            $errors['discount_amount'] = get_string('discountamounterror', 'enrol_ecommerce');
+        }
+
         $validstatus = array_keys($this->get_status_options());
         $validcurrency = array_keys($this->get_currencies());
         $validroles = array_keys($this->get_roleid_options($instance, $context));
@@ -492,6 +531,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         );
 
         $typeerrors = $this->validate_param_types($data, $tovalidate);
+
         $errors = array_merge($errors, $typeerrors);
 
         return $errors;

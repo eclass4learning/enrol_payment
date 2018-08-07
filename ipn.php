@@ -246,12 +246,14 @@ if (strlen($result) > 0) {
 
         // Enrol user
         $plugin->enrol_user($plugin_instance, $user->id, $plugin_instance->roleid, $timestart, $timeend);
-        if ($plugin_instance->customint2) {
-            groups_add_member($plugin_instance->customint2, $user);
-        }
 
         if ($plugin_instance->customint1 != ENROL_DO_NOT_SEND_EMAIL) {
             $plugin->email_welcome_message($plugin_instance, $user);
+        }
+
+        // If group selection is not null
+        if ($plugin_instance->customint2) {
+            groups_add_member($plugin_instance->customint2, $user);
         }
 
         // Pass $view=true to filter hidden caps if the user cannot see them

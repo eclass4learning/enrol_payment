@@ -102,3 +102,11 @@ The following placeholders may be included in the message:
 * Link to user\'s profile page {$a->profileurl}
 * User email {$a->email}
 * User fullname {$a->fullname}';
+
+$string['discounttype'] = 'Discount type';
+$string['nodiscount'] = 'No discount';
+$string['percentdiscount'] = 'Percentage discount';
+$string['valuediscount'] = 'Value discount';
+$string['discountcode'] = 'Discount code';
+$string['discountamount'] = 'Discount amount';
+$string['discountamounterror'] = 'The discount amount is not numeric.';

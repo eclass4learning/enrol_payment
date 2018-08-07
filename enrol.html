@@ -2,7 +2,47 @@
 
 <p><?php print_string("paymentrequired") ?></p>
 <p><b><?php echo $instancename; ?></b></p>
-<p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
+<p id="localisedcost"><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
+
+<?php if ($instance->customint3): ?>
+<p style="width: 300px; margin: 0 auto;"><b>Discount code:</b></p>
+<span style="white-space: nowrap;"><input type="text" name="discountcode" id="discountcode" style="width: 100px;" />
+    <a id="applydiscount" class="btn" style="margin-bottom: 10px;">Apply Discount</a>
+</span>
+
+<script>
+
+    function checkDiscountCode() {
+        var discountcode = jQuery("#discountcode").val();
+        var checkURL = "<?php echo $CFG->wwwroot . '/enrol/ecommerce/check_discount.php'; ?>";
+
+        jQuery.ajax({
+            url: checkURL,
+            data: { 'discountcode': discountcode
+                  , 'instanceid': <?php echo $instance->id; ?>
+                  },
+            context: document.body,
+            success: function(r) {
+                var response = JSON.parse(r);
+                console.log(response["success"]);
+                if (response["success"]) {
+                    alert("Correct code.");
+                    //TODO
+                } else {
+                    alert("Invalid discount code.");
+                    //TODO
+                }
+            }
+        });
+
+    }
+
+    var applydiscount = document.getElementById("applydiscount");
+    applydiscount.addEventListener("click", checkDiscountCode);
+</script>
+
+<?php endif; ?>
+
 <p><img alt="<?php print_string('paypalaccepted', 'enrol_ecommerce') ?>" src="https://www.paypal.com/en_US/i/logo/PayPal_mark_60x38.gif" /></p>
 <p><?php print_string("paymentinstant") ?></p>
 <?php
