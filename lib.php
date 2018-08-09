@@ -238,6 +238,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         // Directly emailing welcome message rather than using messaging.
         email_to_user($user, $contact, $subject, $messagetext, $messagehtml);
     }
+
     /**
      * Creates course enrol form, checks if form submitted
      * and enrols user if necessary. It can also redirect.
@@ -472,11 +473,11 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('valuediscount', 'enrol_ecommerce'), 2);
         $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_ecommerce'), array(' '), false);
 
-        //Discount amount - integer
-        $mform->addElement('text', 'customint4', get_string('discountamount', 'enrol_ecommerce'), array('size' => 4));
-        $mform->setType('customint4', PARAM_RAW);
-        $mform->setDefault('customint4', format_float($this->get_config('cost'), 2, true));
-        $mform->disabledIf('customint4', 'customint3', 'eq', 0);
+        //Discount amount - float
+        $mform->addElement('text', 'customdec1', get_string('discountamount', 'enrol_ecommerce'), array('size' => 4));
+        $mform->setType('customdec1', PARAM_RAW);
+        $mform->setDefault('customdec1', format_float($this->get_config('cost'), 2, true));
+        $mform->disabledIf('customdec1', 'customint3', 'eq', 0);
 
         //Discount code - text
         $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_ecommerce'));
@@ -512,10 +513,16 @@ class enrol_ecommerce_plugin extends enrol_plugin {
             $errors['cost'] = get_string('costerror', 'enrol_ecommerce');
         }
 
-        $discount_amount = str_replace(get_string('decsep', 'langconfig'), '.', $data['customint4']);
+        $discount_amount = str_replace(get_string('decsep', 'langconfig'), '.', $data['customdec1']);
         if (!is_numeric($discount_amount)) {
-            $errors['discount_amount'] = get_string('discountamounterror', 'enrol_ecommerce');
+            $errors['customdec1'] = get_string('discountamounterror', 'enrol_ecommerce');
         }
+        $totaldigits = strlen(str_replace('.','',$discount_amount));
+        $digitsafterdecimal = strlen(substr(strrchr($discount_amount, "."), 1));
+        if ($totaldigits > 12 || $digitsafterdecimal > 7) {
+            $errors['customdec1'] = get_string('discountdigitserror', 'enrol_ecommerce');
+        }
+        error_log($totaldigits);
 
         $validstatus = array_keys($this->get_status_options());
         $validcurrency = array_keys($this->get_currencies());

@@ -35,6 +35,7 @@ define('NO_DEBUG_DISPLAY', true);
 // @codingStandardsIgnoreLine This script does not require login.
 require("../../config.php");
 require_once("lib.php");
+require_once('discountlib.php');
 require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
@@ -225,8 +226,15 @@ if (strlen($result) > 0) {
         $cost = format_float($cost, 2, false);
 
         if ($data->payment_gross < $cost) {
-            \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
-            die;
+            $discountdata = apply_discount($plugin_instance);
+            $roundedpayment = format_float($data->payment_gross, 2, false);
+            $discountedcost = $discountdata['discounted_cost'];
+            error_log("ROUNDED PAYMENT: $roundedpayment ... DISCOUNTED COST: $discountedcost");
+
+            if($roundedpayment + 0.01 < $discountedcost) {
+                \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
+                die;
+            }
 
         }
         // Use the queried course's full name for the item_name field.

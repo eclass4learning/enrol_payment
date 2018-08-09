@@ -110,3 +110,4 @@ $string['valuediscount'] = 'Value discount';
 $string['discountcode'] = 'Discount code';
 $string['discountamount'] = 'Discount amount';
 $string['discountamounterror'] = 'The discount amount is not numeric.';
+$string['discountdigitserror'] = 'The discount amount must have fewer than 12 digits.';

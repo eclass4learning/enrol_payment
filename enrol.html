@@ -2,7 +2,7 @@
 
 <p><?php print_string("paymentrequired") ?></p>
 <p><b><?php echo $instancename; ?></b></p>
-<p id="localisedcost"><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
+<b><p><?php echo get_string("cost").": {$instance->currency} "; ?><span id="localisedcost"><?php echo $localisedcost; ?></span></p></b>
 
 <?php if ($instance->customint3): ?>
 <p style="width: 300px; margin: 0 auto;"><b>Discount code:</b></p>
@@ -24,13 +24,14 @@
             context: document.body,
             success: function(r) {
                 var response = JSON.parse(r);
-                console.log(response["success"]);
                 if (response["success"]) {
-                    alert("Correct code.");
-                    //TODO
+                    console.log(response);
+                    var discounted_cost = response["discounted_cost"];
+                    var discounted_cost_localised = response["discounted_cost_localised"];
+                    jQuery("span#localisedcost").text(discounted_cost);
+                    jQuery("input[name=amount]").val(discounted_cost);
                 } else {
                     alert("Invalid discount code.");
-                    //TODO
                 }
             }
         });
