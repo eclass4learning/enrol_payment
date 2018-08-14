@@ -294,13 +294,16 @@ class enrol_ecommerce_plugin extends enrol_plugin {
             $localisedcost = format_float($cost, 2, true);
             $cost = format_float($cost, 2, false);
 
+            $wwwroot = $CFG->wwwroot;
+
             if (isguestuser()) { // force login only for guest user, not real users with guest role
-                $wwwroot = $CFG->wwwroot;
                 echo '<div class="mdl-align"><p>'.get_string('paymentrequired').'</p>';
                 echo '<p><b>'.get_string('cost').": $instance->currency $localisedcost".'</b></p>';
                 echo '<p><a href="'.$wwwroot.'/login/">'.get_string('loginsite').'</a></p>';
                 echo '</div>';
             } else {
+                $PAGE->requires->js_call_amd('enrol_ecommerce/enrolpage', 'init', [$instance->id, $wwwroot]);
+
                 //Sanitise some fields before building the PayPal form
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
                 $courseshortname = $shortname;
@@ -309,7 +312,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 $userlastname    = $USER->lastname;
                 $useraddress     = $USER->address;
                 $usercity        = $USER->city;
-                $shipping        = $instance->shipping ? 2 : 1;
+                $shipping        = $instance->customint4 ? 2 : 1;
                 $instancename    = $this->get_instance_name($instance);
                 $enablediscounts = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
 
@@ -418,6 +421,18 @@ class enrol_ecommerce_plugin extends enrol_plugin {
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $context) {
 
+        /**
+         * Custom fields:
+         *
+         * customint1 - Send course welcome message (bool)
+         * customint2 - Enrol user into a group (Group id)
+         * customint3 - Discount type (0: No discount, 1: Percentage discount, 2: Value discount)
+         * customint4 - require shipping info at checkout (bool)
+         *
+         * customtext1 - Custom welcome message
+         * customtext2 - Discount code
+         */
+
         $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
         $mform->setType('name', PARAM_TEXT);
 
@@ -488,7 +503,8 @@ class enrol_ecommerce_plugin extends enrol_plugin {
             $mform->disabledIf('customtext2', 'customint3', 'eq', 0);
         }
 
-        $mform->addElement('checkbox', 'customint4', get_string('requireshippinginfo', 'enrol_ecommerce'));
+        $mform->addElement('advcheckbox', 'customint4', get_string('requireshippinginfo', 'enrol_ecommerce'));
+        $mform->setType('customint4', PARAM_INT);
 
         if (enrol_accessing_via_instance($instance)) {
             $warningtext = get_string('instanceeditselfwarningtext', 'core_enrol');

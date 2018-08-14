@@ -10,39 +10,10 @@
     <a id="applydiscount" class="btn" style="margin-bottom: 10px;">Apply Discount</a>
 </span>
 
-<script>
-
-    function checkDiscountCode() {
-        var discountcode = jQuery("#discountcode").val();
-        var checkURL = "<?php echo $CFG->wwwroot . '/enrol/ecommerce/check_discount.php'; ?>";
-
-        jQuery.ajax({
-            url: checkURL,
-            data: { 'discountcode': discountcode
-                  , 'instanceid': <?php echo $instance->id; ?>
-                  },
-            context: document.body,
-            success: function(r) {
-                var response = JSON.parse(r);
-                if (response["success"]) {
-                    console.log(response);
-                    var discounted_cost = response["discounted_cost"];
-                    var discounted_cost_localised = response["discounted_cost_localised"];
-                    jQuery("span#localisedcost").text(discounted_cost);
-                    jQuery("input[name=amount]").val(discounted_cost);
-                } else {
-                    alert("Invalid discount code.");
-                }
-            }
-        });
-
-    }
-
-    var applydiscount = document.getElementById("applydiscount");
-    applydiscount.addEventListener("click", checkDiscountCode);
-</script>
-
 <?php endif; ?>
+
+<p>&nbsp;</p>
+<p><a id="multipleregistration" class="btn">Multiple Registration</a></p>
 
 <p><img alt="<?php print_string('paypalaccepted', 'enrol_ecommerce') ?>" src="https://www.paypal.com/en_US/i/logo/PayPal_mark_60x38.gif" /></p>
 <p><?php print_string("paymentinstant") ?></p>
@@ -66,7 +37,7 @@
 
 <input type="hidden" name="for_auction" value="false" />
 <input type="hidden" name="no_note" value="1" />
-<input type="hidden" name="no_shipping" value="<?php p($shipping) ?>">.
+<input type="hidden" name="no_shipping" value="<?php p($shipping) ?>">
 <input type="hidden" name="notify_url" value="<?php echo "$CFG->wwwroot/enrol/ecommerce/ipn.php"?>" />
 <input type="hidden" name="return" value="<?php echo "$CFG->wwwroot/enrol/ecommerce/return.php?id=$course->id" ?>" />
 <input type="hidden" name="cancel_return" value="<?php echo $CFG->wwwroot ?>" />
