@@ -7,20 +7,23 @@
 <?php if (($instance->customint3) && $enablediscounts): ?>
 <p style="width: 300px; margin: 0 auto;"><b>Discount code:</b></p>
 <span style="white-space: nowrap;"><input type="text" name="discountcode" id="discountcode" style="width: 100px;" />
-    <a id="applydiscount" class="btn" style="margin-bottom: 10px;">Apply Discount</a>
+    <a id="apply-discount" class="btn" style="margin-bottom: 10px;">Apply Discount</a>
 </span>
 
 <?php endif; ?>
 
 <p>&nbsp;</p>
-<p><a id="multipleregistration" class="btn">Multiple Registration</a></p>
+<div id="multiple-registration-container"></div>
+<div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr">Multiple Registration</a>
+<?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_ecommerce'))?>
+</div>
 
 <p><img alt="<?php print_string('paypalaccepted', 'enrol_ecommerce') ?>" src="https://www.paypal.com/en_US/i/logo/PayPal_mark_60x38.gif" /></p>
 <p><?php print_string("paymentinstant") ?></p>
 <?php
     $paypalurl = empty($CFG->usepaypalsandbox) ? 'https://www.paypal.com/cgi-bin/webscr' : 'https://www.sandbox.paypal.com/cgi-bin/webscr';
 ?>
-<form action="<?php echo $paypalurl ?>" method="post">
+<form id="enrol-ecommerce-checkout" action="<?php echo $paypalurl ?>" method="post">
 
 <input type="hidden" name="cmd" value="_xclick" />
 <input type="hidden" name="charset" value="utf-8" />
@@ -51,7 +54,7 @@
 <input type="hidden" name="email" value="<?php p($USER->email) ?>" />
 <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
 
-<input type="submit" value="<?php print_string("sendpaymentbutton", "enrol_ecommerce") ?>" />
+<input id="enrol-ecommerce-submit" type="submit" value="<?php print_string("sendpaymentbutton", "enrol_ecommerce") ?>" />
 
 </form>
 

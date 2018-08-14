@@ -303,6 +303,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 echo '</div>';
             } else {
                 $PAGE->requires->js_call_amd('enrol_ecommerce/enrolpage', 'init', [$instance->id, $wwwroot]);
+				$PAGE->requires->css('/enrol/ecommerce/style/styles.css');
 
                 //Sanitise some fields before building the PayPal form
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));

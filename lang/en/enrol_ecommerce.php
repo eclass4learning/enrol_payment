@@ -115,3 +115,5 @@ $string['enablediscounts'] = 'Enable discounts';
 $string['enablediscounts_help'] = 'Allow enrollment instances to include a discount code.';
 
 $string['requireshippinginfo'] = 'Require shipping info at checkout';
+$string['multipleregistration'] = 'Multiple Registration';
+$string['multipleregistration_help'] = 'Purchase a registration for multiple users.';
