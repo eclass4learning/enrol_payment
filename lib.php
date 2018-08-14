@@ -309,7 +309,9 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 $userlastname    = $USER->lastname;
                 $useraddress     = $USER->address;
                 $usercity        = $USER->city;
+                $shipping        = $instance->shipping ? 2 : 1;
                 $instancename    = $this->get_instance_name($instance);
+                $enablediscounts = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
 
                 include($CFG->dirroot.'/enrol/ecommerce/enrol.html');
             }
@@ -466,23 +468,27 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         }
         $mform->addElement('select', 'customint2', get_string('enrolgroup', 'enrol_ecommerce'), $options);
 
-        //Discount type radio buttons
-        $radioarray=array();
-        $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('nodiscount', 'enrol_ecommerce'), 0);
-        $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('percentdiscount', 'enrol_ecommerce'), 1);
-        $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('valuediscount', 'enrol_ecommerce'), 2);
-        $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_ecommerce'), array(' '), false);
+        if($this->get_config('enablediscounts')) {
+            //Discount type radio buttons
+            $radioarray=array();
+            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('nodiscount', 'enrol_ecommerce'), 0);
+            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('percentdiscount', 'enrol_ecommerce'), 1);
+            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('valuediscount', 'enrol_ecommerce'), 2);
+            $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_ecommerce'), array(' '), false);
 
-        //Discount amount - float
-        $mform->addElement('text', 'customdec1', get_string('discountamount', 'enrol_ecommerce'), array('size' => 4));
-        $mform->setType('customdec1', PARAM_RAW);
-        $mform->setDefault('customdec1', format_float($this->get_config('cost'), 2, true));
-        $mform->disabledIf('customdec1', 'customint3', 'eq', 0);
+            //Discount amount - float
+            $mform->addElement('text', 'customdec1', get_string('discountamount', 'enrol_ecommerce'), array('size' => 4));
+            $mform->setType('customdec1', PARAM_RAW);
+            $mform->setDefault('customdec1', format_float($this->get_config('cost'), 2, true));
+            $mform->disabledIf('customdec1', 'customint3', 'eq', 0);
 
-        //Discount code - text
-        $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_ecommerce'));
-        $mform->setType('customtext2', PARAM_TEXT);
-        $mform->disabledIf('customtext2', 'customint3', 'eq', 0);
+            //Discount code - text
+            $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_ecommerce'));
+            $mform->setType('customtext2', PARAM_TEXT);
+            $mform->disabledIf('customtext2', 'customint3', 'eq', 0);
+        }
+
+        $mform->addElement('checkbox', 'customint4', get_string('requireshippinginfo', 'enrol_ecommerce'));
 
         if (enrol_accessing_via_instance($instance)) {
             $warningtext = get_string('instanceeditselfwarningtext', 'core_enrol');

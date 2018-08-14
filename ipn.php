@@ -227,15 +227,20 @@ if (strlen($result) > 0) {
 
         if ($data->payment_gross < $cost) {
             $discountdata = apply_discount($plugin_instance);
-            $roundedpayment = format_float($data->payment_gross, 2, false);
-            $discountedcost = $discountdata['discounted_cost'];
-            error_log("ROUNDED PAYMENT: $roundedpayment ... DISCOUNTED COST: $discountedcost");
+            if ($discountdata['success']) {
+                $roundedpayment = format_float($data->payment_gross, 2, false);
+                $discountedcost = $discountdata['discounted_cost'];
+                error_log("ROUNDED PAYMENT: $roundedpayment ... DISCOUNTED COST: $discountedcost");
 
-            if($roundedpayment + 0.01 < $discountedcost) {
+                if($roundedpayment + 0.01 < $discountedcost) {
+                    \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
+                    die;
+                }
+            } else {
+                //This shouldn't happen, but if it does, the discount is just invalid.
                 \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
                 die;
             }
-
         }
         // Use the queried course's full name for the item_name field.
         $data->item_name = $course->fullname;

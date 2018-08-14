@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @param $instance enrol_ecommerce instance
+ * @return object with "success", "discounted_cost", and "discounted_cost_localised" fields.
+ */
 function apply_discount($instance) {
     $return = array("success" => true);
     $discount_amount = $instance->customdec1;

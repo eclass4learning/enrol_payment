@@ -77,4 +77,8 @@ if ($ADMIN->fulltree) {
             get_string('sendcoursewelcomemessage_help', 'enrol_ecommerce'),
             ENROL_SEND_EMAIL_FROM_COURSE_CONTACT,
             enrol_send_welcome_email_options()));
+
+    $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/enablediscounts',
+                                                    get_string('enablediscounts', 'enrol_ecommerce'),
+                                                    get_string('enablediscounts_help', 'enrol_ecommerce'),0));
 }

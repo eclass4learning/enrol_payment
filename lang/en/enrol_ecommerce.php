@@ -111,3 +111,7 @@ $string['discountcode'] = 'Discount code';
 $string['discountamount'] = 'Discount amount';
 $string['discountamounterror'] = 'The discount amount is not numeric.';
 $string['discountdigitserror'] = 'The discount amount must have fewer than 12 digits.';
+$string['enablediscounts'] = 'Enable discounts';
+$string['enablediscounts_help'] = 'Allow enrollment instances to include a discount code.';
+
+$string['requireshippinginfo'] = 'Require shipping info at checkout';
