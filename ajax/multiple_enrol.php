@@ -25,7 +25,15 @@ function get_moodle_users_by_emails($emails, $ret) {
 
     $ret["userids"] = $userids;
 
-    if (!$ret["success"]) {
+    if ($ret["success"]) {
+        try {
+            $ret["dbid"] = $DB->insert_record("enrol_ecommerce_multiple", array("userids" => implode(",",$userids)));
+        } catch (Exception $e) {
+            $ret["success"] = false;
+            $ret["failreason"] = "dbinserterror";
+            $ret["failmessage"] = $e->getMessage();
+        }
+    } else {
         $ret["failmessage"] = get_string("usersnotfoundwithemail", "enrol_ecommerce") . implode("\n- ", $notfound);
     }
 

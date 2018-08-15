@@ -143,9 +143,20 @@ define(['jquery'], function($) {
                 return div + label + emailEntryLine + this.makePlusAndMinusSigns(n,wwwroot) + endDiv;
             },
 
+            /**
+             * @param r the raw AJAX response
+             */
             handleEmailSubmitAJAXResponse: function(r) {
                 var response = JSON.parse(r);
                 if(response["success"]) {
+                    /**
+                     * In the custom field, we send along the ID of the row we
+                     * just added to the enrol_ecommerce_multiple table. The
+                     * only other field in this database table contains the
+                     * User IDs that we just purchased for. This row will be
+                     * accessed again only once (in the IPN system).
+                     */
+                    $("#enrol-ecommerce-checkout-custom").val(response["dbid"]);
                     alert(response["userids"]);
                 } else {
                     alert(response["failmessage"]);
