@@ -81,19 +81,28 @@ if (empty($data->custom)) {
     throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Missing request param: custom');
 }
 
-$custom = explode('-', $data->custom);
+$custom = $DB->get_record('enrol_ecommerce_ipn', ["id" => $data->custom], "*", MUST_EXIST);
+
 unset($data->custom);
 
-if (empty($custom) || count($custom) < 3) {
+if (empty($custom)) {
     throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Invalid value of the request param: custom');
 }
 
-$data->userid           = (int)$custom[0];
-$data->courseid         = (int)$custom[1];
-$data->instanceid       = (int)$custom[2];
+$data->userid           = (int)$custom->userid;
+$data->courseid         = (int)$custom->courseid;
+$data->instanceid       = (int)$custom->instanceid;
 $data->payment_gross    = $data->mc_gross;
 $data->payment_currency = $data->mc_currency;
 $data->timeupdated      = time();
+
+$multiple         = (bool)$custom->multiple;
+if ($multiple) {
+    $multiple_userids = explode(',',$custom->multiple_userids);
+    if(empty($multiple_userids)) {
+        throw new moodle_exception('invalidrequest', 'core_error', '', null, "Multiple purchase specified, but no userids found.");
+    }
+}
 
 $user = $DB->get_record("user", array("id" => $data->userid), "*", MUST_EXIST);
 $course = $DB->get_record("course", array("id" => $data->courseid), "*", MUST_EXIST);
@@ -135,7 +144,13 @@ if (strlen($result) > 0) {
         // and notify admin
 
         if ($data->payment_status != "Completed" and $data->payment_status != "Pending") {
-            $plugin->unenrol_user($plugin_instance, $data->userid);
+            if($multiple) {
+                foreach($multiple_userids as $muid) {
+                    $plugin->unenrol_user($plugin_instance, $muid);
+                }
+            } else {
+                $plugin->unenrol_user($plugin_instance, $data->userid);
+            }
             \enrol_ecommerce\util::message_paypal_error_to_admin("Status not completed or pending. User unenrolled from course",
                                                               $data);
             die;
@@ -257,17 +272,15 @@ if (strlen($result) > 0) {
             $timeend   = 0;
         }
 
-        // Enrol user
-        $plugin->enrol_user($plugin_instance, $user->id, $plugin_instance->roleid, $timestart, $timeend);
-
-        if ($plugin_instance->customint1 != ENROL_DO_NOT_SEND_EMAIL) {
-            $plugin->email_welcome_message($plugin_instance, $user);
+        if(!$multiple) {
+            //Make a singleton array so that we can do this whole thing in a foreach loop.
+            $multiple_userids = [$user->id];
         }
 
-        // If group selection is not null
-        if ($plugin_instance->customint2) {
-            groups_add_member($plugin_instance->customint2, $user);
-        }
+        $mailstudents = $plugin->get_config('mailstudents');
+        $mailteachers = $plugin->get_config('mailteachers');
+        $mailadmins   = $plugin->get_config('mailadmins');
+        $shortname = format_string($course->shortname, true, array('context' => $context));
 
         // Pass $view=true to filter hidden caps if the user cannot see them
         if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
@@ -278,70 +291,82 @@ if (strlen($result) > 0) {
             $teacher = false;
         }
 
-        $mailstudents = $plugin->get_config('mailstudents');
-        $mailteachers = $plugin->get_config('mailteachers');
-        $mailadmins   = $plugin->get_config('mailadmins');
-        $shortname = format_string($course->shortname, true, array('context' => $context));
+        foreach($multiple_userids as $uid) {
+            if (!$user = $DB->get_record('user', array('id'=>$uid))) {   // Check that user exists
+                \enrol_ecommerce\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
+                die;
+            }
+            // Enrol user
+            $plugin->enrol_user($plugin_instance, $user->id, $plugin_instance->roleid, $timestart, $timeend);
 
+            if ($plugin_instance->customint1 != ENROL_DO_NOT_SEND_EMAIL) {
+                $plugin->email_welcome_message($plugin_instance, $user);
+            }
 
-        if (!empty($mailstudents)) {
-            $a = new stdClass();
-            $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
-            $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
+            // If group selection is not null
+            if ($plugin_instance->customint2) {
+                groups_add_member($plugin_instance->customint2, $user);
+            }
 
-            $eventdata = new \core\message\message();
-            $eventdata->courseid          = $course->id;
-            $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_ecommerce';
-            $eventdata->name              = 'paypal_enrolment';
-            $eventdata->userfrom          = empty($teacher) ? core_user::get_noreply_user() : $teacher;
-            $eventdata->userto            = $user;
-            $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
-            $eventdata->fullmessage       = get_string('welcometocoursetext', '', $a);
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
-            $eventdata->fullmessagehtml   = '';
-            $eventdata->smallmessage      = '';
-            message_send($eventdata);
+            if (!empty($mailstudents)) {
+                $a = new stdClass();
+                $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
-        }
+                $eventdata = new \core\message\message();
+                $eventdata->courseid          = $course->id;
+                $eventdata->modulename        = 'moodle';
+                $eventdata->component         = 'enrol_ecommerce';
+                $eventdata->name              = 'paypal_enrolment';
+                $eventdata->userfrom          = empty($teacher) ? core_user::get_noreply_user() : $teacher;
+                $eventdata->userto            = $user;
+                $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
+                $eventdata->fullmessage       = get_string('welcometocoursetext', '', $a);
+                $eventdata->fullmessageformat = FORMAT_PLAIN;
+                $eventdata->fullmessagehtml   = '';
+                $eventdata->smallmessage      = '';
+                message_send($eventdata);
 
-        if (!empty($mailteachers) && !empty($teacher)) {
-            $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
-            $a->user = fullname($user);
+            }
 
-            $eventdata = new \core\message\message();
-            $eventdata->courseid          = $course->id;
-            $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_ecommerce';
-            $eventdata->name              = 'paypal_enrolment';
-            $eventdata->userfrom          = $user;
-            $eventdata->userto            = $teacher;
-            $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
-            $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
-            $eventdata->fullmessagehtml   = '';
-            $eventdata->smallmessage      = '';
-            message_send($eventdata);
-        }
+            if (!empty($mailteachers) && !empty($teacher)) {
+                $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->user = fullname($user);
 
-        if (!empty($mailadmins)) {
-            $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
-            $a->user = fullname($user);
-            $admins = get_admins();
-            foreach ($admins as $admin) {
                 $eventdata = new \core\message\message();
                 $eventdata->courseid          = $course->id;
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_ecommerce';
                 $eventdata->name              = 'paypal_enrolment';
                 $eventdata->userfrom          = $user;
-                $eventdata->userto            = $admin;
+                $eventdata->userto            = $teacher;
                 $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
                 $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
                 $eventdata->fullmessageformat = FORMAT_PLAIN;
                 $eventdata->fullmessagehtml   = '';
                 $eventdata->smallmessage      = '';
                 message_send($eventdata);
+            }
+
+            if (!empty($mailadmins)) {
+                $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->user = fullname($user);
+                $admins = get_admins();
+                foreach ($admins as $admin) {
+                    $eventdata = new \core\message\message();
+                    $eventdata->courseid          = $course->id;
+                    $eventdata->modulename        = 'moodle';
+                    $eventdata->component         = 'enrol_ecommerce';
+                    $eventdata->name              = 'paypal_enrolment';
+                    $eventdata->userfrom          = $user;
+                    $eventdata->userto            = $admin;
+                    $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
+                    $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
+                    $eventdata->fullmessageformat = FORMAT_PLAIN;
+                    $eventdata->fullmessagehtml   = '';
+                    $eventdata->smallmessage      = '';
+                    message_send($eventdata);
+                }
             }
         }
 

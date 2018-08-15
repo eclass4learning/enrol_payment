@@ -144,20 +144,21 @@ define(['jquery'], function($) {
             },
 
             /**
-             * @param r the raw AJAX response
+             * @param r The raw AJAX response
              */
             handleEmailSubmitAJAXResponse: function(r) {
                 var response = JSON.parse(r);
                 if(response["success"]) {
                     /**
-                     * In the custom field, we send along the ID of the row we
+                     * In the custom field, we tack on the ID of the row we
                      * just added to the enrol_ecommerce_multiple table. The
                      * only other field in this database table contains the
                      * User IDs that we just purchased for. This row will be
                      * accessed again only once (in the IPN system).
                      */
-                    $("#enrol-ecommerce-checkout-custom").val(response["dbid"]);
                     alert(response["userids"]);
+                    //TODO calculate new cost
+                    $("#enrol-ecommerce-checkout").submit();
                 } else {
                     alert(response["failmessage"]);
                 }
@@ -169,7 +170,7 @@ define(['jquery'], function($) {
              */
             verifyAndSubmit: function(instanceid, wwwroot) {
                 var self = this;
-                //Short circuit if multiple enrollment is not being used.
+
                 if (self.enabled) {
                     var emails = self.getEmails();
                     if (!emails.length) {
@@ -181,15 +182,16 @@ define(['jquery'], function($) {
                             method: "POST",
                             data: {
                                     'instanceid': instanceid,
-                                    'emails': JSON.stringify(emails)
+                                    'emails': JSON.stringify(emails),
+                                    'ipn_id': $("#enrol-ecommerce-checkout-custom").val()
                                   },
                             context: document.body,
                             success: self.handleEmailSubmitAJAXResponse
                         });
                     }
                 } else {
-                    //TODO
-                    alert("Not enabled. HELP.");
+                    //Short circuit if multiple enrollment is not being used.
+                    $("#enrol-ecommerce-checkout").submit();
                 }
 
             },

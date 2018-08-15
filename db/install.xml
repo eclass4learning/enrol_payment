@@ -39,13 +39,20 @@
         <INDEX NAME="receiver_email" UNIQUE="false" FIELDS="receiver_email"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="enrol_ecommerce_multiple" COMMENT="Holds information for multiple enrollment purchases">
+    <TABLE NAME="enrol_ecommerce_ipn" COMMENT="Holds fields that are sent through PayPal/Stripe and returned to IPN.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="userids" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated user IDs for this multiple enrollment"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+        <FIELD NAME="multiple" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Multiple enrollment?"/>
+        <FIELD NAME="multiple_userids" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated user IDs for multiple enrollment"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="instanceid" TYPE="foreign" FIELDS="instanceid" REFTABLE="enrol" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>

@@ -302,8 +302,16 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 echo '<p><a href="'.$wwwroot.'/login/">'.get_string('loginsite').'</a></p>';
                 echo '</div>';
             } else {
+                $ipndata = [ 'userid' => $USER->id
+                           , 'courseid' => $course->id
+                           , 'instanceid' => $instance->id
+                           , 'multiple' => false
+                           , 'multiple_userids' => null
+                           ];
+                $ipn_id = $DB->insert_record("enrol_ecommerce_ipn", $ipndata);
+
                 $PAGE->requires->js_call_amd('enrol_ecommerce/enrolpage', 'init', [$instance->id, $wwwroot]);
-				$PAGE->requires->css('/enrol/ecommerce/style/styles.css');
+                $PAGE->requires->css('/enrol/ecommerce/style/styles.css');
 
                 //Sanitise some fields before building the PayPal form
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));

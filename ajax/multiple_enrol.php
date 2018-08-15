@@ -6,6 +6,21 @@ require_once('../lang/en/enrol_ecommerce.php');
 
 global $DB;
 
+function update_ipn_data($userids, $ipn_id) {
+    global $DB;
+    try {
+        $data = [ "id" => $ipn_id
+                , "multiple" => true
+                , "multiple_userids" => implode(",",$userids)
+                ];
+        $DB->update_record("enrol_ecommerce_ipn", $data);
+    } catch (Exception $e) {
+        $ret["success"] = false;
+        $ret["failreason"] = "dbupdateerror";
+        $ret["failmessage"] = $e->getMessage();
+    }
+}
+
 function get_moodle_users_by_emails($emails, $ret) {
     global $DB;
     $notfound = array();
@@ -25,15 +40,7 @@ function get_moodle_users_by_emails($emails, $ret) {
 
     $ret["userids"] = $userids;
 
-    if ($ret["success"]) {
-        try {
-            $ret["dbid"] = $DB->insert_record("enrol_ecommerce_multiple", array("userids" => implode(",",$userids)));
-        } catch (Exception $e) {
-            $ret["success"] = false;
-            $ret["failreason"] = "dbinserterror";
-            $ret["failmessage"] = $e->getMessage();
-        }
-    } else {
+    if (!$ret["success"]) {
         $ret["failmessage"] = get_string("usersnotfoundwithemail", "enrol_ecommerce") . implode("\n- ", $notfound);
     }
 
@@ -43,6 +50,7 @@ function get_moodle_users_by_emails($emails, $ret) {
 $ret = array("success" => true);
 $emails = json_decode(stripslashes($_POST['emails']));
 $instanceid = $_POST['instanceid'];
+$ipn_id = $_POST['ipn_id'];
 
 if ($CFG->allowaccountssameemail) {
     $ret["success"] = false;
@@ -54,8 +62,11 @@ if ($CFG->allowaccountssameemail) {
     $ret["failmessage"] = get_string("duplicateemail", "enrol_ecommerce");
     echo json_encode($ret);
 } else {
-    error_log(print_r($emails, true));
-
     $ret = get_moodle_users_by_emails($emails, $ret);
+
+    if($ret["success"]) {
+        update_ipn_data($ret['userids'], $ipn_id);
+    }
+
     echo json_encode($ret);
 }

@@ -33,7 +33,7 @@
 <input type="hidden" name="quantity" value="1" />
 <input type="hidden" name="on0" value="<?php print_string("user") ?>" />
 <input type="hidden" name="os0" value="<?php p($userfullname) ?>" />
-<input type="hidden" name="custom" value="<?php echo "{$USER->id}-{$course->id}-{$instance->id}" ?>" />
+<input id="enrol-ecommerce-checkout-custom" type="hidden" name="custom" value="<?php echo "$ipn_id" ?>" />
 
 <input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
 <input type="hidden" name="amount" value="<?php p($cost) ?>" />
@@ -53,7 +53,6 @@
 <input type="hidden" name="city" value="<?php p($usercity) ?>" />
 <input type="hidden" name="email" value="<?php p($USER->email) ?>" />
 <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
-<input id="enrol-ecommerce-checkout-custom" type="hidden" name="custom" />
 
 <input id="enrol-ecommerce-submit" type="submit" value="<?php print_string("sendpaymentbutton", "enrol_ecommerce") ?>" />
 
