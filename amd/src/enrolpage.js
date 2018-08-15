@@ -4,6 +4,8 @@ define(['jquery'], function($) {
 
         MultipleRegistration: {
 
+            enabled: false,
+
             /**
              * Counts up to make sure no two email inputs will ever
              * have the same ID.
@@ -141,6 +143,46 @@ define(['jquery'], function($) {
                 return div + label + emailEntryLine + this.makePlusAndMinusSigns(n,wwwroot) + endDiv;
             },
 
+            handleEmailSubmitAJAXResponse: function(r) {
+                var response = JSON.parse(r);
+                if(response["success"]) {
+                    alert(response["userids"]);
+                } else {
+                    alert(response["failmessage"]);
+                }
+            },
+
+            /**
+             * Checks emails for multiple registration, and submits payment to
+             * PayPal.
+             */
+            verifyAndSubmit: function(instanceid, wwwroot) {
+                var self = this;
+                //Short circuit if multiple enrollment is not being used.
+                if (self.enabled) {
+                    var emails = self.getEmails();
+                    if (!emails.length) {
+                        alert("No valid emails have been entered.");
+                    } else {
+                        var ajaxURL = wwwroot + "/enrol/ecommerce/ajax/multiple_enrol.php";
+                        $.ajax({
+                            url: ajaxURL,
+                            method: "POST",
+                            data: {
+                                    'instanceid': instanceid,
+                                    'emails': JSON.stringify(emails)
+                                  },
+                            context: document.body,
+                            success: self.handleEmailSubmitAJAXResponse
+                        });
+                    }
+                } else {
+                    //TODO
+                    alert("Not enabled. HELP.");
+                }
+
+            },
+
             /**
              * Handles a click on the Multiple Registration button
              *
@@ -154,6 +196,8 @@ define(['jquery'], function($) {
                 //If the button is to enable, build the multiple registration
                 //form.
                 if(btn.hasClass('enable-mr')) {
+                    self.enabled = true;
+                    self.nextEmailID = 1;
                     //Build DOM for a multiple-registration form
 
                     btn.text("Cancel multiple registration");
@@ -163,11 +207,13 @@ define(['jquery'], function($) {
                     self.addPlusClickHandler($(".plus-container"), wwwroot);
 
                 } else if (btn.hasClass('disable-mr')) {
+                    self.enabled = false;
                     //Return to single registration mode
 
                     btn.text("Multiple Registration");
                     btn.removeClass('disable-mr').addClass('enable-mr');
                     $("#enrol-ecommerce-submit").val("Send payment via PayPal");
+                    $("#enrol-ecommerce-submit").removeClass('multiple-enrol');
                     $(".mr-email-line").remove();
                 }
             },
@@ -206,7 +252,7 @@ define(['jquery'], function($) {
             });
             $("#enrol-ecommerce-submit").click(function(e) {
                 e.preventDefault();
-                self.MultipleRegistration.getEmails();
+                self.MultipleRegistration.verifyAndSubmit(instanceid, wwwroot);
             });
         }
     };

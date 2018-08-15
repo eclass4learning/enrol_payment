@@ -117,3 +117,6 @@ $string['enablediscounts_help'] = 'Allow enrollment instances to include a disco
 $string['requireshippinginfo'] = 'Require shipping info at checkout';
 $string['multipleregistration'] = 'Multiple Registration';
 $string['multipleregistration_help'] = 'Purchase a registration for multiple users.';
+$string['sameemailaccountsallowed'] = "Error: Accounts sharing the same email address are allowed on this Moodle site. Because of this, the Multiple Registration cannot be used. Please contact your site administrator.";
+$string['duplicateemail'] = "Error: Duplicate emails were entered in the multiple registration form.";
+$string['usersnotfoundwithemail'] = "The following emails were not found in the Moodle database: ";

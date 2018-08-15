@@ -1,7 +1,7 @@
 <?php
 
-require_once('../../config.php');
-require_once('discountlib.php');
+require_once('../../../config.php');
+require_once('../discountlib.php');
 require_once("$CFG->libdir/moodlelib.php");
 
 global $DB;
