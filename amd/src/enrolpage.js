@@ -4,10 +4,16 @@ define(['jquery'], function($) {
 
         MultipleRegistration: {
 
-            //This just counts up to make sure no two email inputs will ever
-            //have the same ID.
+            /**
+             * Counts up to make sure no two email inputs will ever
+             * have the same ID.
+             */
             nextEmailID: 1,
 
+            /**
+             * Reads email input fields, ignoring any that are whitespace-only.
+             * @return An array of emails that have been inputted
+             */
             getEmails: function() {
                 var emails = [];
 
@@ -17,39 +23,78 @@ define(['jquery'], function($) {
                         emails.push(email);
                     }
                 });
-                alert(emails.toString());
+                return emails;
             },
 
+            /*
+             * Handles a click on the plus sign next to each email input field,
+             * adding a new input field and updating the enumeration.
+             *
+             * @param plus      The plus icon to attach a handler to
+             * @param wwwroot   Moodle's wwwroot string
+             */
             addPlusClickHandler: function(plus,wwwroot) {
                 var self = this;
 
                 plus.click(function() {
+                    // Get HTML for the field we will create
                     var nextHtml = self.makeEmailEntryLine(wwwroot);
+
+                    // Remove all plus signs (there should only be one at any
+                    // given time)
                     $(".plus-container").remove();
-                    $("#multiple-registration-container").append(nextHtml);
+
+                    // Add the new HTML to the bottom of our container, and update its click handlers.
+                    var newLine = $("#multiple-registration-container").append(nextHtml);
                     self.addPlusClickHandler($('.plus-container'), wwwroot);
-                    self.addMinusClickHandler($('.minus-container'), wwwroot);
+                    self.addMinusClickHandler(newLine.find('.minus-container'), wwwroot);
                 });
             },
 
+            /*
+             * Handles a click on the minus sign next to each email input field,
+             * adding a new input field and updating the enumeration.
+             *
+             * @param minus      The minus icon to attach a handler to
+             * @param wwwroot   Moodle's wwwroot string
+             */
             addMinusClickHandler: function(minus,wwwroot) {
                 var self = this;
+
                 minus.click(function() {
+                    //Pop the whole email input line off the DOM.
                     $(this).parent().remove();
-                    $(".plus-container").remove();
-                    $(".mr-email-line:last").append(self.makePlusSign(wwwroot));
+
+                    //Add a plus icon to the last line, if it's not already there
+                    if (! $(".mr-email-line:last .plus-container").length) {
+                        $(".mr-email-line:last").append(self.makePlusSign(wwwroot));
+                        self.addPlusClickHandler($('.plus-container'), wwwroot);
+                    }
+
+                    //Re-number our rows for the user
                     self.refreshEmailNums();
-                    self.addPlusClickHandler($('.plus-container'), wwwroot);
-                    self.addMinusClickHandler($('.minus-container'), wwwroot);
                 });
             },
 
+            /**
+             * Returns HTML for a plus icon
+             *
+             * @param wwwroot   Moodle's wwwroot string.
+             */
             makePlusSign: function(wwwroot) {
                 var plusSign = "<div class=\"plus-container\"><img src=\""
                              + wwwroot + "/enrol/ecommerce/pix/plus.svg\" class=\"plus\"></div>";
                 return plusSign;
             },
 
+            /**
+             * Returns HTML for a plus sign and a minus sign if there is more
+             * than one row already, and just a plus sign if there is only one
+             * row.
+             *
+             * @param n         Number of rows (including this one) that already exist
+             * @param wwwroot   Moodle's wwwroot string
+             */
             makePlusAndMinusSigns: function(n, wwwroot) {
                 var plusSign = this.makePlusSign(wwwroot);
                 var minusSign = "<div class=\"minus-container\"><img src=\""
@@ -61,7 +106,11 @@ define(['jquery'], function($) {
                 }
             },
 
-            //Re-number the email labels; return the next email number to use.
+            /**
+             * Re-numbers the email labels on the frontend.
+             *
+             * @return The next number to use.
+             */
             refreshEmailNums: function() {
                 var lastIndex = -1;
                 $('.email-num').each(function(index) {
@@ -71,6 +120,9 @@ define(['jquery'], function($) {
                 return lastIndex + 2;
             },
 
+            /**
+             * @return HTML for one row of the email entry form.
+             */
             makeEmailEntryLine: function(wwwroot) {
                 var self = this;
                 var m = self.refreshEmailNums();
@@ -84,14 +136,23 @@ define(['jquery'], function($) {
                 var emailEntryLine = "<input id=" + inputID + " type=\"text\" class=\"multiple-registration-email\" />";
                 var endDiv = "</div>";
 
+                // Passing n into makePlusAndMinusSigns works because the first
+                // row never gets a minus.
                 return div + label + emailEntryLine + this.makePlusAndMinusSigns(n,wwwroot) + endDiv;
             },
 
-            //Handle a click on the Multiple Registration button
+            /**
+             * Handles a click on the Multiple Registration button
+             *
+             * @param instanceid    Database ID of this plugin instance
+             * @param wwwroot       Moodle's wwwroot string
+             * @param btn           JQuery object for the button
+             */
             multipleRegistration: function(instanceid, wwwroot, btn) {
                 var self = this;
 
-
+                //If the button is to enable, build the multiple registration
+                //form.
                 if(btn.hasClass('enable-mr')) {
                     //Build DOM for a multiple-registration form
 

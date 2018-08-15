@@ -32,12 +32,13 @@
 }
 
 .mr-email-label-container {
-    width: 96px;
+    width: 86px;
     display: inline-block;
 }
 
 .mr-email-line {
     margin-bottom: 15px;
+    margin-right: 88px;
 }
 
 .mr-email-line label {
@@ -51,4 +52,5 @@
 
 #multiple-registration-btn-container {
     margin-bottom: 20px;
+    margin-left: 27px;
 }
