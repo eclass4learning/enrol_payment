@@ -6,8 +6,13 @@ require_once('../lang/en/enrol_ecommerce.php');
 
 global $DB;
 
-function update_ipn_data($userids, $ipn_id) {
+function update_ipn_data($users, $ipn_id) {
     global $DB;
+    $userids = array();
+    foreach($users as $u) {
+        array_push($userids, $u["id"]);
+    }
+
     try {
         $data = [ "id" => $ipn_id
                 , "multiple" => true
@@ -24,27 +29,35 @@ function update_ipn_data($userids, $ipn_id) {
 function get_moodle_users_by_emails($emails, $ret) {
     global $DB;
     $notfound = array();
-    $userids = array();
+    $users = array();
 
     foreach($emails as $email) {
-        $user = $DB->get_record('user', array('email' => $email), "id, email");
-        if(!$user) {
+        $user = $DB->get_record('user', array('email' => $email), "id, email, firstname, lastname");
+        if($user) {
+            $userdata = [ "id" => $user->id
+                        , "email" => $email
+                        , "name" => ($user->firstname . " " . $user->lastname)
+                        ];
+            array_push($users, $userdata);
+        } else {
             $ret["success"] = false;
             $ret["failreason"] = "usersnotfoundwithemail";
             array_push($notfound, $email);
-        } else {
-            array_push($userids, $user->id);
         }
 
     }
 
-    $ret["userids"] = $userids;
+    $ret["users"] = $users;
 
     if (!$ret["success"]) {
-        $ret["failmessage"] = get_string("usersnotfoundwithemail", "enrol_ecommerce") . implode("\n- ", $notfound);
+        $ret["failmessage"] = get_string("usersnotfoundwithemail", "enrol_ecommerce") . implode("<li>", $notfound) . "</ul>";
     }
 
     return $ret;
+}
+
+function pretty_print_user($u) {
+    return $u["name"] . " &lt;" . $u["email"] . "&gt;";
 }
 
 $ret = array("success" => true);
@@ -65,7 +78,10 @@ if ($CFG->allowaccountssameemail) {
     $ret = get_moodle_users_by_emails($emails, $ret);
 
     if($ret["success"]) {
-        update_ipn_data($ret['userids'], $ipn_id);
+        update_ipn_data($ret['users'], $ipn_id);
+        $ret["successmessage"] =
+            get_string("multipleregistrationconfirmuserlist", "enrol_ecommerce")
+          . implode("<li>", array_map("pretty_print_user", $ret["users"]));
     }
 
     echo json_encode($ret);

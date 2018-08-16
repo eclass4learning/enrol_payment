@@ -119,4 +119,5 @@ $string['multipleregistration'] = 'Multiple Registration';
 $string['multipleregistration_help'] = 'Purchase a registration for multiple users.';
 $string['sameemailaccountsallowed'] = "Error: Accounts sharing the same email address are allowed on this Moodle site. Because of this, the Multiple Registration cannot be used. Please contact your site administrator.";
 $string['duplicateemail'] = "Error: Duplicate emails were entered in the multiple registration form.";
-$string['usersnotfoundwithemail'] = "The following emails were not found in the Moodle database: ";
+$string['usersnotfoundwithemail'] = "The following emails were not found in the Moodle database: <br><ul><li>";
+$string['multipleregistrationconfirmuserlist'] = "You are purchasing a registration for the following users: <br><ul><li>";

@@ -1,7 +1,13 @@
-define(['jquery'], function($) {
+define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalFactory, ModalEvents) {
 
+    /**
+     * JavaScript functionality for the enrol_ecommerce enrol.html page
+     */
     var EnrolPage = {
 
+        /**
+         * Functions dealing with the multi-user registration system
+         */
         MultipleRegistration: {
 
             enabled: false,
@@ -146,21 +152,35 @@ define(['jquery'], function($) {
             /**
              * @param r The raw AJAX response
              */
-            handleEmailSubmitAJAXResponse: function(r) {
+            handleEmailSubmitAJAXResponse: function(discount, r) {
                 var response = JSON.parse(r);
                 if(response["success"]) {
-                    /**
-                     * In the custom field, we tack on the ID of the row we
-                     * just added to the enrol_ecommerce_multiple table. The
-                     * only other field in this database table contains the
-                     * User IDs that we just purchased for. This row will be
-                     * accessed again only once (in the IPN system).
-                     */
-                    alert(response["userids"]);
-                    //TODO calculate new cost
-                    $("#enrol-ecommerce-checkout").submit();
+
+                    //var modalInfo = self.createSuccessModalString(response["users"]);
+                    var trigger = $("#success-modal-trigger");
+                    trigger.off();
+                    ModalFactory.create({
+                        type: ModalFactory.types.SAVE_CANCEL,
+                        title: "Continue Checkout",
+                        body: response["successmessage"],
+                        savechanges: "Confirm",
+                        cancel: "Cancel"
+                    }, trigger).done(function(modal) {
+                        modal.getRoot().on(ModalEvents.save, function(e) {
+                            e.preventDefault();
+                            $("#enrol-ecommerce-checkout").submit();
+                        });
+                    });
+                    $("#success-modal-trigger").click();
                 } else {
-                    alert(response["failmessage"]);
+                    var trigger = $("#error-modal-trigger");
+                    trigger.off();
+                    ModalFactory.create({
+                        type: ModalFactory.types.DEFAULT,
+                        body: response["failmessage"],
+                        closebuttontitle: "Dismiss",
+                    }, trigger);
+                    $('#error-modal-trigger').click();
                 }
             },
 
@@ -168,32 +188,26 @@ define(['jquery'], function($) {
              * Checks emails for multiple registration, and submits payment to
              * PayPal.
              */
-            verifyAndSubmit: function(instanceid, wwwroot) {
+            verifyAndSubmit: function(instanceid, wwwroot, discount) {
                 var self = this;
 
-                if (self.enabled) {
-                    var emails = self.getEmails();
-                    if (!emails.length) {
-                        alert("No valid emails have been entered.");
-                    } else {
-                        var ajaxURL = wwwroot + "/enrol/ecommerce/ajax/multiple_enrol.php";
-                        $.ajax({
-                            url: ajaxURL,
-                            method: "POST",
-                            data: {
-                                    'instanceid': instanceid,
-                                    'emails': JSON.stringify(emails),
-                                    'ipn_id': $("#enrol-ecommerce-checkout-custom").val()
-                                  },
-                            context: document.body,
-                            success: self.handleEmailSubmitAJAXResponse
-                        });
-                    }
+                var emails = self.getEmails();
+                if (!emails.length) {
+                    alert("No valid emails have been entered.");
                 } else {
-                    //Short circuit if multiple enrollment is not being used.
-                    $("#enrol-ecommerce-checkout").submit();
+                    var ajaxURL = wwwroot + "/enrol/ecommerce/ajax/multiple_enrol.php";
+                    $.ajax({
+                        url: ajaxURL,
+                        method: "POST",
+                        data: {
+                                'instanceid': instanceid,
+                                'emails': JSON.stringify(emails),
+                                'ipn_id': $("#enrol-ecommerce-checkout-custom").val()
+                              },
+                        context: document.body,
+                        success: function(r) {self.handleEmailSubmitAJAXResponse(discount, r);}
+                    });
                 }
-
             },
 
             /**
@@ -264,8 +278,10 @@ define(['jquery'], function($) {
                 self.MultipleRegistration.multipleRegistration(instanceid, wwwroot, $(this));
             });
             $("#enrol-ecommerce-submit").click(function(e) {
-                e.preventDefault();
-                self.MultipleRegistration.verifyAndSubmit(instanceid, wwwroot);
+                if(self.MultipleRegistration.enabled) {
+                    e.preventDefault();
+                    self.MultipleRegistration.verifyAndSubmit(instanceid, wwwroot, self.Discount);
+                }
             });
         }
     };
