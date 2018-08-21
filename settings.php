@@ -32,6 +32,10 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext('enrol_ecommerce/paypalbusiness', get_string('businessemail', 'enrol_ecommerce'), get_string('businessemail_desc', 'enrol_ecommerce'), '', PARAM_EMAIL));
 
+    $settings->add(new admin_setting_configtext('enrol_ecommerce/stripesecretkey', get_string('stripesecretkey', 'enrol_ecommerce'), get_string('stripesecretkey_desc', 'enrol_ecommerce'), '', 0));
+
+    $settings->add(new admin_setting_configtext('enrol_ecommerce/stripepublishablekey', get_string('stripepublishablekey', 'enrol_ecommerce'), get_string('stripepublishablekey_desc', 'enrol_ecommerce'), '', 0));
+
     $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/mailstudents', get_string('mailstudents', 'enrol_ecommerce'), '', 0));
 
     $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/mailteachers', get_string('mailteachers', 'enrol_ecommerce'), '', 0));

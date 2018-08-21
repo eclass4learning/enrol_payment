@@ -152,7 +152,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
             /**
              * @param r The raw AJAX response
              */
-            handleEmailSubmitAJAXResponse: function(discount, r) {
+            handleEmailSubmitAJAXResponse: function(discount, r, provider) {
                 var response = JSON.parse(r);
                 if(response["success"]) {
 
@@ -168,7 +168,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
                     }, trigger).done(function(modal) {
                         modal.getRoot().on(ModalEvents.save, function(e) {
                             e.preventDefault();
-                            $("#enrol-ecommerce-checkout").submit();
+                            $("#enrol-ecommerce-paypal-checkout").submit();
                         });
                     });
                     $("#success-modal-trigger").click();
@@ -188,7 +188,11 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
              * Checks emails for multiple registration, and submits payment to
              * PayPal.
              */
-            verifyAndSubmit: function(instanceid, wwwroot, discount) {
+            verifyAndSubmit: function(instanceid, wwwroot, discount, provider) {
+                if((provider !== 'paypal') && (provider !== 'stripe')) {
+                    alert("Invalid payment provider.");
+                    throw new Error("Invalid payment provider.");
+                }
                 var self = this;
 
                 var emails = self.getEmails();
@@ -202,10 +206,10 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
                         data: {
                                 'instanceid': instanceid,
                                 'emails': JSON.stringify(emails),
-                                'ipn_id': $("#enrol-ecommerce-checkout-custom").val()
+                                'ipn_id': $("#enrol-ecommerce-paypal-checkout-custom").val()
                               },
                         context: document.body,
-                        success: function(r) {self.handleEmailSubmitAJAXResponse(discount, r);}
+                        success: function(r) {self.handleEmailSubmitAJAXResponse(discount, r, provider);}
                     });
                 }
             },
@@ -280,7 +284,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
             $("#enrol-ecommerce-submit").click(function(e) {
                 if(self.MultipleRegistration.enabled) {
                     e.preventDefault();
-                    self.MultipleRegistration.verifyAndSubmit(instanceid, wwwroot, self.Discount);
+                    self.MultipleRegistration.verifyAndSubmit(instanceid, wwwroot, self.Discount, provider);
                 }
             });
         }

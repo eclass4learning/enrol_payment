@@ -27,7 +27,7 @@
 <a id="error-modal-trigger"></a>
 <a id="success-modal-trigger"></a>
 
-<form id="enrol-ecommerce-checkout" action="<?php echo $paypalurl ?>" method="post">
+<form id="enrol-ecommerce-paypal-checkout" action="<?php echo $paypalurl ?>" method="post">
 
 <input type="hidden" name="cmd" value="_xclick" />
 <input type="hidden" name="charset" value="utf-8" />
@@ -58,7 +58,42 @@
 <input type="hidden" name="email" value="<?php p($USER->email) ?>" />
 <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
 
-<input id="enrol-ecommerce-submit" type="submit" value="<?php print_string("sendpaymentbutton", "enrol_ecommerce") ?>" />
+<input id="enrol-ecommerce-submit" type="submit" value="<?php print_string("sendpaymentbutton_paypal", "enrol_ecommerce") ?>" />
+
+</form>
+
+<!--TODO-->
+<form id="enrol-ecommerce-stripe-checkout" action="<?php echo $stripeurl ?>" method="post">
+
+<input type="hidden" name="cmd" value="_xclick" />
+<input type="hidden" name="charset" value="utf-8" />
+<input type="hidden" name="item_name" value="<?php p($coursefullname) ?>" />
+<input type="hidden" name="item_number" value="<?php p($courseshortname) ?>" />
+<input type="hidden" name="quantity" value="1" />
+<input type="hidden" name="on0" value="<?php print_string("user") ?>" />
+<input type="hidden" name="os0" value="<?php p($userfullname) ?>" />
+<input id="enrol-ecommerce-checkout-custom" type="hidden" name="custom" value="<?php echo "$ipn_id" ?>" />
+
+<input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
+<input type="hidden" name="amount" value="<?php p($cost) ?>" />
+
+<input type="hidden" name="for_auction" value="false" />
+<input type="hidden" name="no_note" value="1" />
+<input type="hidden" name="no_shipping" value="<?php p($shipping) ?>">
+<input type="hidden" name="notify_url" value="<?php echo "$CFG->wwwroot/enrol/ecommerce/ipn.php"?>" />
+<input type="hidden" name="return" value="<?php echo "$CFG->wwwroot/enrol/ecommerce/return.php?id=$course->id" ?>" />
+<input type="hidden" name="cancel_return" value="<?php echo $CFG->wwwroot ?>" />
+<input type="hidden" name="rm" value="2" />
+<input type="hidden" name="cbt" value="<?php print_string("continuetocourse") ?>" />
+
+<input type="hidden" name="first_name" value="<?php p($userfirstname) ?>" />
+<input type="hidden" name="last_name" value="<?php p($userlastname) ?>" />
+<input type="hidden" name="address" value="<?php p($useraddress) ?>" />
+<input type="hidden" name="city" value="<?php p($usercity) ?>" />
+<input type="hidden" name="email" value="<?php p($USER->email) ?>" />
+<input type="hidden" name="country" value="<?php p($USER->country) ?>" />
+
+<input id="enrol-ecommerce-submit" type="submit" value="<?php print_string("sendpaymentbutton_stripe", "enrol_ecommerce") ?>" />
 
 </form>
 
