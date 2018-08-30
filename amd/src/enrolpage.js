@@ -1,9 +1,43 @@
-define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalFactory, ModalEvents) {
+define([ 'jquery'
+       , 'core/modal_factory'
+       , 'core/modal_events'
+       , 'core/str'
+       , 'core/config'
+       , 'enrol_ecommerce/spin'
+       ],
+function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
 
     /**
      * JavaScript functionality for the enrol_ecommerce enrol.html page
      */
     var EnrolPage = {
+
+        /**
+         * Set at init time. Moodle strings
+         */
+        mdlstr: undefined,
+
+        /**
+         * The payment gateway that will be used. Either "paypal" or "stripe"
+         */
+        gateway: null,
+
+
+        /**
+         * Set at init time.
+         */
+        originalCost: undefined,
+
+        /**
+         * ID of this enrollment instance. Set at init time.
+         */
+        instanceid: undefined,
+
+        /**
+         * The number of students who are being enrolled
+         */
+        units: null,
+
 
         /**
          * Functions dealing with the multi-user registration system
@@ -39,14 +73,13 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
              * adding a new input field and updating the enumeration.
              *
              * @param plus      The plus icon to attach a handler to
-             * @param wwwroot   Moodle's wwwroot string
              */
-            addPlusClickHandler: function(plus,wwwroot) {
+            addPlusClickHandler: function(plus) {
                 var self = this;
 
                 plus.click(function() {
                     // Get HTML for the field we will create
-                    var nextHtml = self.makeEmailEntryLine(wwwroot);
+                    var nextHtml = self.makeEmailEntryLine();
 
                     // Remove all plus signs (there should only be one at any
                     // given time)
@@ -54,8 +87,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
 
                     // Add the new HTML to the bottom of our container, and update its click handlers.
                     var newLine = $("#multiple-registration-container").append(nextHtml);
-                    self.addPlusClickHandler($('.plus-container'), wwwroot);
-                    self.addMinusClickHandler(newLine.find('.minus-container'), wwwroot);
+                    self.addPlusClickHandler($('.plus-container'));
+                    self.addMinusClickHandler(newLine.find('.minus-container'));
                 });
             },
 
@@ -64,9 +97,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
              * adding a new input field and updating the enumeration.
              *
              * @param minus      The minus icon to attach a handler to
-             * @param wwwroot   Moodle's wwwroot string
              */
-            addMinusClickHandler: function(minus,wwwroot) {
+            addMinusClickHandler: function(minus) {
                 var self = this;
 
                 minus.click(function() {
@@ -75,8 +107,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
 
                     //Add a plus icon to the last line, if it's not already there
                     if (! $(".mr-email-line:last .plus-container").length) {
-                        $(".mr-email-line:last").append(self.makePlusSign(wwwroot));
-                        self.addPlusClickHandler($('.plus-container'), wwwroot);
+                        $(".mr-email-line:last").append(self.makePlusSign());
+                        self.addPlusClickHandler($('.plus-container'));
                     }
 
                     //Re-number our rows for the user
@@ -87,11 +119,10 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
             /**
              * Returns HTML for a plus icon
              *
-             * @param wwwroot   Moodle's wwwroot string.
              */
-            makePlusSign: function(wwwroot) {
+            makePlusSign: function() {
                 var plusSign = "<div class=\"plus-container\"><img src=\""
-                             + wwwroot + "/enrol/ecommerce/pix/plus.svg\" class=\"plus\"></div>";
+                             + MoodleCfg.wwwroot + "/enrol/ecommerce/pix/plus.svg\" class=\"plus\"></div>";
                 return plusSign;
             },
 
@@ -101,12 +132,11 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
              * row.
              *
              * @param n         Number of rows (including this one) that already exist
-             * @param wwwroot   Moodle's wwwroot string
              */
-            makePlusAndMinusSigns: function(n, wwwroot) {
-                var plusSign = this.makePlusSign(wwwroot);
+            makePlusAndMinusSigns: function(n) {
+                var plusSign = this.makePlusSign();
                 var minusSign = "<div class=\"minus-container\"><img src=\""
-                             + wwwroot + "/enrol/ecommerce/pix/minus.svg\" class=\"minus\"></div>";
+                             + MoodleCfg.wwwroot + "/enrol/ecommerce/pix/minus.svg\" class=\"minus\"></div>";
                 if (n > 1) {
                     return plusSign + minusSign;
                 } else {
@@ -131,7 +161,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
             /**
              * @return HTML for one row of the email entry form.
              */
-            makeEmailEntryLine: function(wwwroot) {
+            makeEmailEntryLine: function() {
                 var self = this;
                 var m = self.refreshEmailNums();
                 var n = self.nextEmailID;
@@ -146,32 +176,46 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
 
                 // Passing n into makePlusAndMinusSigns works because the first
                 // row never gets a minus.
-                return div + label + emailEntryLine + this.makePlusAndMinusSigns(n,wwwroot) + endDiv;
+                return div + label + emailEntryLine + this.makePlusAndMinusSigns(n) + endDiv;
+            },
+
+            checkoutConfirmModal: function(enrolPage, successmessage) {
+                var trigger = $("#success-modal-trigger");
+                trigger.off();
+
+                ModalFactory.create({
+                    type: ModalFactory.types.SAVE_CANCEL,
+                    title: "Continue Checkout",
+                    body: successmessage,
+                }, trigger).done(function(modal) {
+                    modal.setSaveButtonText("Confirm Payment");
+                    modal.getRoot().on(ModalEvents.save, function(e) {
+                        e.preventDefault();
+                        if(enrolPage.gateway === "paypal") {
+                            $("#paypal-form").submit();
+                        } else if(enrolPage.gateway === "stripe") {
+                            enrolPage.stripeCheckout();
+                        } else {
+                            throw new Error(enrolPage.mdlstr["invalidgateway"]);
+                        }
+                    });
+                });
+
+                $("#success-modal-trigger").click();
             },
 
             /**
              * @param r The raw AJAX response
              */
-            handleEmailSubmitAJAXResponse: function(discount, r, provider) {
+            handleEmailSubmitAJAXResponse: function(r, enrolPage) {
+                var self = this;
                 var response = JSON.parse(r);
                 if(response["success"]) {
+                    enrolPage.units = response["users"].length;
+                    enrolPage.calculateCost();
 
-                    //var modalInfo = self.createSuccessModalString(response["users"]);
-                    var trigger = $("#success-modal-trigger");
-                    trigger.off();
-                    ModalFactory.create({
-                        type: ModalFactory.types.SAVE_CANCEL,
-                        title: "Continue Checkout",
-                        body: response["successmessage"],
-                        savechanges: "Confirm",
-                        cancel: "Cancel"
-                    }, trigger).done(function(modal) {
-                        modal.getRoot().on(ModalEvents.save, function(e) {
-                            e.preventDefault();
-                            $("#enrol-ecommerce-paypal-checkout").submit();
-                        });
-                    });
-                    $("#success-modal-trigger").click();
+                    self.checkoutConfirmModal(enrolPage, response["successmessage"]);
+
                 } else {
                     var trigger = $("#error-modal-trigger");
                     trigger.off();
@@ -188,40 +232,44 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
              * Checks emails for multiple registration, and submits payment to
              * PayPal.
              */
-            verifyAndSubmit: function(instanceid, wwwroot, discount, provider) {
-                if((provider !== 'paypal') && (provider !== 'stripe')) {
+            verifyAndSubmit: function(enrolPage) {
+                var self = this;
+
+                if((enrolPage.gateway !== 'paypal') && (enrolPage.gateway !== 'stripe')) {
                     alert("Invalid payment provider.");
                     throw new Error("Invalid payment provider.");
                 }
-                var self = this;
 
                 var emails = self.getEmails();
+
                 if (!emails.length) {
                     alert("No valid emails have been entered.");
                 } else {
-                    var ajaxURL = wwwroot + "/enrol/ecommerce/ajax/multiple_enrol.php";
+                    var ajaxURL = MoodleCfg.wwwroot + "/enrol/ecommerce/ajax/multiple_enrol.php";
                     $.ajax({
                         url: ajaxURL,
                         method: "POST",
                         data: {
-                                'instanceid': instanceid,
+                                'instanceid': enrolPage.instanceid,
                                 'emails': JSON.stringify(emails),
-                                'ipn_id': $("#enrol-ecommerce-paypal-checkout-custom").val()
+                                'ipn_id': $("#" + enrolPage.gateway + "-custom").val()
                               },
                         context: document.body,
-                        success: function(r) {self.handleEmailSubmitAJAXResponse(discount, r, provider);}
+                        success: function(r) {
+                            self.handleEmailSubmitAJAXResponse(r, enrolPage);
+                        }
                     });
                 }
+
             },
 
             /**
-             * Handles a click on the Multiple Registration button
+             * Handles a click on the Multiple Registration button and builds
+             * the Multiple Registration form
              *
-             * @param instanceid    Database ID of this plugin instance
-             * @param wwwroot       Moodle's wwwroot string
              * @param btn           JQuery object for the button
              */
-            multipleRegistration: function(instanceid, wwwroot, btn) {
+            buildForm: function(btn) {
                 var self = this;
 
                 //If the button is to enable, build the multiple registration
@@ -233,9 +281,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
 
                     btn.text("Cancel multiple registration");
                     btn.removeClass('enable-mr').addClass('disable-mr');
-                    $("#enrol-ecommerce-submit").val("Verify emails and send payment");
-                    $("#multiple-registration-container").html(this.makeEmailEntryLine(wwwroot));
-                    self.addPlusClickHandler($(".plus-container"), wwwroot);
+                    $("#multiple-registration-container").html(this.makeEmailEntryLine());
+                    self.addPlusClickHandler($(".plus-container"));
 
                 } else if (btn.hasClass('disable-mr')) {
                     self.enabled = false;
@@ -243,30 +290,33 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
 
                     btn.text("Multiple Registration");
                     btn.removeClass('disable-mr').addClass('enable-mr');
-                    $("#enrol-ecommerce-submit").val("Send payment via PayPal");
-                    $("#enrol-ecommerce-submit").removeClass('multiple-enrol');
                     $(".mr-email-line").remove();
                 }
             },
         },
 
         Discount: {
-            checkDiscountCode: function(instanceid, wwwroot) {
+            //Must be "percent","value", or null
+            discountType: null,
+            discountAmount: 0.00,
+
+            checkDiscountCode: function(enrolPage) {
+                var self = this;
                 var discountcode = $("#discountcode").val();
-                var checkURL = wwwroot + "/enrol/ecommerce/check_discount.php";
+                var checkURL = MoodleCfg.wwwroot + "/enrol/ecommerce/ajax/check_discount.php";
 
                 $.ajax({
                     url: checkURL,
                     data: { 'discountcode': discountcode
-                          , 'instanceid': instanceid
+                          , 'instanceid': enrolPage.instanceid
                           },
                     context: document.body,
                     success: function(r) {
                         var response = JSON.parse(r);
                         if (response["success"]) {
-                            var discounted_cost = response["discounted_cost"];
-                            $("span#localisedcost").text(discounted_cost);
-                            $("input[name=amount]").val(discounted_cost);
+                            self.discountType = response["discount_type"];
+                            self.discountAmount = response["discount_amount"];
+                            enrolPage.calculateCost();
                         } else {
                             alert("Invalid discount code.");
                         }
@@ -275,17 +325,144 @@ define(['jquery', 'core/modal_factory', 'core/modal_events'], function($, ModalF
             },
         },
 
-        init: function(instanceid,wwwroot) {
+        calculateCost: function() {
+            if (this.Discount.discountType === "value") {
+                var totalCost = (this.units * this.originalCost) -
+                    (this.units * this.Discount.discountAmount);
+            } else if (this.Discount.discountType === "percent") {
+                var totalCost = (this.units * this.originalCost) -
+                    (this.Discount.discountAmount * this.originalCost * this.units);
+            } else if (this.Discount.discountType === null) {
+                var totalCost = this.units * this.originalCost;
+            } else {
+                throw new Error(this.mdlstr["discounttypeerror"]);
+            }
+
+            this.setCostView(Number.parseFloat(totalCost).toFixed(2));
+            return(totalCost);
+        },
+
+        setCostView: function(newcost) {
+            $("span#localisedcost").text(newcost);
+            $("input[name=amount]").val(newcost);
+        },
+
+        stripeCheckout: function(courseFullName) {
             var self = this;
-            $("#apply-discount").click(function() { self.Discount.handleDiscountCode(instanceid, wwwroot); });
-            $("#multiple-registration-btn").click(function() {
-                self.MultipleRegistration.multipleRegistration(instanceid, wwwroot, $(this));
+
+            $.getScript("https://checkout.stripe.com/checkout.js", function() {
+                //StripeCheckout is now globally available, but we will only use it here.
+
+                var stripeHandler = StripeCheckout.configure({ //eslint-disable-line no-undef
+                  key: self.stripePublishableKey,
+                  image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+                  locale: 'auto',
+                  shippingAddress: self.shippingAddressRequired,
+                  token: function(token) {
+                      $('#enrol-ecommerce-stripe-checkout')
+                          .append('<input type="hidden" name="stripeToken" value="' + token.id + '" />')
+                          .append('<input type="hidden" name="stripeTokenType" value="' + token.type + '" />')
+                          .append('<input type="hidden" name="stripeEmail" value="' + token.email + '" />')
+                          .submit();
+                  }
+                });
+
+                stripeHandler.open({
+                    name: courseFullName,
+                    description: "Test description",
+                    zipCode: true,
+                    amount: self.calculateCost
+                });
+
+            }).fail(function() {
+                throw new Error("Could not load Stripe checkout library.");
             });
-            $("#enrol-ecommerce-submit").click(function(e) {
-                if(self.MultipleRegistration.enabled) {
-                    e.preventDefault();
-                    self.MultipleRegistration.verifyAndSubmit(instanceid, wwwroot, self.Discount, provider);
+        },
+
+        initClickHandlers: function() {
+            var self = this;
+
+            $("#apply-discount").click(function() {
+                self.Discount.checkDiscountCode(self);
+            });
+
+            $("#multiple-registration-btn").click(function() {
+                self.MultipleRegistration.buildForm($(this));
+            });
+
+            $(".ecommerce-checkout").click(function(e) {
+                e.preventDefault();
+                if (e.target.id === "paypal-button") {
+                    self.gateway = "paypal";
+                } else if (e.target.id === "stripe-button") {
+                    self.gateway = "stripe";
                 }
+
+                if(self.MultipleRegistration.enabled) {
+                    self.MultipleRegistration.verifyAndSubmit(self);
+                } else {
+                    self.units = 1;
+                    if (self.gateway === "paypal") {
+                        //Simple PayPal checkout
+                        $("#paypal-form").submit();
+                    } else if (self.gateway === "stripe") {
+                        //Simple Stripe checkout
+                        self.stripeCheckout();
+                    } else {
+                        alert(self.mdlstr["invalidgateway"]);
+                    }
+                }
+            });
+        },
+
+        init: function( instanceid
+                      , stripePublishableKey
+                      , cost
+                      , courseFullName
+                      , shippingRequired ) {
+
+            var self = this;
+
+            var opts = {
+              lines: 13, // The number of lines to draw
+              length: 38, // The length of each line
+              width: 17, // The line thickness
+              radius: 45, // The radius of the inner circle
+              scale: 0.65, // Scales overall size of the spinner
+              corners: 1, // Corner roundness (0..1)
+              color: '#ffffff', // CSS color or array of colors
+              fadeColor: 'transparent', // CSS color or array of colors
+              speed: 1, // Rounds per second
+              rotate: 0, // The rotation offset
+              animation: 'spinner-line-fade-quick', // The CSS animation name for the lines
+              direction: 1, // 1: clockwise, -1: counterclockwise
+              zIndex: 2e9, // The z-index (defaults to 2000000000)
+              className: 'spinner', // The CSS class to assign to the spinner
+              top: '50%', // Top position relative to parent
+              left: '50%', // Left position relative to parent
+              shadow: '0 0 1px transparent', // Box-shadow for the lines
+              position: 'absolute' // Element positioning
+            };
+
+            var target = document.getElementById('enrolpage');
+            new Spinner(opts).spin(target);
+
+            var str_promise = MoodleStrings.get_strings([
+                    { key : "discounttypeerror" , component : "enrol_ecommerce" },
+                    { key : "discountamounterror" , component : "enrol_ecommerce" },
+                    { key : "invalidgateway" , component : "enrol_ecommerce" }
+            ]);
+            str_promise.done(function(strs) {
+                self.mdlstr = strs;
+                self.originalCost = cost;
+                self.instanceid = instanceid;
+                self.stripePublishableKey = stripePublishableKey;
+                self.courseFullName = courseFullName;
+                self.units = 1;
+                self.shippingRequired = shippingRequired;
+
+                self.initClickHandlers();
+                self.calculateCost();
             });
         }
     };

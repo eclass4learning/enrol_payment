@@ -110,10 +110,15 @@ $string['percentdiscount'] = 'Percentage discount';
 $string['valuediscount'] = 'Value discount';
 $string['discountcode'] = 'Discount code';
 $string['discountamount'] = 'Discount amount';
+$string['discounttypeerror'] = 'Invalid discount type.';
 $string['discountamounterror'] = 'The discount amount is not numeric.';
 $string['discountdigitserror'] = 'The discount amount must have fewer than 12 digits.';
+$string['negativediscounterror'] = 'The discount amount cannot be negative.';
+$string['percentdiscountover100error'] = 'A percentage discount cannot be set above 100.';
 $string['enablediscounts'] = 'Enable discounts';
 $string['enablediscounts_help'] = 'Allow enrollment instances to include a discount code.';
+$string['nogatewayenabled'] = 'PayPal and Stripe are not configured for this site. Please contact the site administrator.';
+$string['invalidgateway'] = 'Unrecognized payment gateway. Please contact the site administrator.';
 
 $string['requireshippinginfo'] = 'Require shipping info at checkout';
 $string['multipleregistration'] = 'Multiple Registration';
@@ -127,3 +132,4 @@ $string['stripesecretkey'] = "Stripe Secret Key";
 $string['stripesecretkey_desc'] = "The API secret key of your Stripe account";
 $string['stripepublishablekey'] = "Stripe Publishable Key";
 $string['stripepublishablekey_desc'] = "The API Publishable Key of your Stripe account";
+

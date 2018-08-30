@@ -296,6 +296,11 @@ class enrol_ecommerce_plugin extends enrol_plugin {
 
             $wwwroot = $CFG->wwwroot;
 
+            $paypal_enabled = (bool) trim($this->get_config('paypalbusiness'));
+            $stripe_enabled = ((bool) trim($this->get_config('stripesecretkey'))) && ((bool) trim($this->get_config('stripepublishablekey')));
+            $gateways_enabled = ((int) $paypal_enabled) + ((int) $stripe_enabled);
+            $stripepublishablekey = $stripe_enabled ? $this->get_config('stripepublishablekey') : null;
+
             if (isguestuser()) { // force login only for guest user, not real users with guest role
                 echo '<div class="mdl-align"><p>'.get_string('paymentrequired').'</p>';
                 echo '<p><b>'.get_string('cost').": $instance->currency $localisedcost".'</b></p>';
@@ -310,18 +315,24 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                            ];
                 $ipn_id = $DB->insert_record("enrol_ecommerce_ipn", $ipndata);
 
-                $PAGE->requires->js_call_amd('enrol_ecommerce/enrolpage', 'init', [$instance->id, $wwwroot]);
+                $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
+                $js_data = [ $instance->id
+                           , $stripepublishablekey
+                           , $cost
+                           , $coursefullname
+                           , $instance->customint4 //Shipping required?
+                           ];
+                $PAGE->requires->js_call_amd('enrol_ecommerce/enrolpage', 'init', $js_data);
                 $PAGE->requires->css('/enrol/ecommerce/style/styles.css');
 
                 //Sanitise some fields before building the PayPal form
-                $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
                 $courseshortname = $shortname;
                 $userfullname    = fullname($USER);
                 $userfirstname   = $USER->firstname;
                 $userlastname    = $USER->lastname;
                 $useraddress     = $USER->address;
                 $usercity        = $USER->city;
-                $shipping        = $instance->customint4 ? 2 : 1;
+                $paypalshipping  = $instance->customint4 ? 2 : 1;
                 $instancename    = $this->get_instance_name($instance);
                 $enablediscounts = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
 
