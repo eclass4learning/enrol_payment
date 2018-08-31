@@ -119,6 +119,7 @@ $string['enablediscounts'] = 'Enable discounts';
 $string['enablediscounts_help'] = 'Allow enrollment instances to include a discount code.';
 $string['nogatewayenabled'] = 'PayPal and Stripe are not configured for this site. Please contact the site administrator.';
 $string['invalidgateway'] = 'Unrecognized payment gateway. Please contact the site administrator.';
+$string['notenoughunits'] = 'Attempting to make a purchase for fewer than 1 users.';
 
 $string['requireshippinginfo'] = 'Require shipping info at checkout';
 $string['multipleregistration'] = 'Multiple Registration';
@@ -132,4 +133,3 @@ $string['stripesecretkey'] = "Stripe Secret Key";
 $string['stripesecretkey_desc'] = "The API secret key of your Stripe account";
 $string['stripepublishablekey'] = "Stripe Publishable Key";
 $string['stripepublishablekey_desc'] = "The API Publishable Key of your Stripe account";
-

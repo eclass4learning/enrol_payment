@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/group/lib.php');
 set_exception_handler(\enrol_ecommerce\util::get_exception_handler());
 
 // Make sure we are enabled in the first place.
-if (!enrol_is_enabled('paypal')) {
+if (!enrol_is_enabled('ecommerce')) {
     http_response_code(503);
     throw new moodle_exception('errdisabled', 'enrol_ecommerce');
 }

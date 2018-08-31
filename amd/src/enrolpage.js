@@ -22,11 +22,15 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
          */
         gateway: null,
 
-
         /**
          * Set at init time.
          */
         originalCost: undefined,
+
+        /**
+         * Subtotal used for purchase.
+         */
+        subtotal: undefined,
 
         /**
          * ID of this enrollment instance. Set at init time.
@@ -34,10 +38,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
         instanceid: undefined,
 
         /**
-         * The number of students who are being enrolled
+         * Unique ID for this potential purchase
          */
-        units: null,
-
+        paymentUUID: undefined,
 
         /**
          * Functions dealing with the multi-user registration system
@@ -191,13 +194,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                     modal.setSaveButtonText("Confirm Payment");
                     modal.getRoot().on(ModalEvents.save, function(e) {
                         e.preventDefault();
-                        if(enrolPage.gateway === "paypal") {
-                            $("#paypal-form").submit();
-                        } else if(enrolPage.gateway === "stripe") {
-                            enrolPage.stripeCheckout();
-                        } else {
-                            throw new Error(enrolPage.mdlstr["invalidgateway"]);
-                        }
+                        enrolPage.checkoutFinal();
                     });
                 });
 
@@ -211,11 +208,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                 var self = this;
                 var response = JSON.parse(r);
                 if(response["success"]) {
-                    enrolPage.units = response["users"].length;
-                    enrolPage.calculateCost();
-
+                    enrolPage.subtotal = response["subtotal"];
+                    enrolPage.updateCostView();
                     self.checkoutConfirmModal(enrolPage, response["successmessage"]);
-
                 } else {
                     var trigger = $("#error-modal-trigger");
                     trigger.off();
@@ -250,9 +245,10 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                         url: ajaxURL,
                         method: "POST",
                         data: {
-                                'instanceid': enrolPage.instanceid,
-                                'emails': JSON.stringify(emails),
-                                'ipn_id': $("#" + enrolPage.gateway + "-custom").val()
+                                'instanceid'  : enrolPage.instanceid
+                              , 'paymentuuid' : enrolPage.paymentUUID
+                              , 'emails'      : JSON.stringify(emails)
+                              , 'ipn_id'      : $("#" + enrolPage.gateway + "-custom").val()
                               },
                         context: document.body,
                         success: function(r) {
@@ -296,10 +292,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
         },
 
         Discount: {
-            //Must be "percent","value", or null
-            discountType: null,
-            discountAmount: 0.00,
-
             checkDiscountCode: function(enrolPage) {
                 var self = this;
                 var discountcode = $("#discountcode").val();
@@ -307,16 +299,15 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
 
                 $.ajax({
                     url: checkURL,
-                    data: { 'discountcode': discountcode
-                          , 'instanceid': enrolPage.instanceid
+                    data: { 'discountcode' : discountcode
+                          , 'instanceid'   : enrolPage.instanceid
+                          , 'paymentuuid'  : enrolPage.paymentUUID
                           },
                     context: document.body,
                     success: function(r) {
                         var response = JSON.parse(r);
                         if (response["success"]) {
-                            self.discountType = response["discount_type"];
-                            self.discountAmount = response["discount_amount"];
-                            enrolPage.calculateCost();
+                            enrolPage.subtotal = response["subtotal"];
                         } else {
                             alert("Invalid discount code.");
                         }
@@ -325,26 +316,19 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
             },
         },
 
-        calculateCost: function() {
-            if (this.Discount.discountType === "value") {
-                var totalCost = (this.units * this.originalCost) -
-                    (this.units * this.Discount.discountAmount);
-            } else if (this.Discount.discountType === "percent") {
-                var totalCost = (this.units * this.originalCost) -
-                    (this.Discount.discountAmount * this.originalCost * this.units);
-            } else if (this.Discount.discountType === null) {
-                var totalCost = this.units * this.originalCost;
+        checkoutFinal: function() {
+            if(enrolPage.gateway === "paypal") {
+                $("#paypal-form").submit();
+            } else if(enrolPage.gateway === "stripe") {
+                this.stripeCheckout();
             } else {
-                throw new Error(this.mdlstr["discounttypeerror"]);
+                throw new Error(this.mdlstr["invalidgateway"]);
             }
+        }
 
-            this.setCostView(Number.parseFloat(totalCost).toFixed(2));
-            return(totalCost);
-        },
-
-        setCostView: function(newcost) {
-            $("span#localisedcost").text(newcost);
-            $("input[name=amount]").val(newcost);
+        updateCostView: function() {
+            $("span#localisedcost").text(this.subtotal);
+            $("input[name=amount]").val(this.subtotal);
         },
 
         stripeCheckout: function(courseFullName) {
@@ -357,7 +341,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                   key: self.stripePublishableKey,
                   image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
                   locale: 'auto',
-                  shippingAddress: self.shippingAddressRequired,
+                  shippingAddress: true,
                   token: function(token) {
                       $('#enrol-ecommerce-stripe-checkout')
                           .append('<input type="hidden" name="stripeToken" value="' + token.id + '" />')
@@ -371,7 +355,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                     name: courseFullName,
                     description: "Test description",
                     zipCode: true,
-                    amount: self.calculateCost
+                    amount: self.subtotal
                 });
 
             }).fail(function() {
@@ -401,7 +385,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                 if(self.MultipleRegistration.enabled) {
                     self.MultipleRegistration.verifyAndSubmit(self);
                 } else {
-                    self.units = 1;
                     if (self.gateway === "paypal") {
                         //Simple PayPal checkout
                         $("#paypal-form").submit();
@@ -418,11 +401,13 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
         init: function( instanceid
                       , stripePublishableKey
                       , cost
+                      , paymentUUID
                       , courseFullName
                       , shippingRequired ) {
 
             var self = this;
 
+            /*
             var opts = {
               lines: 13, // The number of lines to draw
               length: 38, // The length of each line
@@ -446,6 +431,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
 
             var target = document.getElementById('enrolpage');
             new Spinner(opts).spin(target);
+            */
 
             var str_promise = MoodleStrings.get_strings([
                     { key : "discounttypeerror" , component : "enrol_ecommerce" },
@@ -455,14 +441,15 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
             str_promise.done(function(strs) {
                 self.mdlstr = strs;
                 self.originalCost = cost;
+                self.subtotal = cost;
                 self.instanceid = instanceid;
                 self.stripePublishableKey = stripePublishableKey;
                 self.courseFullName = courseFullName;
-                self.units = 1;
                 self.shippingRequired = shippingRequired;
+                self.paymentUUID = paymentUUID;
 
                 self.initClickHandlers();
-                self.calculateCost();
+                self.updateCostView();
             });
         }
     };

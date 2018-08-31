@@ -307,18 +307,26 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 echo '<p><a href="'.$wwwroot.'/login/">'.get_string('loginsite').'</a></p>';
                 echo '</div>';
             } else {
-                $ipndata = [ 'userid' => $USER->id
-                           , 'courseid' => $course->id
-                           , 'instanceid' => $instance->id
-                           , 'multiple' => false
-                           , 'multiple_userids' => null
-                           ];
+                //Used internally to verify payment data so that it can't be spoofed.
+                $payment_uuid = uniqid();
+                
+                $paymentdata = [ 'uuid' => $payment_uuid
+                               , 'userid' => $USER->id
+                               , 'courseid' => $course->id
+                               , 'instanceid' => $instance->id
+                               , 'multiple' => false
+                               , 'multiple_userids' => null
+                               , 'discounted' => false
+                               , 'units' => 1
+                               ];
                 $ipn_id = $DB->insert_record("enrol_ecommerce_ipn", $ipndata);
 
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
+
                 $js_data = [ $instance->id
                            , $stripepublishablekey
                            , $cost
+                           , $payment_uuid
                            , $coursefullname
                            , $instance->customint4 //Shipping required?
                            ];

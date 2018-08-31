@@ -2,70 +2,57 @@
 
 /**
  * @param $instance enrol_ecommerce instance
+ * @param $payment payment object from enrol_ecommerce_ipn
  * @return object with "success", "discounted_cost", and "discounted_cost_localised" fields.
  */
-function apply_discount($instance) {
-    $return = array("success" => false);
+function calculate_cost($instance, $payment) {
     $discount_amount = $instance->customdec1;
-    $return["discount_amount"] = $discount_amount;
+    //$ret["discount_amount"] = $discount_amount;
     $cost = $instance->cost;
-    $new_cost = $cost;
+    $subtotal = $cost;
 
-    if($discount_amount < 0.00) {
-        $return["success"] = false;
-        $return["failmessage"] = get_string("negativediscount", "enrol_ecommerce");
-        return $return;
+    if($payment->discounted && $discount_amount < 0.00) {
+        throw new Exception(get_string("negativediscount", "enrol_ecommerce"));
     }
 
-    /**
-     * "Discount type" field
-     */
+    if($payment->units < 1) {
+        throw new Exception(get_string("notenoughunits", "enrol_ecommerce"));
+    }
+
     switch ($instance->customint3) {
         case 0:
-            //No discount - This shouldn't happen.
-            $return["success"] = false;
-            $return["failmessage"] = get_string('discounttypeerror', 'enrol_ecommerce');
+            $subtotal = $cost * $payment->units;
+
             break;
         case 1:
-            //Percent discount
-            $return['discount_type'] = "percent";
-
             $normalized_amount = $discount_amount;
 
             //Percentages over 1 converted to a float between 0 and 1.
             if($discount_amount > 1.0) {
                 $normalized_amount = $discount_amount * 0.01;
-                $return['discount_amount'] = $normalized_amount;
             }
 
             if($discount_amount > 100) {
-                $return['success'] = false;
-                $return['failmessage'] = get_string('percentdiscountover100error', 'enrol_ecommerce');
+                throw new Exception(get_string("percentdiscountover100error", "enrol_ecommerce"));
             }
 
-            //New cost is the difference between the full cost and the percent discount.
-            $new_cost = $cost - ($cost * $normalized_amount);
+            //Per-unit cost is the difference between the full cost and the percent discount.
+            $per_unit_cost = $cost - ($cost * $normalized_amount);
+            $subtotal = $per_unit_cost * $payment->units;
 
-            $return["success"] = true;
             break;
         case 2:
             //Value discount
-            $return['discount_type'] = "value";
-            $new_cost = $cost - $discount_amount;
+            $subtotal = ($cost - $discount_amount) * $payment->units;
 
-            $return["success"] = true;
             break;
         default:
-            //Error
-            $return['success'] = false;
-            $return["failmessage"] = get_string('discounttypeerror', 'enrol_ecommerce');
+            throw new Exception(get_string("discounttypeerror", "enrol_ecommerce"));
             break;
     }
 
-    if ($return['succes'] = true) {
-        $return['discounted_cost'] = format_float($new_cost, 2, false);
-        $return['discounted_cost_localised'] = format_float($new_cost, 2, true);
-    }
-    return $return;
-}
+    $ret['subtotal'] = format_float($subtotal, 2, false);
+    $ret['subtotal_localised'] = format_float($subtotal, 2, true);
 
+    return $ret;
+}
