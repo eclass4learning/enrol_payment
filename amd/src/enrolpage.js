@@ -5,7 +5,7 @@ define([ 'jquery'
        , 'core/config'
        , 'enrol_ecommerce/spin'
        ],
-function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
+function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //eslint-disable-line no-unused-vars
 
     /**
      * JavaScript functionality for the enrol_ecommerce enrol.html page
@@ -40,7 +40,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
         /**
          * Unique ID for this potential purchase
          */
-        paymentUUID: undefined,
+        prepayToken: undefined,
 
         /**
          * Functions dealing with the multi-user registration system
@@ -246,7 +246,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                         method: "POST",
                         data: {
                                 'instanceid'  : enrolPage.instanceid
-                              , 'paymentuuid' : enrolPage.paymentUUID
+                              , 'prepaytoken' : enrolPage.prepayToken
                               , 'emails'      : JSON.stringify(emails)
                               , 'ipn_id'      : $("#" + enrolPage.gateway + "-custom").val()
                               },
@@ -293,7 +293,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
 
         Discount: {
             checkDiscountCode: function(enrolPage) {
-                var self = this;
                 var discountcode = $("#discountcode").val();
                 var checkURL = MoodleCfg.wwwroot + "/enrol/ecommerce/ajax/check_discount.php";
 
@@ -301,15 +300,17 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                     url: checkURL,
                     data: { 'discountcode' : discountcode
                           , 'instanceid'   : enrolPage.instanceid
-                          , 'paymentuuid'  : enrolPage.paymentUUID
+                          , 'prepaytoken'  : enrolPage.prepayToken
                           },
                     context: document.body,
                     success: function(r) {
+                        alert(r);
                         var response = JSON.parse(r);
                         if (response["success"]) {
                             enrolPage.subtotal = response["subtotal"];
+                            enrolPage.updateCostView();
                         } else {
-                            alert("Invalid discount code.");
+                            alert(response["failmessage"]);
                         }
                     }
                 });
@@ -317,14 +318,14 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
         },
 
         checkoutFinal: function() {
-            if(enrolPage.gateway === "paypal") {
+            if(this.gateway === "paypal") {
                 $("#paypal-form").submit();
-            } else if(enrolPage.gateway === "stripe") {
+            } else if(this.gateway === "stripe") {
                 this.stripeCheckout();
             } else {
                 throw new Error(this.mdlstr["invalidgateway"]);
             }
-        }
+        },
 
         updateCostView: function() {
             $("span#localisedcost").text(this.subtotal);
@@ -401,7 +402,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
         init: function( instanceid
                       , stripePublishableKey
                       , cost
-                      , paymentUUID
+                      , prepayToken
                       , courseFullName
                       , shippingRequired ) {
 
@@ -446,7 +447,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) {
                 self.stripePublishableKey = stripePublishableKey;
                 self.courseFullName = courseFullName;
                 self.shippingRequired = shippingRequired;
-                self.paymentUUID = paymentUUID;
+                self.prepayToken = prepayToken;
 
                 self.initClickHandlers();
                 self.updateCostView();

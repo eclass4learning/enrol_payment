@@ -8,7 +8,7 @@ global $DB;
 
 
 $instanceid = $_GET['instanceid'];
-$paymentUUID = $_GET['paymentuuid'];
+$prepayToken = $_GET['prepaytoken'];
 
 $instance = $DB->get_record('enrol', array('id' => $instanceid), '*', MUST_EXIST);
 $correct_code = (trim($_GET['discountcode']) == trim($instance->customtext2));
@@ -16,10 +16,11 @@ $payment = null;
 
 if($correct_code) {
     try {
-        $payment = $DB->get_record('enrol_ecommerce_ipn', array('uuid' => $paymentUUID), '*', MUST_EXIST);
+        $payment = $DB->get_record_sql('SELECT * FROM {enrol_ecommerce_ipn} WHERE '.$DB->sql_compare_text('prepaytoken') . ' = ? ', array('prepaytoken' => $prepayToken));
     } catch (Exception $e) {
         echo json_encode([ 'success' => false
-                         , 'failmessage' => "Payment UUID ".$paymentUUID." not found in database."]);
+                         , 'failmessage' => $e->getMessage() ]);
+                         // , 'failmessage' => "Payment UUID ".$prepayToken." not found in database."]);
         die();
     }
 
@@ -35,6 +36,7 @@ if($correct_code) {
     }
 
     $to_return = calculate_cost($instance, $payment);
+    $to_return["success"] = true;
     echo json_encode($to_return);
 } else {
     echo json_encode(array("success" => false) );

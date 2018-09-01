@@ -308,9 +308,9 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 echo '</div>';
             } else {
                 //Used internally to verify payment data so that it can't be spoofed.
-                $payment_uuid = uniqid();
-                
-                $paymentdata = [ 'uuid' => $payment_uuid
+                $prepayToken = bin2hex(random_bytes(16));
+
+                $paymentdata = [ 'prepaytoken' => $prepayToken
                                , 'userid' => $USER->id
                                , 'courseid' => $course->id
                                , 'instanceid' => $instance->id
@@ -319,14 +319,15 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                                , 'discounted' => false
                                , 'units' => 1
                                ];
-                $ipn_id = $DB->insert_record("enrol_ecommerce_ipn", $ipndata);
+
+                $ipn_id = $DB->insert_record("enrol_ecommerce_ipn", $paymentdata);
 
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
 
                 $js_data = [ $instance->id
                            , $stripepublishablekey
                            , $cost
-                           , $payment_uuid
+                           , $prepayToken
                            , $coursefullname
                            , $instance->customint4 //Shipping required?
                            ];

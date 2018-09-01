@@ -11,7 +11,7 @@ global $DB;
 $ret = array("success" => true);
 $emails = json_decode(stripslashes($_POST['emails']));
 $instanceid = $_POST['instanceid'];
-$paymentUUID = $_POST['paymentuuid'];
+$prepayToken = $_POST['prepaytoken'];
 $ipn_id = $_POST['ipn_id'];
 
 if ($CFG->allowaccountssameemail) {
@@ -34,12 +34,12 @@ if ($CFG->allowaccountssameemail) {
         update_payment_data($ret['users'], $ipn_id, $ret);
 
         $instance = $DB->get_record('enrol', array("id" => $instanceid), '*', MUST_EXIST);
-        $payment = $DB->get_record('enrol_ecommerce_ipn', array("uuid" => $paymentUUID), '*', MUST_EXIST);
+        $payment = $DB->get_record('enrol_ecommerce_ipn', array("prepaytoken" => $prepayToken), '*', MUST_EXIST);
 
         //Tack new subtotals onto return data
-        $ret = array_merge($ret, calculate_cost($instance, $payment)); 
+        $ret = array_merge($ret, calculate_cost($instance, $payment));
 
-        $ret["successmessage"] = 
+        $ret["successmessage"] =
             get_string("multipleregistrationconfirmuserlist", "enrol_ecommerce")
           . implode("<li>", array_map("pretty_print_user", $ret["users"]));
 

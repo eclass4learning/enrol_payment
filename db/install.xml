@@ -42,7 +42,7 @@
     <TABLE NAME="enrol_ecommerce_ipn" COMMENT="Holds fields that are sent through PayPal/Stripe and returned to IPN.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="uuid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="prepaytoken" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -57,9 +57,6 @@
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
         <KEY NAME="instanceid" TYPE="foreign" FIELDS="instanceid" REFTABLE="enrol" REFFIELDS="id"/>
       </KEYS>
-      <INDEXES>
-        <INDEX NAME="unique_uuid" UNIQUE="true" FIELDS="uuid"/>
-      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>
