@@ -1,5 +1,17 @@
 <?php
 
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once("$CFG->libdir/moodlelib.php");
+
+global $DB;
+
+function get_payment_from_token($prepayToken) {
+    global $DB;
+    return $DB->get_record_sql('SELECT * FROM {enrol_ecommerce_ipn}
+                                  WHERE ' .$DB->sql_compare_text('prepaytoken') . ' = ? ',
+                              array('prepaytoken' => $prepayToken));
+}
+
 /**
  * @param $instance enrol_ecommerce instance
  * @param $payment payment object from enrol_ecommerce_ipn

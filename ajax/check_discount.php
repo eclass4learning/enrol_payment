@@ -1,8 +1,8 @@
 <?php
 
-require_once('../../../config.php');
+require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
-require_once('../discountlib.php');
+require_once(dirname(__FILE__).'/../discountlib.php');
 
 global $DB;
 
@@ -16,7 +16,7 @@ $payment = null;
 
 if($correct_code) {
     try {
-        $payment = $DB->get_record_sql('SELECT * FROM {enrol_ecommerce_ipn} WHERE '.$DB->sql_compare_text('prepaytoken') . ' = ? ', array('prepaytoken' => $prepayToken));
+        $payment = get_payment_from_token($prepayToken);
     } catch (Exception $e) {
         echo json_encode([ 'success' => false
                          , 'failmessage' => $e->getMessage() ]);
