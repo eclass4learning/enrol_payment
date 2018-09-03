@@ -38,7 +38,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         instanceid: undefined,
 
         /**
-         * Unique ID for this potential purchase
+         * Unique ID for this page visit
          */
         prepayToken: undefined,
 
@@ -193,7 +193,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 }, trigger).done(function(modal) {
                     modal.setSaveButtonText("Confirm Payment");
                     modal.getRoot().on(ModalEvents.save, function(e) {
-                        e.preventDefault();
                         enrolPage.checkoutFinal();
                     });
                 });
@@ -270,7 +269,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                 //If the button is to enable, build the multiple registration
                 //form.
-                if(btn.hasClass('enable-mr')) {
+                if(!self.enabled) {
                     self.enabled = true;
                     self.nextEmailID = 1;
                     //Build DOM for a multiple-registration form
@@ -280,7 +279,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     $("#multiple-registration-container").html(this.makeEmailEntryLine());
                     self.addPlusClickHandler($(".plus-container"));
 
-                } else if (btn.hasClass('disable-mr')) {
+                } else {
                     self.enabled = false;
                     //Return to single registration mode
 
@@ -304,7 +303,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                           },
                     context: document.body,
                     success: function(r) {
-                        alert(r);
                         var response = JSON.parse(r);
                         if (response["success"]) {
                             enrolPage.subtotal = response["subtotal"];
@@ -356,7 +354,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     name: courseFullName,
                     description: "Test description",
                     zipCode: true,
-                    amount: self.subtotal
+                    //Stripe amount is in pennies
+                    amount: Math.floor(Number.parseFloat(self.subtotal) * 100)
                 });
 
             }).fail(function() {
@@ -386,15 +385,20 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 if(self.MultipleRegistration.enabled) {
                     self.MultipleRegistration.verifyAndSubmit(self);
                 } else {
-                    if (self.gateway === "paypal") {
-                        //Simple PayPal checkout
-                        $("#paypal-form").submit();
-                    } else if (self.gateway === "stripe") {
-                        //Simple Stripe checkout
-                        self.stripeCheckout();
-                    } else {
-                        alert(self.mdlstr["invalidgateway"]);
-                    }
+                    $.ajax({
+                        //Flip database row to single enrollment mode
+                        url: MoodleCfg.wwwroot + "/enrol/ecommerce/ajax/single_enrol.php",
+                        method: "POST",
+                        data: {
+                            "prepaytoken" : self.prepayToken
+                        },
+                        success: function() {
+                            self.checkoutFinal();
+                        },
+                        failure: function() {
+                            alert(mdlstr["errcommunicating"]);
+                        }
+                    });
                 }
             });
         },
@@ -437,7 +441,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             var str_promise = MoodleStrings.get_strings([
                     { key : "discounttypeerror" , component : "enrol_ecommerce" },
                     { key : "discountamounterror" , component : "enrol_ecommerce" },
-                    { key : "invalidgateway" , component : "enrol_ecommerce" }
+                    { key : "invalidgateway" , component : "enrol_ecommerce" },
+                    { key : "errcommunicating" , component : "enrol_ecommerce" }
             ]);
             str_promise.done(function(strs) {
                 self.mdlstr = strs;

@@ -2,7 +2,7 @@
 
 require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
-require_once(dirname(__FILE__).'/../discountlib.php');
+require_once(dirname(__FILE__).'/util.php');
 
 global $DB;
 
@@ -25,17 +25,15 @@ if($correct_code) {
     }
 
     try {
-        $dataobj = array( 'id' => $payment->id
-                        , 'discounted' => true );
-
-        $DB->update_record('enrol_ecommerce_ipn', $dataobj);
+        $payment->discounted = true;
+        $DB->update_record('enrol_ecommerce_ipn', $payment);
+        $to_return = calculate_cost($instance, $payment);
     } catch (Exception $e) {
         echo json_encode([ 'success' => false
-                         , 'failmessage' => "Unable to update payment record in database."]);
+                         , 'failmessage' => "$e->getMessage"]);
         die();
     }
 
-    $to_return = calculate_cost($instance, $payment);
     $to_return["success"] = true;
     echo json_encode($to_return);
 } else {

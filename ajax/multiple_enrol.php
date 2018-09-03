@@ -3,8 +3,7 @@
 require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
 require_once(dirname(__FILE__).'/../lang/en/enrol_ecommerce.php');
-require_once(dirname(__FILE__).'/../multipleenrollib.php');
-require_once(dirname(__FILE__).'/../discountlib.php');
+require_once(dirname(__FILE__).'/util.php');
 
 global $DB;
 
@@ -30,11 +29,12 @@ if ($CFG->allowaccountssameemail) {
     }
 
     try {
-        $ret["users"] = get_moodle_users_by_emails($emails, $ret);
-        update_payment_data($ret['users'], $ipn_id, $ret);
+        $ret['users'] = get_moodle_users_by_emails($emails);
+        $payment = get_payment_from_token($prepayToken);
+
+        update_payment_data(true, $ret['users'], $payment);
 
         $instance = $DB->get_record('enrol', array("id" => $instanceid), '*', MUST_EXIST);
-        $payment = get_payment_from_token($prepayToken);
 
         //Tack new subtotals onto return data
         $ret = array_merge($ret, calculate_cost($instance, $payment));
