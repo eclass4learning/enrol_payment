@@ -51,6 +51,14 @@ if ($ADMIN->fulltree) {
     );
     $settings->add(new admin_setting_configselect('enrol_ecommerce/expiredaction', get_string('expiredaction', 'enrol_ecommerce'), get_string('expiredaction_help', 'enrol_ecommerce'), ENROL_EXT_REMOVED_SUSPENDNOROLES, $options));
 
+    $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/allowmultipleenrol',
+                                                    get_string('allowmultipleenrol', 'enrol_ecommerce'),
+                                                    get_string('allowmultipleenrol_help', 'enrol_ecommerce'),0));
+
+    $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/enablediscounts',
+                                                    get_string('allowdiscounts', 'enrol_ecommerce'),
+                                                    get_string('allowdiscounts_help', 'enrol_ecommerce'),0));
+
     //--- enrol instance defaults ----------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('enrol_ecommerce_defaults',
         get_string('enrolinstancedefaults', 'admin'), get_string('enrolinstancedefaults_desc', 'admin')));
@@ -82,7 +90,4 @@ if ($ADMIN->fulltree) {
             ENROL_SEND_EMAIL_FROM_COURSE_CONTACT,
             enrol_send_welcome_email_options()));
 
-    $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/enablediscounts',
-                                                    get_string('enablediscounts', 'enrol_ecommerce'),
-                                                    get_string('enablediscounts_help', 'enrol_ecommerce'),0));
 }

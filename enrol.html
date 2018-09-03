@@ -14,7 +14,9 @@
 <p>&nbsp;</p>
 <div id="multiple-registration-container"></div>
 <div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr">Multiple Registration</a>
-<?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_ecommerce'))?>
+<?php if($multiple_enabled) { ?>
+    <?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_ecommerce'))?>
+<?php } ?>
 </div>
 
 <p><img alt="<?php print_string('paypalaccepted', 'enrol_ecommerce') ?>" src="https://www.paypal.com/en_US/i/logo/PayPal_mark_60x38.gif" /></p>
@@ -54,6 +56,8 @@
         <input type="hidden" name="cancel_return" value="<?php echo $CFG->wwwroot ?>" />
         <input type="hidden" name="rm" value="2" />
         <input type="hidden" name="cbt" value="<?php print_string("continuetocourse") ?>" />
+        <input type="hidden" name="tax" value="<?php p($tax_amount) ?>" />
+        <input type="hidden" name="prov" value="<?php p($USER->msn)?>" />
 
         <input type="hidden" name="first_name" value="<?php p($userfirstname) ?>" />
         <input type="hidden" name="last_name" value="<?php p($userlastname) ?>" />
@@ -86,6 +90,8 @@
 
             <input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
             <input type="hidden" name="amount" value="<?php p($cost) ?>" />
+            <input type="hidden" name="tax" value="<?php p($tax_amount) ?>" />
+            <input type="hidden" name="prov" value="<?php p($USER->msn)?>" />
 
             <input type="hidden" name="for_auction" value="false" />
             <input type="hidden" name="no_note" value="1" />
@@ -129,3 +135,28 @@
 <?php } ?>
 
 </div>
+
+<p>Email money transfer (known as <a
+href="https://www.youtube.com/watch?time_continue=4&v=zL9yoZZXyOE"
+target="_blank"><em>Interac</em> e-Transfer</a>) is an option if you:</p>
+<ul>
+<li>have an email address or a mobile number, and</li>
+<li>are registered for <em>Interac</em> e-Transfer service with your financial
+institution.</li>
+</ul>
+<p>To send an <em>Interac</em> e-Transfer payment:</p>
+<ol>
+<li><p>Log in to your financial institution's online or mobile banking and navigate to
+<em>Interac</em> e-Transfer menu.</p></li>
+<li><p>Select the account from which to withdraw the funds.</p></li>
+<li><p>Add a new recipient using <strong>Four Point Learning</strong> as the name,
+<strong>services@4pointlearning.ca</strong> as the email address, <strong>Who is offering <?php p($courseshortname) ?>?</strong> as the security question, and
+<strong>4PLearning</strong> as the answer.</p></li>
+<li><p>Select <strong>Four Point Learning</strong> as the recipient.</p></li>
+<li><p>Fill in the amount of <strong><span class="subtotal-display"><?php echo $localisedcost; ?></span></strong> and enter
+<strong>your name</strong> in the message area.</p></li>
+<li><p>Follow the on-screen instructions to confirm the information and complete the
+transfer.</p></li>
+</ol>
+<p>Once payment is received, you will be notified of your enrolment in <strong> <?php
+echo htmlspecialchars_decode($coursefullname) ?> </strong>.</p>

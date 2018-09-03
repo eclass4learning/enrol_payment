@@ -239,6 +239,26 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         email_to_user($user, $contact, $subject, $messagetext, $messagehtml);
     }
 
+    function apply_tax($cost) {
+        global $USER;
+        $HST = 0;
+        if($USER->country != "CA") {
+            $HST = 0;
+        } elseif($USER->msn == "NB" || $USER->msn == "NL" || $USER->msn == "NS" || $USER->msn == "PE") {
+            $HST = 0.15 * $cost;
+            $tax_rate = "15% HST";
+        } elseif($USER->msn == "ON") {
+            $HST = 0.13 * $cost;
+            $tax_rate = "13% HST";
+        } else {
+            $HST = 0.05 * $cost;
+            $tax_rate = "GST";
+        }
+
+        return [ "tax_amount" => $HST
+               , "tax_rate" => $tax_rate ];
+    }
+
     /**
      * Creates course enrol form, checks if form submitted
      * and enrols user if necessary. It can also redirect.
@@ -285,6 +305,13 @@ class enrol_ecommerce_plugin extends enrol_plugin {
             $cost = (float) $instance->cost;
         }
 
+        $tax_rate = "";
+
+        $tax_info = $this->apply_tax($cost);
+        $tax_rate = $tax_info["tax_rate"];
+        $tax_amount = $tax_info["tax_amount"];
+        $cost = $tax_amount + $cost;
+
         if (abs($cost) < 0.01) { // no cost, other enrolment methods (instances) should be used
             echo '<p>'.get_string('nocost', 'enrol_ecommerce').'</p>';
         } else {
@@ -296,6 +323,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
 
             $wwwroot = $CFG->wwwroot;
 
+            $multiple_enabled = ($this->get_config('allowmultipleenrol') && $instance->customint5);
             $paypal_enabled = (bool) trim($this->get_config('paypalbusiness'));
             $stripe_enabled = ((bool) trim($this->get_config('stripesecretkey'))) && ((bool) trim($this->get_config('stripepublishablekey')));
             $gateways_enabled = ((int) $paypal_enabled) + ((int) $stripe_enabled);
@@ -458,6 +486,8 @@ class enrol_ecommerce_plugin extends enrol_plugin {
          * customint2 - Enrol user into a group (Group id)
          * customint3 - Discount type (0: No discount, 1: Percentage discount, 2: Value discount)
          * customint4 - require shipping info at checkout (bool)
+         * customint5 - allow multiple enrollments (bool)
+         * customint6 - Tax calculation based on province in "msn" field (bool)
          *
          * customtext1 - Custom welcome message
          * customtext2 - Discount code
@@ -535,6 +565,15 @@ class enrol_ecommerce_plugin extends enrol_plugin {
 
         $mform->addElement('advcheckbox', 'customint4', get_string('requireshippinginfo', 'enrol_ecommerce'));
         $mform->setType('customint4', PARAM_INT);
+
+        if($this->get_config('allowmultipleenrol')) {
+            $mform->addElement('advcheckbox', 'customint5', get_string('allowmultipleenrol', 'enrol_ecommerce'));
+            $mform->setType('customint5', PARAM_INT);
+        }
+
+        $mform->addElement('advcheckbox', 'customint6', get_string('enabletaxcalculation', 'enrol_ecommerce'));
+        $mform->setType('customint6', PARAM_INT);
+        $mform->addHelpButton('customint6', 'enabletaxcalculation', 'enrol_ecommerce');
 
         if (enrol_accessing_via_instance($instance)) {
             $warningtext = get_string('instanceeditselfwarningtext', 'core_enrol');

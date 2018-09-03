@@ -116,19 +116,23 @@ $string['discountamounterror'] = 'The discount amount is not numeric.';
 $string['discountdigitserror'] = 'The discount amount must have fewer than 12 digits.';
 $string['negativediscounterror'] = 'The discount amount cannot be negative.';
 $string['percentdiscountover100error'] = 'A percentage discount cannot be set above 100.';
-$string['enablediscounts'] = 'Enable discounts';
-$string['enablediscounts_help'] = 'Allow enrollment instances to include a discount code.';
+$string['allowdiscounts'] = 'Allow discounts';
+$string['allowdiscounts_help'] = 'Allow enrollment instances to include a discount code.';
 $string['nogatewayenabled'] = 'PayPal and Stripe are not configured for this site. Please contact the site administrator.';
 $string['invalidgateway'] = 'Unrecognized payment gateway. Please contact the site administrator.';
 $string['notenoughunits'] = 'Attempting to make a purchase for fewer than 1 users.';
 
 $string['requireshippinginfo'] = 'Require shipping info at checkout';
 $string['multipleregistration'] = 'Multiple Registration';
-$string['multipleregistration_help'] = 'Purchase a registration for multiple users.';
+$string['multipleregistration_help'] = 'Purchase a registration for multiple users.<br>';
+$string['allowmultipleenrol'] = 'Allow Multiple Registration';
+$string['allowmultipleenrol_help'] = 'Allow users to enrol other users by entering their email addresses';
 $string['sameemailaccountsallowed'] = "Error: Accounts sharing the same email address are allowed on this Moodle site. Because of this, the Multiple Registration cannot be used. Please contact your site administrator.";
 $string['duplicateemail'] = "Error: Duplicate emails were entered in the multiple registration form.";
 $string['usersnotfoundwithemail'] = "The following emails were not found in the Moodle database: <br><ul><li>";
 $string['multipleregistrationconfirmuserlist'] = "You are purchasing a registration for the following users: <br><ul><li>";
+$string['enabletaxcalculation'] = "Enable tax calculation";
+$string['enabletaxcalculation_help'] = "If the \"msn\" user profile field is overloaded to store a canadian province abbreviation, calculate the tax and factor into the cost.";
 
 $string['stripesecretkey'] = "Stripe Secret Key";
 $string['stripesecretkey_desc'] = "The API secret key of your Stripe account";

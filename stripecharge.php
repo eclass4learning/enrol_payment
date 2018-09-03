@@ -37,6 +37,7 @@ require_once("paymentlib.php");
 require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot . '/group/lib.php');
 
 require_login();
 // Stripe does not like when we return error messages here,
@@ -61,6 +62,7 @@ foreach ($_POST as $key => $value) {
     $req .= "&$key=".urlencode($value);
     $data->$key = fix_utf8($value);
 }
+//$data->prov is now set to the user's msn field.
 
 $data->payment_gross    = $data->amount;
 $data->payment_currency = $data->currency_code;
@@ -168,9 +170,10 @@ try {
     $data->pending_reason = $charge->failure_message;
     $data->reason_code = $charge->failure_code;
 
+
     // ALL CLEAR !
 
-    //$DB->insert_record("enrol_ecommerce", $data);
+    $DB->insert_record("enrol_ecommerce", $data);
 
     if ($plugin_instance->enrolperiod) {
         $timestart = time();

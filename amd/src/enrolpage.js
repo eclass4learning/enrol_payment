@@ -327,6 +327,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
         updateCostView: function() {
             $("span#localisedcost").text(this.subtotal);
+            $("span.subtotal-display").text(this.subtotal);
             $("input[name=amount]").val(this.subtotal);
         },
 
