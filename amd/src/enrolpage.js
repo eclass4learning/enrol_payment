@@ -340,9 +340,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                   key: self.stripePublishableKey,
                   image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
                   locale: 'auto',
-                  shippingAddress: true,
+                  shippingAddress: self.shippingRequired,
                   token: function(token) {
-                      $('#enrol-ecommerce-stripe-checkout')
+                      $('#stripe-form')
                           .append('<input type="hidden" name="stripeToken" value="' + token.id + '" />')
                           .append('<input type="hidden" name="stripeTokenType" value="' + token.type + '" />')
                           .append('<input type="hidden" name="stripeEmail" value="' + token.email + '" />')
@@ -355,7 +355,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     description: "Test description",
                     zipCode: true,
                     //Stripe amount is in pennies
-                    amount: Math.floor(Number.parseFloat(self.subtotal) * 100)
+                    amount: Math.floor(Number.parseFloat(self.subtotal) * 100),
                 });
 
             }).fail(function() {

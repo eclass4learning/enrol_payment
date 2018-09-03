@@ -134,3 +134,5 @@ $string['stripesecretkey'] = "Stripe Secret Key";
 $string['stripesecretkey_desc'] = "The API secret key of your Stripe account";
 $string['stripepublishablekey'] = "Stripe Publishable Key";
 $string['stripepublishablekey_desc'] = "The API Publishable Key of your Stripe account";
+$string['charge_description1'] = "create customer for email receipt";
+$string['charge_description2'] = 'Charge for Course Enrolment';

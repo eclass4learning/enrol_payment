@@ -33,7 +33,7 @@ define('NO_DEBUG_DISPLAY', true);
 
 require("../../config.php");
 require_once("lib.php");
-require_once("discountlib.php");
+require_once("paymentlib.php");
 require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
@@ -48,55 +48,42 @@ if (empty(required_param('stripeToken', PARAM_RAW))) {
     print_error(get_string('stripe_sorry', 'enrol_ecommerce'));
 }
 
+
 $data = new stdClass();
 
-$data->cmd = required_param('cmd', PARAM_RAW);
-$data->charset = required_param('charset', PARAM_RAW);
-$data->item_name = required_param('item_name', PARAM_TEXT);
-$data->item_name = required_param('item_number', PARAM_TEXT);
-$data->item_name = required_param('quantity', PARAM_INT);
-$data->on0 = optional_param('on0', array(), PARAM_TEXT);
-$data->os0 = optional_param('os0', array(), PARAM_TEXT);
-$data->custom = optional_param('custom', array(), PARAM_RAW);
-$data->currency_code = required_param('currency_code', PARAM_RAW);
-$data->amount = required_param('amount', PARAM_RAW);
-$data->for_auction = required_param('for_auction', PARAM_BOOL);
-$data->no_note = required_param('no_note', PARAM_INT);
-$data->no_shipping = required_param('no_shipping', PARAM_INT);
-$data->rm = required_param('rm', PARAM_RAW);
-$data->cbt = optional_param('cbt', array(), PARAM_TEXT);
-$data->first_name = required_param('first_name', PARAM_TEXT);
-$data->last_name = required_param('last_name', PARAM_TEXT);
-$data->address = optional_param('address', array(), PARAM_TEXT);
-$data->city = optional_param('city', array(), PARAM_TEXT);
-$data->email = required_param('email', PARAM_EMAIL);
-$data->country = optional_param('country', array(), PARAM_TEXT);
-$data->stripeToken = required_param('stripeToken', PARAM_RAW);
-$data->stripeTokenType = required_param('stripeTokenType', PARAM_RAW);
-$data->stripeEmail = required_param('stripeEmail', PARAM_EMAIL);
+foreach ($_POST as $key => $value) {
+    if ($key !== clean_param($key, PARAM_ALPHANUMEXT)) {
+        throw new moodle_exception('invalidrequest', 'core_error', '', null, $key);
+    }
+    if (is_array($value)) {
+        throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Unexpected array param: '.$key);
+    }
+    $req .= "&$key=".urlencode($value);
+    $data->$key = fix_utf8($value);
+}
 
-$data->userid           = (int)$custom[0];
-$data->courseid         = (int)$custom[1];
-$data->instanceid       = (int)$custom[2];
 $data->payment_gross    = $data->amount;
 $data->payment_currency = $data->currency_code;
-$data->timeupdated      = time();
 
-$custom = $DB->get_record('enrol_ecommerce_ipn', ["id" => $data->custom], "*", MUST_EXIST);
+$shippingRequired = required_param('shippingRequired', PARAM_INT);
+$data->no_shipping = !$shippingRequired;
+
+if (empty($data->custom)) {
+    throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Missing request param: custom');
+}
+
+$payment = get_payment_from_token($data->custom);
 
 unset($data->custom);
 
-if (empty($custom)) {
-    throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Invalid value of the request param: custom');
-}
+$data->userid           = (int)$payment->userid;
+$data->courseid         = (int)$payment->courseid;
+$data->instanceid       = (int)$payment->instanceid;
+$multiple         = (bool)$payment->multiple;
+$multiple_userids = (string)$payment->multiple_userids;
 
-$data->userid           = (int)$custom->userid;
-$data->courseid         = (int)$custom->courseid;
-$data->instanceid       = (int)$custom->instanceid;
-
-$multiple         = (bool)$custom->multiple;
 if ($multiple) {
-    $multiple_userids = explode(',',$custom->multiple_userids);
+    $multiple_userids = explode(',',$payment->multiple_userids);
     if(empty($multiple_userids)) {
         throw new moodle_exception('invalidrequest', 'core_error', '', null, "Multiple purchase specified, but no userids found.");
     }
@@ -121,48 +108,58 @@ if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
 
 $PAGE->set_context($context);
 
-if (! $plugininstance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
+if (! $plugin_instance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
     message_ecommerce_error_to_admin("Not a valid instance id", $data);
     redirect($CFG->wwwroot);
 }
 
- // If currency is incorrectly set then someone maybe trying to cheat the system.
+ // If currency is incorrectly set, then someone may be trying to cheat the system.
 
-if ($data->courseid != $plugininstance->courseid) {
+if ($data->courseid != $plugin_instance->courseid) {
     message_ecommerce_error_to_admin("Course Id does not match to the course settings, received: ".$data->courseid, $data);
     redirect($CFG->wwwroot);
 }
 
 $plugin = enrol_get_plugin('ecommerce');
 
-// Check that amount paid is the correct amount.
-if ( (float) $plugininstance->cost <= 0 ) {
-    $cost = (float) $plugin->get_config('cost');
+// Check that amount paid is the correct amount
+if ((float) $plugin_instance->cost <= 0.0 ) {
+    $original_cost = (float) $plugin->get_config('cost');
 } else {
-    $cost = (float) $plugininstance->cost;
+    $original_cost = (float) $plugin_instance->cost;
 }
 
 // Use the same rounding of floats as on the enrol form.
-$cost = format_float($cost, 2, false);
+$original_cost = format_float($original_cost, 2, false);
 
-// Let's say each article costs 15.00 bucks.
+//What should the user have paid? Verify using info stored in the
+//database.
+$cost = calculate_cost($plugin_instance, $payment)["subtotal"];
+
+if ($data->amount + 0.01 < $cost) {
+    //This shouldn't happen unless the user spoofs their requests, but
+    //if it does, the discount is just invalid.
+    \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->amount < $cost))", $data);
+    die;
+}
 
 try {
 
     require_once('Stripe/lib/Stripe.php');
 
-    Stripe::setApiKey($plugin->get_config('secretkey'));
+    Stripe::setApiKey($plugin->get_config('stripesecretkey'));
     $charge1 = Stripe_Customer::create(array(
         "email" => required_param('stripeEmail', PARAM_EMAIL),
         "description" => get_string('charge_description1', 'enrol_ecommerce')
     ));
     $charge = Stripe_Charge::create(array(
       "amount" => $cost * 100,
-      "currency" => $plugininstance->currency,
+      "currency" => $plugin_instance->currency,
       "card" => required_param('stripeToken', PARAM_RAW),
       "description" => get_string('charge_description2', 'enrol_ecommerce'),
       "receipt_email" => required_param('stripeEmail', PARAM_EMAIL)
     ));
+
     // Send the file, this line will be reached if no error was thrown above.
     $data->txn_id = $charge->balance_transaction;
     $data->tax = $charge->amount / 100;
@@ -173,18 +170,25 @@ try {
 
     // ALL CLEAR !
 
-    $DB->insert_record("enrol_ecommerce", $data);
+    //$DB->insert_record("enrol_ecommerce", $data);
 
-    if ($plugininstance->enrolperiod) {
-            $timestart = time();
-            $timeend   = $timestart + $plugininstance->enrolperiod;
+    if ($plugin_instance->enrolperiod) {
+        $timestart = time();
+        $timeend   = $timestart + $plugin_instance->enrolperiod;
     } else {
-            $timestart = 0;
-            $timeend   = 0;
+        $timestart = 0;
+        $timeend   = 0;
     }
 
-    // Enrol user.
-    $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, $timestart, $timeend);
+    if (!$multiple) {
+        //Make a singleton array so that we can do this whole thing in a foreach loop.
+        $multiple_userids = [$user->id];
+    }
+
+    $mailstudents = $plugin->get_config('mailstudents');
+    $mailteachers = $plugin->get_config('mailteachers');
+    $mailadmins   = $plugin->get_config('mailadmins');
+    $shortname = format_string($course->shortname, true, array('context' => $context));
 
     // Pass $view=true to filter hidden caps if the user cannot see them.
     if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
@@ -195,66 +199,78 @@ try {
         $teacher = false;
     }
 
-        $mailstudents = $plugin->get_config('mailstudents');
-        $mailteachers = $plugin->get_config('mailteachers');
-        $mailadmins   = $plugin->get_config('mailadmins');
-        $shortname = format_string($course->shortname, true, array('context' => $context));
+    foreach($multiple_userids as $uid) {
+        if (!$user = $DB->get_record('user', array('id'=>$uid))) {   // Check that user exists
+            \enrol_ecommerce\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
+            die;
+        }
+        // Enrol user.
+        $plugin->enrol_user($plugin_instance, $user->id, $plugin_instance->roleid, $timestart, $timeend);
 
+        if ($plugin_instance->customint1 != ENROL_DO_NOT_SEND_EMAIL) {
+            $plugin->email_welcome_message($plugin_instance, $user);
+        }
 
-    if (!empty($mailstudents)) {
-            $a = new stdClass();
-            $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
-            $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
+        // If group selection is not null
+        if ($plugin_instance->customint2) {
+            groups_add_member($plugin_instance->customint2, $user);
+        }
 
-            $eventdata = new stdClass();
-            $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_ecommerce';
-            $eventdata->name              = 'ecommerce_enrolment';
-            $eventdata->userfrom          = empty($teacher) ? core_user::get_support_user() : $teacher;
-            $eventdata->userto            = $user;
-            $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
-            $eventdata->fullmessage       = get_string('welcometocoursetext', '', $a);
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
-            $eventdata->fullmessagehtml   = '';
-            $eventdata->smallmessage      = '';
-            message_send($eventdata);
-    }
+        if (!empty($mailstudents)) {
+                $a = new stdClass();
+                $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
-    if (!empty($mailteachers) && !empty($teacher)) {
+                $eventdata = new stdClass();
+                $eventdata->modulename        = 'moodle';
+                $eventdata->component         = 'enrol_ecommerce';
+                $eventdata->name              = 'ecommerce_enrolment';
+                $eventdata->userfrom          = empty($teacher) ? core_user::get_support_user() : $teacher;
+                $eventdata->userto            = $user;
+                $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
+                $eventdata->fullmessage       = get_string('welcometocoursetext', '', $a);
+                $eventdata->fullmessageformat = FORMAT_PLAIN;
+                $eventdata->fullmessagehtml   = '';
+                $eventdata->smallmessage      = '';
+                message_send($eventdata);
+        }
+
+        if (!empty($mailteachers) && !empty($teacher)) {
+                $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->user = fullname($user);
+
+                $eventdata = new stdClass();
+                $eventdata->modulename        = 'moodle';
+                $eventdata->component         = 'enrol_ecommerce';
+                $eventdata->name              = 'ecommerce_enrolment';
+                $eventdata->userfrom          = $user;
+                $eventdata->userto            = $teacher;
+                $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
+                $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
+                $eventdata->fullmessageformat = FORMAT_PLAIN;
+                $eventdata->fullmessagehtml   = '';
+                $eventdata->smallmessage      = '';
+                message_send($eventdata);
+        }
+
+        if (!empty($mailadmins)) {
             $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->user = fullname($user);
-
-            $eventdata = new stdClass();
-            $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_ecommerce';
-            $eventdata->name              = 'ecommerce_enrolment';
-            $eventdata->userfrom          = $user;
-            $eventdata->userto            = $teacher;
-            $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
-            $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
-            $eventdata->fullmessagehtml   = '';
-            $eventdata->smallmessage      = '';
-            message_send($eventdata);
-    }
-
-    if (!empty($mailadmins)) {
-        $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
-        $a->user = fullname($user);
-        $admins = get_admins();
-        foreach ($admins as $admin) {
-            $eventdata = new stdClass();
-            $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_ecommerce';
-            $eventdata->name              = 'ecommerce_enrolment';
-            $eventdata->userfrom          = $user;
-            $eventdata->userto            = $admin;
-            $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
-            $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
-            $eventdata->fullmessagehtml   = '';
-            $eventdata->smallmessage      = '';
-            message_send($eventdata);
+            $admins = get_admins();
+            foreach ($admins as $admin) {
+                $eventdata = new stdClass();
+                $eventdata->modulename        = 'moodle';
+                $eventdata->component         = 'enrol_ecommerce';
+                $eventdata->name              = 'ecommerce_enrolment';
+                $eventdata->userfrom          = $user;
+                $eventdata->userto            = $admin;
+                $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
+                $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
+                $eventdata->fullmessageformat = FORMAT_PLAIN;
+                $eventdata->fullmessagehtml   = '';
+                $eventdata->smallmessage      = '';
+                message_send($eventdata);
+            }
         }
     }
 
@@ -262,20 +278,24 @@ try {
 
     $fullname = format_string($course->fullname, true, array('context' => $context));
 
-    if (is_enrolled($context, null, '', true)) { // TODO: use real stripe check.
-        redirect($destination, get_string('paymentthanks', '', $fullname));
+    //if (is_enrolled($context, null, '', true)) {
+    redirect($destination, get_string('paymentthanks', '', $fullname));
 
-    } else {   // Somehow they aren't enrolled yet!
-        $PAGE->set_url($destination);
-        echo $OUTPUT->header();
-        $a = new stdClass();
-        $a->teacher = get_string('defaultcourseteacher');
-        $a->fullname = $fullname;
-        notice(get_string('paymentsorry', '', $a), $destination);
-    }
-} catch (Stripe_CardError $e) {
-    // Catch the errors in any way you like.
-    echo 'Error';
+    //} else {   // Somehow they aren't enrolled yet!
+    //    $PAGE->set_url($destination);
+    //    echo $OUTPUT->header();
+    //    $a = new stdClass();
+    //    $a->teacher = get_string('defaultcourseteacher');
+    //    $a->fullname = $fullname;
+    //    notice(get_string('paymentsorry', '', $a), $destination);
+    //}
+} catch (\Stripe\Error\Card $e) {
+    $PAGE->set_url($destination);
+    echo $OUTPUT->header();
+    $a = new stdClass();
+    $a->teacher = get_string('defaultcourseteacher');
+    $a->fullname = $fullname;
+    notice(get_string('paymentsorry', '', $a), $destination);
 }
 
 // Catch the errors in any way you like.
@@ -301,6 +321,9 @@ catch (Stripe_InvalidRequestError $e) {
 
     // Something else happened, completely unrelated to Stripe.
     echo 'Something else happened, completely unrelated to Stripe';
+    echo '<pre>';
+    echo $e->getMessage();
+    echo '</pre>';
 }
 
 

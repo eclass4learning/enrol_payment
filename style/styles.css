@@ -55,6 +55,10 @@
     margin-left: 27px;
 }
 
+#paypal-button {
+    margin-bottom: 5px;
+}
+
 /**
  * Spin.js styles
  */

@@ -307,7 +307,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 echo '<p><a href="'.$wwwroot.'/login/">'.get_string('loginsite').'</a></p>';
                 echo '</div>';
             } else {
-                //Used internally to verify payment data so that it can't be spoofed.
+                //Used to verify payment data so that it can't be spoofed.
                 $prepayToken = bin2hex(random_bytes(16));
 
                 $paymentdata = [ 'prepaytoken' => $prepayToken
@@ -320,7 +320,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                                , 'units' => 1
                                ];
 
-                $ipn_id = $DB->insert_record("enrol_ecommerce_ipn", $paymentdata);
+                $DB->insert_record("enrol_ecommerce_ipn", $paymentdata);
 
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
 
@@ -335,15 +335,16 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 $PAGE->requires->css('/enrol/ecommerce/style/styles.css');
 
                 //Sanitise some fields before building the PayPal form
-                $courseshortname = $shortname;
-                $userfullname    = fullname($USER);
-                $userfirstname   = $USER->firstname;
-                $userlastname    = $USER->lastname;
-                $useraddress     = $USER->address;
-                $usercity        = $USER->city;
-                $paypalshipping  = $instance->customint4 ? 2 : 1;
-                $instancename    = $this->get_instance_name($instance);
-                $enablediscounts = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
+                $courseshortname  = $shortname;
+                $userfullname     = fullname($USER);
+                $userfirstname    = $USER->firstname;
+                $userlastname     = $USER->lastname;
+                $useraddress      = $USER->address;
+                $usercity         = $USER->city;
+                $paypalShipping   = $instance->customint4 ? 2 : 1;
+                $stripeShipping   = $instance->customint4;
+                $instancename     = $this->get_instance_name($instance);
+                $enablediscounts  = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
 
                 include($CFG->dirroot.'/enrol/ecommerce/enrol.html');
             }

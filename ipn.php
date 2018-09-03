@@ -35,7 +35,7 @@ define('NO_DEBUG_DISPLAY', true);
 // @codingStandardsIgnoreLine This script does not require login.
 require("../../config.php");
 require_once("lib.php");
-require_once('discountlib.php');
+require_once("paymentlib.php");
 require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
@@ -81,27 +81,27 @@ if (empty($data->custom)) {
     throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Missing request param: custom');
 }
 
-$custom = $DB->get_record('enrol_ecommerce_ipn', ["id" => $data->custom], "*", MUST_EXIST);
+$payment = get_payment_from_token($data->custom);
 
 unset($data->custom);
 
-if (empty($custom)) {
+if (empty($payment)) {
     throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Invalid value of the request param: custom');
 }
 
-$data->userid           = (int)$custom->userid;
-$data->courseid         = (int)$custom->courseid;
-$data->instanceid       = (int)$custom->instanceid;
+$data->userid           = (int)$payment->userid;
+$data->courseid         = (int)$payment->courseid;
+$data->instanceid       = (int)$payment->instanceid;
 $data->payment_gross    = $data->mc_gross;
 $data->payment_currency = $data->mc_currency;
 $data->timeupdated      = time();
 
-$multiple         = (bool)$custom->multiple;
+$multiple         = (bool)$payment->multiple;
 if ($multiple) {
-    $multiple_userids = explode(',',$custom->multiple_userids);
     if(empty($multiple_userids)) {
         throw new moodle_exception('invalidrequest', 'core_error', '', null, "Multiple purchase specified, but no userids found.");
     }
+    $multiple_userids = explode(',',$payment->multiple_userids);
 }
 
 $user = $DB->get_record("user", array("id" => $data->userid), "*", MUST_EXIST);
@@ -173,7 +173,7 @@ if (strlen($result) > 0) {
             $eventdata->courseid          = empty($data->courseid) ? SITEID : $data->courseid;
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_ecommerce';
-            $eventdata->name              = 'paypal_enrolment';
+            $eventdata->name              = 'ecommerce_enrolment';
             $eventdata->userfrom          = get_admin();
             $eventdata->userto            = $user;
             $eventdata->subject           = "Moodle: PayPal payment";
@@ -232,31 +232,25 @@ if (strlen($result) > 0) {
 
         // Check that amount paid is the correct amount
         if ( (float) $plugin_instance->cost <= 0 ) {
-            $cost = (float) $plugin->get_config('cost');
+            $original_cost = (float) $plugin->get_config('cost');
         } else {
-            $cost = (float) $plugin_instance->cost;
+            $original_cost = (float) $plugin_instance->cost;
         }
 
         // Use the same rounding of floats as on the enrol form.
-        $cost = format_float($cost, 2, false);
+        $original_cost = format_float($original_cost, 2, false);
 
-        if ($data->payment_gross < $cost) {
-            $discountdata = apply_discount($plugin_instance);
-            if ($discountdata['success']) {
-                $roundedpayment = format_float($data->payment_gross, 2, false);
-                $discountedcost = $discountdata['discounted_cost'];
-                error_log("ROUNDED PAYMENT: $roundedpayment ... DISCOUNTED COST: $discountedcost");
+        //What should the user have paid? Verify using info stored in the
+        //database.
+        $cost = calculate_cost($plugin_instance, $payment)["subtotal"];
 
-                if($roundedpayment + 0.01 < $discountedcost) {
-                    \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
-                    die;
-                }
-            } else {
-                //This shouldn't happen, but if it does, the discount is just invalid.
-                \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
-                die;
-            }
+        if ($data->payment_gross + 0.01 < $cost) {
+            //This shouldn't happen unless the user spoofs their requests, but
+            //if it does, the discount is just invalid.
+            \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
+            die;
         }
+
         // Use the queried course's full name for the item_name field.
         $data->item_name = $course->fullname;
 

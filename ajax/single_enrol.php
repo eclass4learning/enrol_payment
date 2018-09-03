@@ -8,6 +8,7 @@ require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
 require_once(dirname(__FILE__).'/../lang/en/enrol_ecommerce.php');
 require_once(dirname(__FILE__).'/util.php');
+require_once(dirname(__FILE__).'/../paymentlib.php');
 
 global $DB;
 

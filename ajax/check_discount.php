@@ -3,9 +3,9 @@
 require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
 require_once(dirname(__FILE__).'/util.php');
+require_once(dirname(__FILE__).'/../paymentlib.php');
 
 global $DB;
-
 
 $instanceid = $_GET['instanceid'];
 $prepayToken = $_GET['prepaytoken'];
