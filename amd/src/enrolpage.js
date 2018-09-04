@@ -192,7 +192,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     body: successmessage,
                 }, trigger).done(function(modal) {
                     modal.setSaveButtonText("Confirm Payment");
-                    modal.getRoot().on(ModalEvents.save, function(e) {
+                    modal.getRoot().on(ModalEvents.save, function() {
                         enrolPage.checkoutFinal();
                     });
                 });
@@ -397,7 +397,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                             self.checkoutFinal();
                         },
                         failure: function() {
-                            alert(mdlstr["errcommunicating"]);
+                            alert(self.mdlstr["errcommunicating"]);
                         }
                     });
                 }

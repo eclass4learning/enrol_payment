@@ -316,7 +316,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $tax_info = $this->apply_tax($cost);
         $tax_rate = $tax_info["tax_rate"];
         $tax_amount = $tax_info["tax_amount"];
-        $cost = $tax_amount + $cost;
+        $cost = $cost; //+ $tax_amount;
 
         if (abs($cost) < 0.01) { // no cost, other enrolment methods (instances) should be used
             echo '<p>'.get_string('nocost', 'enrol_ecommerce').'</p>';
