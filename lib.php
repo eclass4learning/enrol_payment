@@ -286,6 +286,12 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $course = $DB->get_record('course', array('id'=>$instance->courseid));
         $context = context_course::instance($course->id);
 
+        if($this->get_config('stripelogo')) {
+            $stripelogourl = (string) moodle_url::make_pluginfile_url(1, "enrol_ecommerce", "stripelogo", null, "/", str_replace('/', '', $this->get_config('stripelogo')));
+        } else {
+            $stripelogourl = null;
+        }
+
         $shortname = format_string($course->shortname, true, array('context' => $context));
         $strloginto = get_string("loginto", "", $shortname);
         $strcourses = get_string("courses");
@@ -346,6 +352,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                                , 'multiple_userids' => null
                                , 'discounted' => false
                                , 'units' => 1
+                               , 'original_cost' => $cost
                                ];
 
                 $DB->insert_record("enrol_ecommerce_ipn", $paymentdata);
@@ -358,6 +365,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                            , $prepayToken
                            , $coursefullname
                            , $instance->customint4 //Shipping required?
+                           , $stripelogourl
                            ];
                 $PAGE->requires->js_call_amd('enrol_ecommerce/enrolpage', 'init', $js_data);
                 $PAGE->requires->css('/enrol/ecommerce/style/styles.css');
@@ -527,12 +535,15 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $mform->setDefault('enrolenddate', 0);
         $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_ecommerce');
 
-        $mform->addElement('select', 'customint1', get_string('sendcoursewelcomemessage', 'enrol_ecommerce'),
-                enrol_send_welcome_email_options());
+        $mform->addElement('select', 'customint1',
+                           get_string('sendcoursewelcomemessage', 'enrol_ecommerce'),
+                           enrol_send_welcome_email_options());
+        $mform->setDefault('customint1', $this->get_config('sendcoursewelcomemessage'));
         $mform->addHelpButton('customint1', 'sendcoursewelcomemessage', 'enrol_ecommerce');
 
         $options = array('cols' => '60', 'rows' => '8');
         $mform->addElement('textarea', 'customtext1', get_string('customwelcomemessage', 'enrol_ecommerce'), $options);
+        $mform->setDefault('customtext1', $this->get_config('defaultcoursewelcomemessage'));
         $mform->addHelpButton('customtext1', 'customwelcomemessage', 'enrol_ecommerce');
 
         $groups = groups_get_all_groups($instance->courseid);
@@ -604,16 +615,17 @@ class enrol_ecommerce_plugin extends enrol_plugin {
             $errors['cost'] = get_string('costerror', 'enrol_ecommerce');
         }
 
-        $discount_amount = str_replace(get_string('decsep', 'langconfig'), '.', $data['customdec1']);
-        if (!is_numeric($discount_amount)) {
-            $errors['customdec1'] = get_string('discountamounterror', 'enrol_ecommerce');
+        if (array_key_exists("customdec1", $data)) {
+            $discount_amount = str_replace(get_string('decsep', 'langconfig'), '.', $data['customdec1']);
+            if (!is_numeric($discount_amount)) {
+                $errors['customdec1'] = get_string('discountamounterror', 'enrol_ecommerce');
+            }
+            $totaldigits = strlen(str_replace('.','',$discount_amount));
+            $digitsafterdecimal = strlen(substr(strrchr($discount_amount, "."), 1));
+            if ($totaldigits > 12 || $digitsafterdecimal > 7) {
+                $errors['customdec1'] = get_string('discountdigitserror', 'enrol_ecommerce');
+            }
         }
-        $totaldigits = strlen(str_replace('.','',$discount_amount));
-        $digitsafterdecimal = strlen(substr(strrchr($discount_amount, "."), 1));
-        if ($totaldigits > 12 || $digitsafterdecimal > 7) {
-            $errors['customdec1'] = get_string('discountdigitserror', 'enrol_ecommerce');
-        }
-        error_log($totaldigits);
 
         $validstatus = array_keys($this->get_status_options());
         $validcurrency = array_keys($this->get_currencies());
@@ -666,4 +678,44 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $context = context_course::instance($instance->courseid);
         return has_capability('enrol/ecommerce:config', $context);
     }
+
+}
+
+/**
+ * Serve the files from the MYPLUGIN file areas
+ *
+ * @param stdClass $course the course object
+ * @param stdClass $cm the course module object
+ * @param stdClass $context the context
+ * @param string $filearea the name of the file area
+ * @param array $args extra arguments (itemid, path)
+ * @param bool $forcedownload whether or not force download
+ * @param array $options additional options affecting the file serving
+ * @return bool false if the file not found, just send the file otherwise and do not return anything
+ */
+function enrol_ecommerce_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+    // Make sure the filearea is one of those used by the plugin.
+    if ($filearea !== 'stripelogo') {
+        return false;
+    }
+
+    // Make sure the user is logged in and has access to the module (plugins that are not course modules should leave out the 'cm' part).
+    require_login($course, true, $cm);
+
+    // Extract the filename / filepath from the $args array.
+    $filename = array_pop($args); // The last item in the $args array.
+
+    $filepath = '/';
+
+    // Retrieve the file from the Files API.
+    $fs = get_file_storage();
+    $file = $fs->get_file($context->id, 'enrol_ecommerce', $filearea, 0, $filepath, $filename);
+    if (!$file) {
+        error_log("ack");
+        return false; // The file does not exist.
+    }
+
+    // We can now send the file back to the browser - in this case with a cache lifetime of 1 day and no filtering.
+    // From Moodle 2.3, use send_stored_file instead.
+    send_file($file, 86400, 0, $forcedownload, $options);
 }

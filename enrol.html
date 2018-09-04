@@ -12,12 +12,13 @@
 <?php endif; ?>
 
 <p>&nbsp;</p>
+
+<?php if($multiple_enabled) { ?>
 <div id="multiple-registration-container"></div>
 <div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr">Multiple Registration</a>
-<?php if($multiple_enabled) { ?>
     <?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_ecommerce'))?>
-<?php } ?>
 </div>
+<?php } ?>
 
 <p><img alt="<?php print_string('paypalaccepted', 'enrol_ecommerce') ?>" src="https://www.paypal.com/en_US/i/logo/PayPal_mark_60x38.gif" /></p>
 <p><?php print_string("paymentinstant") ?></p>

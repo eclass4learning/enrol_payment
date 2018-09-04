@@ -339,7 +339,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                 var stripeHandler = StripeCheckout.configure({ //eslint-disable-line no-undef
                   key: self.stripePublishableKey,
-                  image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+                  image: self.stripeLogo || 'https://stripe.com/img/documentation/checkout/marketplace.png',
                   locale: 'auto',
                   shippingAddress: self.shippingRequired,
                   token: function(token) {
@@ -409,7 +409,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , cost
                       , prepayToken
                       , courseFullName
-                      , shippingRequired ) {
+                      , shippingRequired
+                      , stripeLogo ) {
 
             var self = this;
 
@@ -454,6 +455,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.courseFullName = courseFullName;
                 self.shippingRequired = shippingRequired;
                 self.prepayToken = prepayToken;
+                self.stripeLogo = stripeLogo;
 
                 self.initClickHandlers();
                 self.updateCostView();

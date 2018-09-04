@@ -50,6 +50,7 @@
         <FIELD NAME="multiple_userids" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated user IDs for multiple enrollment"/>
         <FIELD NAME="discounted" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="units" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="original_cost" TYPE="varchar" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

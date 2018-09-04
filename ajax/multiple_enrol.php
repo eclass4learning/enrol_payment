@@ -42,7 +42,12 @@ if ($CFG->allowaccountssameemail) {
 
         $ret["successmessage"] =
             get_string("multipleregistrationconfirmuserlist", "enrol_ecommerce")
-          . implode("<li>", array_map("pretty_print_user", $ret["users"]));
+            . implode("<li>", array_map("pretty_print_user", $ret["users"]))
+            . "</ul>"
+            . "<br>"
+            . get_string("totalcost", "enrol_ecommerce")
+            . $ret["oc_discounted"] . " × " . $payment->units . " = <b>" . $ret["subtotal_localised"] . " " . $instance->currency . "</b>"
+        ;
 
     } catch (Exception $e) {
         $ret["success"] = false;

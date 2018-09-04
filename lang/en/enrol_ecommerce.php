@@ -130,13 +130,17 @@ $string['allowmultipleenrol_help'] = 'Allow users to enrol other users by enteri
 $string['sameemailaccountsallowed'] = "Error: Accounts sharing the same email address are allowed on this Moodle site. Because of this, the Multiple Registration cannot be used. Please contact your site administrator.";
 $string['duplicateemail'] = "Error: Duplicate emails were entered in the multiple registration form.";
 $string['usersnotfoundwithemail'] = "The following emails were not found in the Moodle database: <br><ul><li>";
+$string['totalcost'] = "Total cost: ";
 $string['multipleregistrationconfirmuserlist'] = "You are purchasing a registration for the following users: <br><ul><li>";
 $string['enabletaxcalculation'] = "Enable tax calculation";
 $string['enabletaxcalculation_help'] = "If the \"msn\" user profile field is overloaded to store a canadian province abbreviation, calculate the tax and factor into the cost.";
+$string['defaultcoursewelcomemessage'] = "Default course welcome message";
 
 $string['stripesecretkey'] = "Stripe Secret Key";
 $string['stripesecretkey_desc'] = "The API secret key of your Stripe account";
 $string['stripepublishablekey'] = "Stripe Publishable Key";
 $string['stripepublishablekey_desc'] = "The API Publishable Key of your Stripe account";
+$string['stripelogo'] = "Stripe logo";
+$string['stripelogo_desc'] = "128x128 store logo used for Stripe checkout";
 $string['charge_description1'] = "create customer for email receipt";
 $string['charge_description2'] = 'Charge for Course Enrolment';

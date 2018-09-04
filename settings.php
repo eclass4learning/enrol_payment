@@ -36,6 +36,11 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext('enrol_ecommerce/stripepublishablekey', get_string('stripepublishablekey', 'enrol_ecommerce'), get_string('stripepublishablekey_desc', 'enrol_ecommerce'), '', 0));
 
+    $settings->add(new admin_setting_configstoredfile('enrol_ecommerce/stripelogo',
+                    get_string('stripelogo', 'enrol_ecommerce'),
+                    get_string('stripelogo_desc', 'enrol_ecommerce'),
+                    'stripelogo'));
+
     $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/mailstudents', get_string('mailstudents', 'enrol_ecommerce'), '', 0));
 
     $settings->add(new admin_setting_configcheckbox('enrol_ecommerce/mailteachers', get_string('mailteachers', 'enrol_ecommerce'), '', 0));
@@ -90,4 +95,8 @@ if ($ADMIN->fulltree) {
             ENROL_SEND_EMAIL_FROM_COURSE_CONTACT,
             enrol_send_welcome_email_options()));
 
+    $settings->add(new admin_setting_configtextarea('enrol_ecommerce/defaultcoursewelcomemessage',
+        get_string('defaultcoursewelcomemessage', 'enrol_ecommerce'),
+        null,
+        null));
 }

@@ -21,7 +21,7 @@ function get_payment_from_token($prepayToken) {
 function calculate_cost($instance, $payment) {
     $discount_amount = $instance->customdec1;
     //$ret["discount_amount"] = $discount_amount;
-    $cost = $instance->cost;
+    $cost = $payment->original_cost;
     $subtotal = $cost;
 
     if($payment->discounted && $discount_amount < 0.00) {
@@ -35,6 +35,8 @@ function calculate_cost($instance, $payment) {
     if(!$payment->discounted) {
         $discount_amount = 0.0;
     }
+
+    $oc_discounted = $cost;
 
     switch ($instance->customint3) {
         case 0:
@@ -57,8 +59,11 @@ function calculate_cost($instance, $payment) {
             $per_unit_cost = $cost - ($cost * $normalized_discount);
             $subtotal = $per_unit_cost * $payment->units;
 
+            $oc_discounted = $per_unit_cost;
+
             break;
         case 2:
+            $oc_discounted = $cost - $discount_amount;
             $subtotal = ($cost - $discount_amount) * $payment->units;
 
             break;
@@ -69,6 +74,7 @@ function calculate_cost($instance, $payment) {
 
     $ret['subtotal'] = format_float($subtotal, 2, false);
     $ret['subtotal_localised'] = format_float($subtotal, 2, true);
+    $ret['oc_discounted'] = format_float($oc_discounted, 2, true);
 
     return $ret;
 }
