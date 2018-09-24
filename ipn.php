@@ -47,14 +47,14 @@ set_exception_handler(\enrol_ecommerce\util::get_exception_handler());
 
 // Make sure we are enabled in the first place.
 if (!enrol_is_enabled('ecommerce')) {
-    http_response_code(503);
     throw new moodle_exception('errdisabled', 'enrol_ecommerce');
+    die();
 }
 
 /// Keep out casual intruders
 if (empty($_POST) or !empty($_GET)) {
-    http_response_code(400);
-    throw new moodle_exception('invalidrequest', 'core_error');
+    echo get_string('invalidrequest', 'core_error');
+    die();
 }
 
 /// Read all the data from PayPal and get it ready for later;

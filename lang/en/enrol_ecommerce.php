@@ -106,9 +106,9 @@ The following placeholders may be included in the message:
 * User fullname {$a->fullname}';
 
 $string['discounttype'] = 'Discount type';
-$string['nodiscount'] = 'No discount';
-$string['percentdiscount'] = 'Percentage discount';
-$string['valuediscount'] = 'Value discount';
+$string['nodiscount'] = 'No discount &nbsp;&nbsp;';
+$string['percentdiscount'] = 'Percentage discount &nbsp;&nbsp;';
+$string['valuediscount'] = 'Value discount &nbsp;&nbsp;';
 $string['discountcode'] = 'Discount code';
 $string['discountamount'] = 'Discount amount';
 $string['discounttypeerror'] = 'Invalid discount type.';
@@ -124,11 +124,16 @@ $string['notenoughunits'] = 'Attempting to make a purchase for fewer than 1 user
 
 $string['requireshippinginfo'] = 'Require shipping info at checkout';
 $string['multipleregistration'] = 'Multiple Registration';
+
+//TODO add description - ensure registrants have an account on (long name)
+//(Registrant 1 email, instead of Email 1)
 $string['multipleregistration_help'] = 'Purchase a registration for multiple users.<br>';
 $string['allowmultipleenrol'] = 'Allow Multiple Registration';
 $string['allowmultipleenrol_help'] = 'Allow users to enrol other users by entering their email addresses';
 $string['sameemailaccountsallowed'] = "Error: Accounts sharing the same email address are allowed on this Moodle site. Because of this, the Multiple Registration cannot be used. Please contact your site administrator.";
 $string['duplicateemail'] = "Error: Duplicate emails were entered in the multiple registration form.";
+
+//TODO use site long name
 $string['usersnotfoundwithemail'] = "The following emails were not found in the Moodle database: <br><ul><li>";
 $string['totalcost'] = "Total cost: ";
 $string['multipleregistrationconfirmuserlist'] = "You are purchasing a registration for the following users: <br><ul><li>";
