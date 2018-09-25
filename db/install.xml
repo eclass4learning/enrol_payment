@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="enrol/ecommerce/db" VERSION="20180831" COMMENT="XMLDB file for Moodle enrol/ecommerce"
+<XMLDB PATH="enrol/payment/db" VERSION="20180831" COMMENT="XMLDB file for Moodle enrol/payment"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="enrol_ecommerce" COMMENT="Holds all known information about eCommerce transactions">
+    <TABLE NAME="enrol_payment" COMMENT="Holds all known information about eCommerce transactions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="business" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
@@ -39,7 +39,7 @@
         <INDEX NAME="receiver_email" UNIQUE="false" FIELDS="receiver_email"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="enrol_ecommerce_ipn" COMMENT="Holds fields that are sent through PayPal/Stripe and returned to IPN.">
+    <TABLE NAME="enrol_payment_ipn" COMMENT="Holds fields that are sent through PayPal/Stripe and returned to IPN.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="prepaytoken" TYPE="text" NOTNULL="true" SEQUENCE="false"/>

@@ -22,7 +22,7 @@
  * If Stripe verifies this then it sets up the enrolment for that
  * user.
  *
- * @package    enrol_ecommerce
+ * @package    enrol_payment
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -42,11 +42,11 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_login();
 // Stripe does not like when we return error messages here,
 // the custom handler just logs exceptions and stops.
-set_exception_handler('enrol_ecommerce_charge_exception_handler');
+set_exception_handler('enrol_payment_charge_exception_handler');
 
 // Keep out casual intruders.
 if (empty(required_param('stripeToken', PARAM_RAW))) {
-    print_error(get_string('stripe_sorry', 'enrol_ecommerce'));
+    print_error(get_string('stripe_sorry', 'enrol_payment'));
 }
 
 
@@ -94,35 +94,35 @@ if ($multiple) {
 // Get the user and course records.
 
 if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
-    message_ecommerce_error_to_admin("Not a valid user id", $data);
+    message_payment_error_to_admin("Not a valid user id", $data);
     redirect($CFG->wwwroot);
 }
 
 if (! $course = $DB->get_record("course", array("id" => $data->courseid))) {
-    message_ecommerce_error_to_admin("Not a valid course id", $data);
+    message_payment_error_to_admin("Not a valid course id", $data);
     redirect($CFG->wwwroot);
 }
 
 if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
-    message_ecommerce_error_to_admin("Not a valid context id", $data);
+    message_payment_error_to_admin("Not a valid context id", $data);
     redirect($CFG->wwwroot);
 }
 
 $PAGE->set_context($context);
 
 if (! $plugin_instance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
-    message_ecommerce_error_to_admin("Not a valid instance id", $data);
+    message_payment_error_to_admin("Not a valid instance id", $data);
     redirect($CFG->wwwroot);
 }
 
  // If currency is incorrectly set, then someone may be trying to cheat the system.
 
 if ($data->courseid != $plugin_instance->courseid) {
-    message_ecommerce_error_to_admin("Course Id does not match to the course settings, received: ".$data->courseid, $data);
+    message_payment_error_to_admin("Course Id does not match to the course settings, received: ".$data->courseid, $data);
     redirect($CFG->wwwroot);
 }
 
-$plugin = enrol_get_plugin('ecommerce');
+$plugin = enrol_get_plugin('payment');
 
 // Check that amount paid is the correct amount
 if ((float) $plugin_instance->cost <= 0.0 ) {
@@ -141,7 +141,7 @@ $cost = calculate_cost($plugin_instance, $payment)["subtotal"];
 if ($data->amount + 0.01 < $cost) {
     //This shouldn't happen unless the user spoofs their requests, but
     //if it does, the discount is just invalid.
-    \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->amount < $cost))", $data);
+    \enrol_payment\util::message_paypal_error_to_admin("Amount paid is not enough ($data->amount < $cost))", $data);
     die;
 }
 
@@ -152,13 +152,13 @@ try {
     Stripe::setApiKey($plugin->get_config('stripesecretkey'));
     $charge1 = Stripe_Customer::create(array(
         "email" => required_param('stripeEmail', PARAM_EMAIL),
-        "description" => get_string('charge_description1', 'enrol_ecommerce')
+        "description" => get_string('charge_description1', 'enrol_payment')
     ));
     $charge = Stripe_Charge::create(array(
       "amount" => $cost * 100,
       "currency" => $plugin_instance->currency,
       "card" => required_param('stripeToken', PARAM_RAW),
-      "description" => get_string('charge_description2', 'enrol_ecommerce'),
+      "description" => get_string('charge_description2', 'enrol_payment'),
       "receipt_email" => required_param('stripeEmail', PARAM_EMAIL)
     ));
 
@@ -173,7 +173,7 @@ try {
 
     // ALL CLEAR !
 
-    $DB->insert_record("enrol_ecommerce", $data);
+    $DB->insert_record("enrol_payment", $data);
 
     if ($plugin_instance->enrolperiod) {
         $timestart = time();
@@ -204,7 +204,7 @@ try {
 
     foreach($multiple_userids as $uid) {
         if (!$user = $DB->get_record('user', array('id'=>$uid))) {   // Check that user exists
-            \enrol_ecommerce\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
+            \enrol_payment\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
             die;
         }
         // Enrol user.
@@ -226,8 +226,8 @@ try {
 
                 $eventdata = new stdClass();
                 $eventdata->modulename        = 'moodle';
-                $eventdata->component         = 'enrol_ecommerce';
-                $eventdata->name              = 'ecommerce_enrolment';
+                $eventdata->component         = 'enrol_payment';
+                $eventdata->name              = 'payment_enrolment';
                 $eventdata->userfrom          = empty($teacher) ? core_user::get_support_user() : $teacher;
                 $eventdata->userto            = $user;
                 $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
@@ -244,8 +244,8 @@ try {
 
                 $eventdata = new stdClass();
                 $eventdata->modulename        = 'moodle';
-                $eventdata->component         = 'enrol_ecommerce';
-                $eventdata->name              = 'ecommerce_enrolment';
+                $eventdata->component         = 'enrol_payment';
+                $eventdata->name              = 'payment_enrolment';
                 $eventdata->userfrom          = $user;
                 $eventdata->userto            = $teacher;
                 $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
@@ -263,8 +263,8 @@ try {
             foreach ($admins as $admin) {
                 $eventdata = new stdClass();
                 $eventdata->modulename        = 'moodle';
-                $eventdata->component         = 'enrol_ecommerce';
-                $eventdata->name              = 'ecommerce_enrolment';
+                $eventdata->component         = 'enrol_payment';
+                $eventdata->name              = 'payment_enrolment';
                 $eventdata->userfrom          = $user;
                 $eventdata->userto            = $admin;
                 $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
@@ -338,7 +338,7 @@ catch (Stripe_InvalidRequestError $e) {
  * @param string $subject
  * @param stdClass $data
  */
-function message_ecommerce_error_to_admin($subject, $data) {
+function message_payment_error_to_admin($subject, $data) {
     $admin = get_admin();
     $site = get_site();
 
@@ -350,8 +350,8 @@ function message_ecommerce_error_to_admin($subject, $data) {
 
     $eventdata = new stdClass();
     $eventdata->modulename        = 'moodle';
-    $eventdata->component         = 'enrol_ecommerce';
-    $eventdata->name              = 'ecommerce_enrolment';
+    $eventdata->component         = 'enrol_payment';
+    $eventdata->name              = 'payment_enrolment';
     $eventdata->userfrom          = $admin;
     $eventdata->userto            = $admin;
     $eventdata->subject           = "STRIPE PAYMENT ERROR: ".$subject;

@@ -17,7 +17,7 @@
 /**
  * PayPal enrolment plugin - support for user self unenrolment.
  *
- * @package    enrol_ecommerce
+ * @package    enrol_payment
  * @copyright  2010 Petr Skoda  {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -56,6 +56,6 @@ if ($confirm and confirm_sesskey()) {
 echo $OUTPUT->header();
 $yesurl = new moodle_url($PAGE->url, array('confirm'=>1, 'sesskey'=>sesskey()));
 $nourl = new moodle_url('/course/view.php', array('id'=>$course->id));
-$message = get_string('unenrolselfconfirm', 'enrol_ecommerce', format_string($course->fullname));
+$message = get_string('unenrolselfconfirm', 'enrol_payment', format_string($course->fullname));
 echo $OUTPUT->confirm($message, $yesurl, $nourl);
 echo $OUTPUT->footer();

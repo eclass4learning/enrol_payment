@@ -17,7 +17,7 @@
 /**
  * paypal enrolment plugin tests.
  *
- * @package    enrol_ecommerce
+ * @package    enrol_payment
  * @category   phpunit
  * @copyright  2012 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 
-class enrol_ecommerce_testcase extends advanced_testcase {
+class enrol_payment_testcase extends advanced_testcase {
 
     protected function enable_plugin() {
         $enabled = enrol_get_plugins(true);
@@ -45,8 +45,8 @@ class enrol_ecommerce_testcase extends advanced_testcase {
     public function test_basics() {
         $this->assertFalse(enrol_is_enabled('paypal'));
         $plugin = enrol_get_plugin('paypal');
-        $this->assertInstanceOf('enrol_ecommerce_plugin', $plugin);
-        $this->assertEquals(ENROL_EXT_REMOVED_SUSPENDNOROLES, get_config('enrol_ecommerce', 'expiredaction'));
+        $this->assertInstanceOf('enrol_payment_plugin', $plugin);
+        $this->assertEquals(ENROL_EXT_REMOVED_SUSPENDNOROLES, get_config('enrol_payment', 'expiredaction'));
     }
 
     public function test_sync_nothing() {
@@ -63,7 +63,7 @@ class enrol_ecommerce_testcase extends advanced_testcase {
         global $DB;
         $this->resetAfterTest();
 
-        /** @var enrol_ecommerce_plugin $paypalplugin  */
+        /** @var enrol_payment_plugin $paypalplugin  */
         $paypalplugin = enrol_get_plugin('paypal');
         /** @var enrol_manual_plugin $manualplugin  */
         $manualplugin = enrol_get_plugin('manual');

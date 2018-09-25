@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file keeps track of upgrades to the ecommerce enrolment plugin
+ * This file keeps track of upgrades to the payment enrolment plugin
  *
- * @package    enrol_ecommerce
+ * @package    enrol_payment
  * @copyright  2010 Eugene Venter
  * @author     Eugene Venter
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -42,7 +42,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-function xmldb_enrol_ecommerce_upgrade($oldversion) {
+function xmldb_enrol_payment_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
@@ -61,9 +61,9 @@ function xmldb_enrol_ecommerce_upgrade($oldversion) {
 
     if ($oldversion < 2018051401) {
 
-        // Define field instanceid to be added to enrol_ecommerce.
+        // Define field instanceid to be added to enrol_payment.
         // For some reason, some Moodle instances that are upgraded from old versions do not have this field.
-        $table = new xmldb_table('enrol_ecommerce');
+        $table = new xmldb_table('enrol_payment');
         $field = new xmldb_field('instanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'userid');
 
         // Conditionally launch add field instanceid.
@@ -72,53 +72,53 @@ function xmldb_enrol_ecommerce_upgrade($oldversion) {
         }
 
         // Paypal savepoint reached.
-        upgrade_plugin_savepoint(true, 2018051401, 'enrol', 'ecommerce');
+        upgrade_plugin_savepoint(true, 2018051401, 'enrol', 'payment');
     }
 
     if ($oldversion < 2018051402) {
 
-        // Define key courseid (foreign) to be added to enrol_ecommerce.
-        $table = new xmldb_table('enrol_ecommerce');
+        // Define key courseid (foreign) to be added to enrol_payment.
+        $table = new xmldb_table('enrol_payment');
         $key = new xmldb_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
 
         // Launch add key courseid.
         $dbman->add_key($table, $key);
 
         // Paypal savepoint reached.
-        upgrade_plugin_savepoint(true, 2018051402, 'enrol', 'ecommerce');
+        upgrade_plugin_savepoint(true, 2018051402, 'enrol', 'payment');
     }
 
     if ($oldversion < 2018051403) {
 
-        // Define key userid (foreign) to be added to enrol_ecommerce.
-        $table = new xmldb_table('enrol_ecommerce');
+        // Define key userid (foreign) to be added to enrol_payment.
+        $table = new xmldb_table('enrol_payment');
         $key = new xmldb_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
 
         // Launch add key userid.
         $dbman->add_key($table, $key);
 
         // Paypal savepoint reached.
-        upgrade_plugin_savepoint(true, 2018051403, 'enrol', 'ecommerce');
+        upgrade_plugin_savepoint(true, 2018051403, 'enrol', 'payment');
     }
 
     if ($oldversion < 2018051404) {
 
-        // Define key instanceid (foreign) to be added to enrol_ecommerce.
-        $table = new xmldb_table('enrol_ecommerce');
+        // Define key instanceid (foreign) to be added to enrol_payment.
+        $table = new xmldb_table('enrol_payment');
         $key = new xmldb_key('instanceid', XMLDB_KEY_FOREIGN, array('instanceid'), 'enrol', array('id'));
 
         // Launch add key instanceid.
         $dbman->add_key($table, $key);
 
         // Paypal savepoint reached.
-        upgrade_plugin_savepoint(true, 2018051404, 'enrol', 'ecommerce');
+        upgrade_plugin_savepoint(true, 2018051404, 'enrol', 'payment');
     }
 
     if ($oldversion < 2018051405) {
 
-        $table = new xmldb_table('enrol_ecommerce');
+        $table = new xmldb_table('enrol_payment');
 
-        // Define index business (not unique) to be added to enrol_ecommerce.
+        // Define index business (not unique) to be added to enrol_payment.
         $index = new xmldb_index('business', XMLDB_INDEX_NOTUNIQUE, array('business'));
 
         // Conditionally launch add index business.
@@ -126,7 +126,7 @@ function xmldb_enrol_ecommerce_upgrade($oldversion) {
             $dbman->add_index($table, $index);
         }
 
-        // Define index receiver_email (not unique) to be added to enrol_ecommerce.
+        // Define index receiver_email (not unique) to be added to enrol_payment.
         $index = new xmldb_index('receiver_email', XMLDB_INDEX_NOTUNIQUE, array('receiver_email'));
 
         // Conditionally launch add index receiver_email.
@@ -135,7 +135,7 @@ function xmldb_enrol_ecommerce_upgrade($oldversion) {
         }
 
         // Paypal savepoint reached.
-        upgrade_plugin_savepoint(true, 2018051405, 'enrol', 'ecommerce');
+        upgrade_plugin_savepoint(true, 2018051405, 'enrol', 'payment');
     }
 
     return true;

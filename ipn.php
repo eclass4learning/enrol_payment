@@ -22,7 +22,7 @@
  * If PayPal verifies this then it sets up the enrolment for that
  * user.
  *
- * @package    enrol_ecommerce
+ * @package    enrol_payment
  * @copyright 2010 Eugene Venter
  * @author     Eugene Venter - based on code by others
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -43,11 +43,11 @@ require_once($CFG->dirroot . '/group/lib.php');
 
 // PayPal does not like when we return error messages here,
 // the custom handler just logs exceptions and stops.
-set_exception_handler(\enrol_ecommerce\util::get_exception_handler());
+set_exception_handler(\enrol_payment\util::get_exception_handler());
 
 // Make sure we are enabled in the first place.
-if (!enrol_is_enabled('ecommerce')) {
-    throw new moodle_exception('errdisabled', 'enrol_ecommerce');
+if (!enrol_is_enabled('payment')) {
+    throw new moodle_exception('errdisabled', 'enrol_payment');
     die();
 }
 
@@ -110,8 +110,8 @@ $context = context_course::instance($course->id, MUST_EXIST);
 
 $PAGE->set_context($context);
 
-$plugin_instance = $DB->get_record("enrol", array("id" => $data->instanceid, "enrol" => "ecommerce", "status" => 0), "*", MUST_EXIST);
-$plugin = enrol_get_plugin('ecommerce');
+$plugin_instance = $DB->get_record("enrol", array("id" => $data->instanceid, "enrol" => "payment", "status" => 0), "*", MUST_EXIST);
+$plugin = enrol_get_plugin('payment');
 
 /// Open a connection back to PayPal to validate the data
 $paypaladdr = empty($CFG->usepaypalsandbox) ? 'ipnpb.paypal.com' : 'ipnpb.sandbox.paypal.com';
@@ -126,7 +126,7 @@ $location = "https://$paypaladdr/cgi-bin/webscr";
 $result = $c->post($location, $req, $options);
 
 if ($c->get_errno()) {
-    throw new moodle_exception('errpaypalconnect', 'enrol_ecommerce', '', array('url' => $paypaladdr, 'result' => $result),
+    throw new moodle_exception('errpaypalconnect', 'enrol_payment', '', array('url' => $paypaladdr, 'result' => $result),
         json_encode($data));
 }
 
@@ -151,7 +151,7 @@ if (strlen($result) > 0) {
             } else {
                 $plugin->unenrol_user($plugin_instance, $data->userid);
             }
-            \enrol_ecommerce\util::message_paypal_error_to_admin("Status not completed or pending. User unenrolled from course",
+            \enrol_payment\util::message_paypal_error_to_admin("Status not completed or pending. User unenrolled from course",
                                                               $data);
             die;
         }
@@ -159,7 +159,7 @@ if (strlen($result) > 0) {
         // If currency is incorrectly set then someone maybe trying to cheat the system
 
         if ($data->mc_currency != $plugin_instance->currency) {
-            \enrol_ecommerce\util::message_paypal_error_to_admin(
+            \enrol_payment\util::message_paypal_error_to_admin(
                 "Currency does not match course settings, received: ".$data->mc_currency,
                 $data);
             die;
@@ -172,8 +172,8 @@ if (strlen($result) > 0) {
             $eventdata = new \core\message\message();
             $eventdata->courseid          = empty($data->courseid) ? SITEID : $data->courseid;
             $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_ecommerce';
-            $eventdata->name              = 'ecommerce_enrolment';
+            $eventdata->component         = 'enrol_payment';
+            $eventdata->name              = 'payment_enrolment';
             $eventdata->userfrom          = get_admin();
             $eventdata->userto            = $user;
             $eventdata->subject           = "Moodle: PayPal payment";
@@ -183,7 +183,7 @@ if (strlen($result) > 0) {
             $eventdata->smallmessage      = '';
             message_send($eventdata);
 
-            \enrol_ecommerce\util::message_paypal_error_to_admin("Payment pending", $data);
+            \enrol_payment\util::message_paypal_error_to_admin("Payment pending", $data);
             die;
         }
 
@@ -198,8 +198,8 @@ if (strlen($result) > 0) {
         // At this point we only proceed with a status of completed or pending with a reason of echeck
 
         // Make sure this transaction doesn't exist already.
-        if ($existing = $DB->get_record("enrol_ecommerce", array("txn_id" => $data->txn_id), "*", IGNORE_MULTIPLE)) {
-            \enrol_ecommerce\util::message_paypal_error_to_admin("Transaction $data->txn_id is being repeated!", $data);
+        if ($existing = $DB->get_record("enrol_payment", array("txn_id" => $data->txn_id), "*", IGNORE_MULTIPLE)) {
+            \enrol_payment\util::message_paypal_error_to_admin("Transaction $data->txn_id is being repeated!", $data);
             die;
         }
 
@@ -213,18 +213,18 @@ if (strlen($result) > 0) {
         }
 
         if (core_text::strtolower($recipient) !== core_text::strtolower($plugin->get_config('paypalbusiness'))) {
-            \enrol_ecommerce\util::message_paypal_error_to_admin("Business email is {$recipient} (not ".
+            \enrol_payment\util::message_paypal_error_to_admin("Business email is {$recipient} (not ".
                     $plugin->get_config('paypalbusiness').")", $data);
             die;
         }
 
         if (!$user = $DB->get_record('user', array('id'=>$data->userid))) {   // Check that user exists
-            \enrol_ecommerce\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
+            \enrol_payment\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
             die;
         }
 
         if (!$course = $DB->get_record('course', array('id'=>$data->courseid))) { // Check that course exists
-            \enrol_ecommerce\util::message_paypal_error_to_admin("Course $data->courseid doesn't exist", $data);
+            \enrol_payment\util::message_paypal_error_to_admin("Course $data->courseid doesn't exist", $data);
             die;
         }
 
@@ -247,7 +247,7 @@ if (strlen($result) > 0) {
         if ($data->payment_gross + 0.01 < $cost) {
             //This shouldn't happen unless the user spoofs their requests, but
             //if it does, the discount is just invalid.
-            \enrol_ecommerce\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
+            \enrol_payment\util::message_paypal_error_to_admin("Amount paid is not enough ($data->payment_gross < $cost))", $data);
             die;
         }
 
@@ -256,7 +256,7 @@ if (strlen($result) > 0) {
 
         // ALL CLEAR !
 
-        $DB->insert_record("enrol_ecommerce", $data);
+        $DB->insert_record("enrol_payment", $data);
 
         if ($plugin_instance->enrolperiod) {
             $timestart = time();
@@ -287,7 +287,7 @@ if (strlen($result) > 0) {
 
         foreach($multiple_userids as $uid) {
             if (!$user = $DB->get_record('user', array('id'=>$uid))) {   // Check that user exists
-                \enrol_ecommerce\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
+                \enrol_payment\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
                 die;
             }
             // Enrol user
@@ -310,7 +310,7 @@ if (strlen($result) > 0) {
                 $eventdata = new \core\message\message();
                 $eventdata->courseid          = $course->id;
                 $eventdata->modulename        = 'moodle';
-                $eventdata->component         = 'enrol_ecommerce';
+                $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'paypal_enrolment';
                 $eventdata->userfrom          = empty($teacher) ? core_user::get_noreply_user() : $teacher;
                 $eventdata->userto            = $user;
@@ -330,7 +330,7 @@ if (strlen($result) > 0) {
                 $eventdata = new \core\message\message();
                 $eventdata->courseid          = $course->id;
                 $eventdata->modulename        = 'moodle';
-                $eventdata->component         = 'enrol_ecommerce';
+                $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'paypal_enrolment';
                 $eventdata->userfrom          = $user;
                 $eventdata->userto            = $teacher;
@@ -350,7 +350,7 @@ if (strlen($result) > 0) {
                     $eventdata = new \core\message\message();
                     $eventdata->courseid          = $course->id;
                     $eventdata->modulename        = 'moodle';
-                    $eventdata->component         = 'enrol_ecommerce';
+                    $eventdata->component         = 'enrol_payment';
                     $eventdata->name              = 'paypal_enrolment';
                     $eventdata->userfrom          = $user;
                     $eventdata->userto            = $admin;
@@ -365,7 +365,7 @@ if (strlen($result) > 0) {
         }
 
     } else if (strcmp ($result, "INVALID") == 0) { // ERROR
-        $DB->insert_record("enrol_ecommerce", $data, false);
-        throw new moodle_exception('erripninvalid', 'enrol_ecommerce', '', null, json_encode($data));
+        $DB->insert_record("enrol_payment", $data, false);
+        throw new moodle_exception('erripninvalid', 'enrol_payment', '', null, json_encode($data));
     }
 }

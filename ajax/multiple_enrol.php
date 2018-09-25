@@ -2,7 +2,7 @@
 
 require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
-require_once(dirname(__FILE__).'/../lang/en/enrol_ecommerce.php');
+require_once(dirname(__FILE__).'/../lang/en/enrol_payment.php');
 require_once(dirname(__FILE__).'/util.php');
 require_once(dirname(__FILE__).'/../paymentlib.php');
 
@@ -17,11 +17,11 @@ $ipn_id = $_POST['ipn_id'];
 if ($CFG->allowaccountssameemail) {
     $ret["success"] = false;
     $ret["failreason"] = "allowaccountssameemail";
-    $ret["failmessage"] = get_string("sameemailaccountsallowed", "enrol_ecommerce");
+    $ret["failmessage"] = get_string("sameemailaccountsallowed", "enrol_payment");
 } else if (count($emails) != count(array_unique($emails))) {
     $ret["success"] = false;
     $ret["failreason"] = "duplicateemail";
-    $ret["failmessage"] = get_string("duplicateemail", "enrol_ecommerce");
+    $ret["failmessage"] = get_string("duplicateemail", "enrol_payment");
 } else {
 
     if(!$ret["success"]) {
@@ -41,11 +41,11 @@ if ($CFG->allowaccountssameemail) {
         $ret = array_merge($ret, calculate_cost($instance, $payment));
 
         $ret["successmessage"] =
-            get_string("multipleregistrationconfirmuserlist", "enrol_ecommerce")
+            get_string("multipleregistrationconfirmuserlist", "enrol_payment")
             . implode("<li>", array_map("pretty_print_user", $ret["users"]))
             . "</ul>"
             . "<br>"
-            . get_string("totalcost", "enrol_ecommerce")
+            . get_string("totalcost", "enrol_payment")
             . $ret["oc_discounted"] . " × " . $payment->units . " = <b>" . $ret["subtotal_localised"] . " " . $instance->currency . "</b>"
         ;
 

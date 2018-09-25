@@ -17,19 +17,19 @@
 /**
  * PayPal enrolment plugin utility class.
  *
- * @package    enrol_ecommerce
+ * @package    enrol_payment
  * @copyright  2016 Cameron Ball <cameron@cameron1729.xyz>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_ecommerce;
+namespace enrol_payment;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * PayPal enrolment plugin utility class.
  *
- * @package   enrol_ecommerce
+ * @package   enrol_payment
  *
  * @copyright 2016 Cameron Ball <cameron@cameron1729.xyz>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -55,8 +55,8 @@ final class util {
         $eventdata = new \core\message\message();
         $eventdata->courseid          = empty($data->courseid) ? SITEID : $data->courseid;
         $eventdata->modulename        = 'moodle';
-        $eventdata->component         = 'enrol_ecommerce';
-        $eventdata->name              = 'ecommerce_enrolment';
+        $eventdata->component         = 'enrol_payment';
+        $eventdata->name              = 'payment_enrolment';
         $eventdata->userfrom          = $admin;
         $eventdata->userto            = $admin;
         $eventdata->subject           = "PAYPAL ERROR: ".$subject;
@@ -76,7 +76,7 @@ final class util {
         return function($ex) {
             $info = get_exception_info($ex);
 
-            $logerrmsg = "enrol_ecommerce IPN exception handler: ".$info->message;
+            $logerrmsg = "enrol_payment IPN exception handler: ".$info->message;
             if (debugging('', DEBUG_NORMAL)) {
                 $logerrmsg .= ' Debug: '.$info->debuginfo."\n".format_backtrace($info->backtrace, true);
             }

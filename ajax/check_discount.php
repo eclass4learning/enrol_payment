@@ -26,7 +26,7 @@ if($correct_code) {
 
     try {
         $payment->discounted = true;
-        $DB->update_record('enrol_ecommerce_ipn', $payment);
+        $DB->update_record('enrol_payment_ipn', $payment);
         $to_return = calculate_cost($instance, $payment);
     } catch (Exception $e) {
         echo json_encode([ 'success' => false

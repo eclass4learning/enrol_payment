@@ -2,20 +2,20 @@
 
 require_once(dirname(__FILE__).'/../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
-require_once(dirname(__FILE__).'/lang/en/enrol_ecommerce.php');
+require_once(dirname(__FILE__).'/lang/en/enrol_payment.php');
 
 global $DB;
 
 function get_payment_from_token($prepayToken) {
     global $DB;
-    return $DB->get_record_sql('SELECT * FROM {enrol_ecommerce_ipn}
+    return $DB->get_record_sql('SELECT * FROM {enrol_payment_ipn}
                                   WHERE ' .$DB->sql_compare_text('prepaytoken') . ' = ? ',
                               array('prepaytoken' => $prepayToken));
 }
 
 /**
- * @param $instance enrol_ecommerce instance
- * @param $payment payment object from enrol_ecommerce_ipn
+ * @param $instance enrol_payment instance
+ * @param $payment payment object from enrol_payment_ipn
  * @return object with "subtotal" and "subtotal_localised" fields.
  */
 function calculate_cost($instance, $payment) {
@@ -25,11 +25,11 @@ function calculate_cost($instance, $payment) {
     $subtotal = $cost;
 
     if($payment->discounted && $discount_amount < 0.00) {
-        throw new Exception(get_string("negativediscount", "enrol_ecommerce"));
+        throw new Exception(get_string("negativediscount", "enrol_payment"));
     }
 
     if($payment->units < 1) {
-        throw new Exception(get_string("notenoughunits", "enrol_ecommerce"));
+        throw new Exception(get_string("notenoughunits", "enrol_payment"));
     }
 
     if(!$payment->discounted) {
@@ -45,7 +45,7 @@ function calculate_cost($instance, $payment) {
             break;
         case 1:
             if($discount_amount > 100) {
-                throw new Exception(get_string("percentdiscountover100error", "enrol_ecommerce"));
+                throw new Exception(get_string("percentdiscountover100error", "enrol_payment"));
             }
 
             //Percentages over 1 converted to a float between 0 and 1.
@@ -68,7 +68,7 @@ function calculate_cost($instance, $payment) {
 
             break;
         default:
-            throw new Exception(get_string("discounttypeerror", "enrol_ecommerce"));
+            throw new Exception(get_string("discounttypeerror", "enrol_payment"));
             break;
     }
 

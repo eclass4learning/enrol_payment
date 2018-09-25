@@ -3,12 +3,12 @@ define([ 'jquery'
        , 'core/modal_events'
        , 'core/str'
        , 'core/config'
-       , 'enrol_ecommerce/spin'
+       , 'enrol_payment/spin'
        ],
 function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //eslint-disable-line no-unused-vars
 
     /**
-     * JavaScript functionality for the enrol_ecommerce enrol.html page
+     * JavaScript functionality for the enrol_payment enrol.html page
      */
     var EnrolPage = {
 
@@ -125,7 +125,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              */
             makePlusSign: function() {
                 var plusSign = "<div class=\"plus-container\"><img src=\""
-                             + MoodleCfg.wwwroot + "/enrol/ecommerce/pix/plus.svg\" class=\"plus\"></div>";
+                             + MoodleCfg.wwwroot + "/enrol/payment/pix/plus.svg\" class=\"plus\"></div>";
                 return plusSign;
             },
 
@@ -139,7 +139,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             makePlusAndMinusSigns: function(n) {
                 var plusSign = this.makePlusSign();
                 var minusSign = "<div class=\"minus-container\"><img src=\""
-                             + MoodleCfg.wwwroot + "/enrol/ecommerce/pix/minus.svg\" class=\"minus\"></div>";
+                             + MoodleCfg.wwwroot + "/enrol/payment/pix/minus.svg\" class=\"minus\"></div>";
                 if (n > 1) {
                     return plusSign + minusSign;
                 } else {
@@ -239,7 +239,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 if (!emails.length) {
                     alert("No valid emails have been entered.");
                 } else {
-                    var ajaxURL = MoodleCfg.wwwroot + "/enrol/ecommerce/ajax/multiple_enrol.php";
+                    var ajaxURL = MoodleCfg.wwwroot + "/enrol/payment/ajax/multiple_enrol.php";
                     $.ajax({
                         url: ajaxURL,
                         method: "POST",
@@ -293,7 +293,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         Discount: {
             checkDiscountCode: function(enrolPage) {
                 var discountcode = $("#discountcode").val();
-                var checkURL = MoodleCfg.wwwroot + "/enrol/ecommerce/ajax/check_discount.php";
+                var checkURL = MoodleCfg.wwwroot + "/enrol/payment/ajax/check_discount.php";
 
                 $.ajax({
                     url: checkURL,
@@ -375,7 +375,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.MultipleRegistration.buildForm($(this));
             });
 
-            $(".ecommerce-checkout").click(function(e) {
+            $(".payment-checkout").click(function(e) {
                 e.preventDefault();
                 if (e.target.id === "paypal-button") {
                     self.gateway = "paypal";
@@ -388,7 +388,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 } else {
                     $.ajax({
                         //Flip database row to single enrollment mode
-                        url: MoodleCfg.wwwroot + "/enrol/ecommerce/ajax/single_enrol.php",
+                        url: MoodleCfg.wwwroot + "/enrol/payment/ajax/single_enrol.php",
                         method: "POST",
                         data: {
                             "prepaytoken" : self.prepayToken
@@ -441,10 +441,10 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             */
 
             var str_promise = MoodleStrings.get_strings([
-                    { key : "discounttypeerror" , component : "enrol_ecommerce" },
-                    { key : "discountamounterror" , component : "enrol_ecommerce" },
-                    { key : "invalidgateway" , component : "enrol_ecommerce" },
-                    { key : "errcommunicating" , component : "enrol_ecommerce" }
+                    { key : "discounttypeerror" , component : "enrol_payment" },
+                    { key : "discountamounterror" , component : "enrol_payment" },
+                    { key : "invalidgateway" , component : "enrol_payment" },
+                    { key : "errcommunicating" , component : "enrol_payment" }
             ]);
             str_promise.done(function(strs) {
                 self.mdlstr = strs;

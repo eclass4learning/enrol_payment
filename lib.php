@@ -19,7 +19,7 @@
  *
  * This plugin allows you to set up paid courses.
  *
- * @package    enrol_ecommerce
+ * @package    enrol_payment
  * @copyright  2010 Eugene Venter
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author  Eugene Venter - based on code by Martin Dougiamas and others
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_ecommerce_plugin extends enrol_plugin {
+class enrol_payment_plugin extends enrol_plugin {
 
     public function get_currencies() {
         // See https://www.paypal.com/cgi-bin/webscr?cmd=p/sell/mc/mc_intro-outside,
@@ -72,7 +72,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
             break;
         }
         if ($found) {
-            return array(new pix_icon('icon', get_string('pluginname', 'enrol_ecommerce'), 'enrol_ecommerce'));
+            return array(new pix_icon('icon', get_string('pluginname', 'enrol_payment'), 'enrol_payment'));
         }
         return array();
     }
@@ -83,12 +83,12 @@ class enrol_ecommerce_plugin extends enrol_plugin {
     }
 
     public function allow_unenrol(stdClass $instance) {
-        // users with unenrol cap may unenrol other users manually - requires enrol/ecommerce:unenrol
+        // users with unenrol cap may unenrol other users manually - requires enrol/payment:unenrol
         return true;
     }
 
     public function allow_manage(stdClass $instance) {
-        // users with manage cap may tweak period and status - requires enrol/ecommerce:manage
+        // users with manage cap may tweak period and status - requires enrol/payment:manage
         return true;
     }
 
@@ -104,7 +104,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
     public function can_add_instance($courseid) {
         $context = context_course::instance($courseid, MUST_EXIST);
 
-        if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/ecommerce:config', $context)) {
+        if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/payment:config', $context)) {
             return false;
         }
 
@@ -179,7 +179,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         } else if ($sendoption == ENROL_SEND_EMAIL_FROM_KEY_HOLDER) {
             // Send as the first user with enrol/self:holdkey capability assigned in the course.
             list($sort) = users_order_by_sql('u');
-            $keyholders = get_users_by_capability($context, 'enrol/ecommerce:holdkey', 'u.*', $sort);
+            $keyholders = get_users_by_capability($context, 'enrol/payment:holdkey', 'u.*', $sort);
             if (!empty($keyholders)) {
                 $contact = array_values($keyholders)[0];
             }
@@ -287,7 +287,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $context = context_course::instance($course->id);
 
         if($this->get_config('stripelogo')) {
-            $stripelogourl = (string) moodle_url::make_pluginfile_url(1, "enrol_ecommerce", "stripelogo", null, "/", str_replace('/', '', $this->get_config('stripelogo')));
+            $stripelogourl = (string) moodle_url::make_pluginfile_url(1, "enrol_payment", "stripelogo", null, "/", str_replace('/', '', $this->get_config('stripelogo')));
         } else {
             $stripelogourl = null;
         }
@@ -319,7 +319,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $cost = $cost; //+ $tax_amount;
 
         if (abs($cost) < 0.01) { // no cost, other enrolment methods (instances) should be used
-            echo '<p>'.get_string('nocost', 'enrol_ecommerce').'</p>';
+            echo '<p>'.get_string('nocost', 'enrol_payment').'</p>';
         } else {
 
             // Calculate localised and "." cost, make sure we send PayPal the same value,
@@ -355,7 +355,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                                , 'original_cost' => $cost
                                ];
 
-                $DB->insert_record("enrol_ecommerce_ipn", $paymentdata);
+                $DB->insert_record("enrol_payment_ipn", $paymentdata);
 
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
 
@@ -367,8 +367,8 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                            , $instance->customint4 //Shipping required?
                            , $stripelogourl
                            ];
-                $PAGE->requires->js_call_amd('enrol_ecommerce/enrolpage', 'init', $js_data);
-                $PAGE->requires->css('/enrol/ecommerce/style/styles.css');
+                $PAGE->requires->js_call_amd('enrol_payment/enrolpage', 'init', $js_data);
+                $PAGE->requires->css('/enrol/payment/style/styles.css');
 
                 //Sanitise some fields before building the PayPal form
                 $courseshortname  = $shortname;
@@ -382,7 +382,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
                 $instancename     = $this->get_instance_name($instance);
                 $enablediscounts  = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
 
-                include($CFG->dirroot.'/enrol/ecommerce/enrol.html');
+                include($CFG->dirroot.'/enrol/payment/enrol.html');
             }
 
         }
@@ -505,86 +505,86 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $mform->setType('name', PARAM_TEXT);
 
         $options = $this->get_status_options();
-        $mform->addElement('select', 'status', get_string('status', 'enrol_ecommerce'), $options);
+        $mform->addElement('select', 'status', get_string('status', 'enrol_payment'), $options);
         $mform->setDefault('status', $this->get_config('status'));
 
-        $mform->addElement('text', 'cost', get_string('cost', 'enrol_ecommerce'), array('size' => 4));
+        $mform->addElement('text', 'cost', get_string('cost', 'enrol_payment'), array('size' => 4));
         $mform->setType('cost', PARAM_RAW);
         $mform->setDefault('cost', format_float($this->get_config('cost'), 2, true));
 
         $paypalcurrencies = $this->get_currencies();
-        $mform->addElement('select', 'currency', get_string('currency', 'enrol_ecommerce'), $paypalcurrencies);
+        $mform->addElement('select', 'currency', get_string('currency', 'enrol_payment'), $paypalcurrencies);
         $mform->setDefault('currency', $this->get_config('currency'));
 
         $roles = $this->get_roleid_options($instance, $context);
-        $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_ecommerce'), $roles);
+        $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_payment'), $roles);
         $mform->setDefault('roleid', $this->get_config('roleid'));
 
         $options = array('optional' => true, 'defaultunit' => 86400);
-        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_ecommerce'), $options);
+        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_payment'), $options);
         $mform->setDefault('enrolperiod', $this->get_config('enrolperiod'));
-        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_ecommerce');
+        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_payment');
 
         $options = array('optional' => true);
-        $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_ecommerce'), $options);
+        $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_payment'), $options);
         $mform->setDefault('enrolstartdate', 0);
-        $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_ecommerce');
+        $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_payment');
 
         $options = array('optional' => true);
-        $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_ecommerce'), $options);
+        $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_payment'), $options);
         $mform->setDefault('enrolenddate', 0);
-        $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_ecommerce');
+        $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_payment');
 
         $mform->addElement('select', 'customint1',
-                           get_string('sendcoursewelcomemessage', 'enrol_ecommerce'),
+                           get_string('sendcoursewelcomemessage', 'enrol_payment'),
                            enrol_send_welcome_email_options());
         $mform->setDefault('customint1', $this->get_config('sendcoursewelcomemessage'));
-        $mform->addHelpButton('customint1', 'sendcoursewelcomemessage', 'enrol_ecommerce');
+        $mform->addHelpButton('customint1', 'sendcoursewelcomemessage', 'enrol_payment');
 
         $options = array('cols' => '60', 'rows' => '8');
-        $mform->addElement('textarea', 'customtext1', get_string('customwelcomemessage', 'enrol_ecommerce'), $options);
+        $mform->addElement('textarea', 'customtext1', get_string('customwelcomemessage', 'enrol_payment'), $options);
         $mform->setDefault('customtext1', $this->get_config('defaultcoursewelcomemessage'));
-        $mform->addHelpButton('customtext1', 'customwelcomemessage', 'enrol_ecommerce');
+        $mform->addHelpButton('customtext1', 'customwelcomemessage', 'enrol_payment');
 
         $groups = groups_get_all_groups($instance->courseid);
         $options = array();
-        $options[0] = get_string('enrolnogroup', 'enrol_ecommerce');
+        $options[0] = get_string('enrolnogroup', 'enrol_payment');
         foreach($groups as $group) {
             $options[$group->id] = $group->name;
         }
-        $mform->addElement('select', 'customint2', get_string('enrolgroup', 'enrol_ecommerce'), $options);
+        $mform->addElement('select', 'customint2', get_string('enrolgroup', 'enrol_payment'), $options);
 
         if($this->get_config('enablediscounts')) {
             //Discount type radio buttons
             $radioarray=array();
-            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('nodiscount', 'enrol_ecommerce'), 0);
-            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('percentdiscount', 'enrol_ecommerce'), 1);
-            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('valuediscount', 'enrol_ecommerce'), 2);
-            $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_ecommerce'), array(' '), false);
+            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('nodiscount', 'enrol_payment'), 0);
+            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('percentdiscount', 'enrol_payment'), 1);
+            $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('valuediscount', 'enrol_payment'), 2);
+            $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_payment'), array(' '), false);
 
             //Discount amount - float
-            $mform->addElement('text', 'customdec1', get_string('discountamount', 'enrol_ecommerce'), array('size' => 4));
+            $mform->addElement('text', 'customdec1', get_string('discountamount', 'enrol_payment'), array('size' => 4));
             $mform->setType('customdec1', PARAM_RAW);
             $mform->setDefault('customdec1', format_float($this->get_config('cost'), 2, true));
             $mform->disabledIf('customdec1', 'customint3', 'eq', 0);
 
             //Discount code - text
-            $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_ecommerce'));
+            $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_payment'));
             $mform->setType('customtext2', PARAM_TEXT);
             $mform->disabledIf('customtext2', 'customint3', 'eq', 0);
         }
 
-        $mform->addElement('advcheckbox', 'customint4', get_string('requireshippinginfo', 'enrol_ecommerce'));
+        $mform->addElement('advcheckbox', 'customint4', get_string('requireshippinginfo', 'enrol_payment'));
         $mform->setType('customint4', PARAM_INT);
 
         if($this->get_config('allowmultipleenrol')) {
-            $mform->addElement('advcheckbox', 'customint5', get_string('allowmultipleenrol', 'enrol_ecommerce'));
+            $mform->addElement('advcheckbox', 'customint5', get_string('allowmultipleenrol', 'enrol_payment'));
             $mform->setType('customint5', PARAM_INT);
         }
 
-        $mform->addElement('advcheckbox', 'customint6', get_string('enabletaxcalculation', 'enrol_ecommerce'));
+        $mform->addElement('advcheckbox', 'customint6', get_string('enabletaxcalculation', 'enrol_payment'));
         $mform->setType('customint6', PARAM_INT);
-        $mform->addHelpButton('customint6', 'enabletaxcalculation', 'enrol_ecommerce');
+        $mform->addHelpButton('customint6', 'enabletaxcalculation', 'enrol_payment');
 
         if (enrol_accessing_via_instance($instance)) {
             $warningtext = get_string('instanceeditselfwarningtext', 'core_enrol');
@@ -607,23 +607,23 @@ class enrol_ecommerce_plugin extends enrol_plugin {
         $errors = array();
 
         if (!empty($data['enrolenddate']) and $data['enrolenddate'] < $data['enrolstartdate']) {
-            $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_ecommerce');
+            $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_payment');
         }
 
         $cost = str_replace(get_string('decsep', 'langconfig'), '.', $data['cost']);
         if (!is_numeric($cost)) {
-            $errors['cost'] = get_string('costerror', 'enrol_ecommerce');
+            $errors['cost'] = get_string('costerror', 'enrol_payment');
         }
 
         if (array_key_exists("customdec1", $data)) {
             $discount_amount = str_replace(get_string('decsep', 'langconfig'), '.', $data['customdec1']);
             if (!is_numeric($discount_amount)) {
-                $errors['customdec1'] = get_string('discountamounterror', 'enrol_ecommerce');
+                $errors['customdec1'] = get_string('discountamounterror', 'enrol_payment');
             }
             $totaldigits = strlen(str_replace('.','',$discount_amount));
             $digitsafterdecimal = strlen(substr(strrchr($discount_amount, "."), 1));
             if ($totaldigits > 12 || $digitsafterdecimal > 7) {
-                $errors['customdec1'] = get_string('discountdigitserror', 'enrol_ecommerce');
+                $errors['customdec1'] = get_string('discountdigitserror', 'enrol_payment');
             }
         }
 
@@ -665,7 +665,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
      */
     public function can_delete_instance($instance) {
         $context = context_course::instance($instance->courseid);
-        return has_capability('enrol/ecommerce:config', $context);
+        return has_capability('enrol/payment:config', $context);
     }
 
     /**
@@ -676,7 +676,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
      */
     public function can_hide_show_instance($instance) {
         $context = context_course::instance($instance->courseid);
-        return has_capability('enrol/ecommerce:config', $context);
+        return has_capability('enrol/payment:config', $context);
     }
 
 }
@@ -693,7 +693,7 @@ class enrol_ecommerce_plugin extends enrol_plugin {
  * @param array $options additional options affecting the file serving
  * @return bool false if the file not found, just send the file otherwise and do not return anything
  */
-function enrol_ecommerce_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+function enrol_payment_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     // Make sure the filearea is one of those used by the plugin.
     if ($filearea !== 'stripelogo') {
         return false;
@@ -709,7 +709,7 @@ function enrol_ecommerce_pluginfile($course, $cm, $context, $filearea, $args, $f
 
     // Retrieve the file from the Files API.
     $fs = get_file_storage();
-    $file = $fs->get_file($context->id, 'enrol_ecommerce', $filearea, 0, $filepath, $filename);
+    $file = $fs->get_file($context->id, 'enrol_payment', $filearea, 0, $filepath, $filename);
     if (!$file) {
         error_log("ack");
         return false; // The file does not exist.

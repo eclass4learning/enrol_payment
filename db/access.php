@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capabilities for ecommerce enrolment plugin.
+ * Capabilities for payment enrolment plugin.
  *
- * @package    enrol_ecommerce
+ * @package    enrol_payment
  * @copyright  2010 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-    'enrol/ecommerce:config' => array(
+    'enrol/payment:config' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
@@ -34,7 +34,7 @@ $capabilities = array(
         )
     ),
 
-    'enrol/ecommerce:manage' => array(
+    'enrol/payment:manage' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
@@ -43,7 +43,7 @@ $capabilities = array(
         )
     ),
 
-    'enrol/ecommerce:unenrol' => array(
+    'enrol/payment:unenrol' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
@@ -51,7 +51,7 @@ $capabilities = array(
         )
     ),
 
-    'enrol/ecommerce:unenrolself' => array(
+    'enrol/payment:unenrolself' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(

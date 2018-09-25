@@ -2,7 +2,7 @@
 
 require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
-require_once(dirname(__FILE__).'/../lang/en/enrol_ecommerce.php');
+require_once(dirname(__FILE__).'/../lang/en/enrol_payment.php');
 
 global $DB;
 
@@ -23,7 +23,7 @@ function update_payment_data($multiple, $users, $payment) {
     $payment->multiple = $multiple;
     $payment->multiple_userids = $multiple ? implode(",",$userids) : null;
     $payment->units = $multiple ? sizeof($userids) : 1;
-    $DB->update_record("enrol_ecommerce_ipn", $payment);
+    $DB->update_record("enrol_payment_ipn", $payment);
 }
 
 function get_moodle_users_by_emails($emails) {
@@ -46,7 +46,7 @@ function get_moodle_users_by_emails($emails) {
     }
 
     if (!empty($notfound)) {
-        throw new Exception(get_string("usersnotfoundwithemail", "enrol_ecommerce") . implode("<li>", $notfound) . "</ul>");
+        throw new Exception(get_string("usersnotfoundwithemail", "enrol_payment") . implode("<li>", $notfound) . "</ul>");
     }
 
     return $users;
