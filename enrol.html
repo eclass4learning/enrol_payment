@@ -2,7 +2,7 @@
 
 <p><?php print_string("paymentrequired") ?></p>
 <p><b><?php echo $instancename; ?></b></p>
-<b><p><?php echo get_string("cost").": {$instance->currency} "; ?><span id="localisedcost"><?php echo $localisedcost; ?></span></p></b>
+<b><p><?php echo get_string("cost").": {$instance->currency} "; ?><span id="localisedcost"><?php echo $localisedcost; ?></span> <span id="taxstring"><?php echo $tax_string; ?></span></p></b>
 
 <?php if (($instance->customint3) && $enablediscounts): ?>
     <p style="width: 300px; margin: 0 auto;"><b>Discount code:</b></p>
@@ -35,40 +35,38 @@
 <?php if($paypal_enabled) { ?>
     <div>
         <form id="paypal-form" action="<?php echo $paypalurl ?>" method="post">
+            <input type="hidden" name="cmd" value="_xclick" />
+            <input type="hidden" name="charset" value="utf-8" />
+            <input type="hidden" name="business" value="<?php p($this->get_config('paypalbusiness'))?>" />
+            <input type="hidden" name="item_name" value="<?php p($coursefullname) ?>" />
+            <input type="hidden" name="item_number" value="<?php p($courseshortname) ?>" />
+            <input type="hidden" name="quantity" value="1" />
+            <input type="hidden" name="on0" value="<?php print_string("user") ?>" />
+            <input type="hidden" name="os0" value="<?php p($userfullname) ?>" />
+            <input id="paypal-custom" class="enrol-payment-custom" type="hidden" name="custom" value="<?php echo "$prepayToken" ?>" />
 
-        <input type="hidden" name="cmd" value="_xclick" />
-        <input type="hidden" name="charset" value="utf-8" />
-        <input type="hidden" name="business" value="<?php p($this->get_config('paypalbusiness'))?>" />
-        <input type="hidden" name="item_name" value="<?php p($coursefullname) ?>" />
-        <input type="hidden" name="item_number" value="<?php p($courseshortname) ?>" />
-        <input type="hidden" name="quantity" value="1" />
-        <input type="hidden" name="on0" value="<?php print_string("user") ?>" />
-        <input type="hidden" name="os0" value="<?php p($userfullname) ?>" />
-        <input id="paypal-custom" class="enrol-payment-custom" type="hidden" name="custom" value="<?php echo "$prepayToken" ?>" />
+            <input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
+            <input type="hidden" name="amount" value="<?php p($cost) ?>" />
 
-        <input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
-        <input type="hidden" name="amount" value="<?php p($cost) ?>" />
+            <input type="hidden" name="for_auction" value="false" />
+            <input type="hidden" name="no_note" value="1" />
+            <input type="hidden" name="no_shipping" value="<?php p($paypalShipping) ?>">
+            <input type="hidden" name="notify_url" value="<?php echo "$CFG->wwwroot/enrol/payment/ipn.php"?>" />
+            <input type="hidden" name="return" value="<?php echo "$CFG->wwwroot/enrol/payment/return.php?id=$course->id" ?>" />
+            <input type="hidden" name="cancel_return" value="<?php echo $CFG->wwwroot ?>" />
+            <input type="hidden" name="rm" value="2" />
+            <input type="hidden" name="cbt" value="<?php print_string("continuetocourse") ?>" />
+            <input type="hidden" name="tax" value="<?php p($tax_amount) ?>" />
+            <input type="hidden" name="prov" value="<?php p($USER->msn)?>" />
 
-        <input type="hidden" name="for_auction" value="false" />
-        <input type="hidden" name="no_note" value="1" />
-        <input type="hidden" name="no_shipping" value="<?php p($paypalShipping) ?>">
-        <input type="hidden" name="notify_url" value="<?php echo "$CFG->wwwroot/enrol/payment/ipn.php"?>" />
-        <input type="hidden" name="return" value="<?php echo "$CFG->wwwroot/enrol/payment/return.php?id=$course->id" ?>" />
-        <input type="hidden" name="cancel_return" value="<?php echo $CFG->wwwroot ?>" />
-        <input type="hidden" name="rm" value="2" />
-        <input type="hidden" name="cbt" value="<?php print_string("continuetocourse") ?>" />
-        <input type="hidden" name="tax" value="<?php p($tax_amount) ?>" />
-        <input type="hidden" name="prov" value="<?php p($USER->msn)?>" />
+            <input type="hidden" name="first_name" value="<?php p($userfirstname) ?>" />
+            <input type="hidden" name="last_name" value="<?php p($userlastname) ?>" />
+            <input type="hidden" name="address" value="<?php p($useraddress) ?>" />
+            <input type="hidden" name="city" value="<?php p($usercity) ?>" />
+            <input type="hidden" name="email" value="<?php p($USER->email) ?>" />
+            <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
 
-        <input type="hidden" name="first_name" value="<?php p($userfirstname) ?>" />
-        <input type="hidden" name="last_name" value="<?php p($userlastname) ?>" />
-        <input type="hidden" name="address" value="<?php p($useraddress) ?>" />
-        <input type="hidden" name="city" value="<?php p($usercity) ?>" />
-        <input type="hidden" name="email" value="<?php p($USER->email) ?>" />
-        <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
-
-        <a id="paypal-button" class="btn btn-info payment-checkout"><?php print_string("sendpaymentbutton_paypal", "enrol_payment") ?></a>
-
+            <a id="paypal-button" class="btn btn-info payment-checkout"><?php print_string("sendpaymentbutton_paypal", "enrol_payment") ?></a>
         </form>
     </div>
 

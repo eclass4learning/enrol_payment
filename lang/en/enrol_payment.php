@@ -149,3 +149,7 @@ $string['stripelogo'] = "Stripe logo";
 $string['stripelogo_desc'] = "128x128 store logo used for Stripe checkout";
 $string['charge_description1'] = "create customer for email receipt";
 $string['charge_description2'] = 'Charge for Course Enrolment';
+
+$string['taxdefinitions'] = 'Custom tax definitions';
+$string['taxdefinitions_help'] = 'Placeholder description';
+$string['definetaxes'] = 'Enable custom tax definitions';

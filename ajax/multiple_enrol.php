@@ -38,7 +38,14 @@ if ($CFG->allowaccountssameemail) {
         $instance = $DB->get_record('enrol', array("id" => $instanceid), '*', MUST_EXIST);
 
         //Tack new subtotals onto return data
-        $ret = array_merge($ret, calculate_cost($instance, $payment));
+        $ret = array_merge($ret, calculate_cost($instance, $payment, true));
+
+        if ($payment->tax_amount) {
+            $tax_percent = floor(100 * floatval($payment->tax_amount));
+            $tax_string = " + ${tax_percent}% HST";
+        } else {
+            $tax_string = "";
+        }
 
         $ret["successmessage"] =
             get_string("multipleregistrationconfirmuserlist", "enrol_payment")
@@ -46,7 +53,7 @@ if ($CFG->allowaccountssameemail) {
             . "</ul>"
             . "<br>"
             . get_string("totalcost", "enrol_payment")
-            . $ret["oc_discounted"] . " × " . $payment->units . " = <b>" . $ret["subtotal_localised"] . " " . $instance->currency . "</b>"
+            . $ret["oc_discounted"] . " × " . $payment->units . $tax_string . "= <b>" . $ret["subtotal_taxed"] . " " . $instance->currency . "</b>"
         ;
 
     } catch (Exception $e) {

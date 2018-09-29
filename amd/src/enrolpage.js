@@ -33,6 +33,11 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         subtotal: undefined,
 
         /**
+         *
+         */
+        taxAmount: undefined,
+
+        /**
          * ID of this enrollment instance. Set at init time.
          */
         instanceid: undefined,
@@ -317,21 +322,30 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
         checkoutFinal: function() {
             if(this.gateway === "paypal") {
+                $("#paypal-form input[name=amount]").val(this.subtotal);
+                $("#paypal-form input[name=tax]").val(this.taxAmount * this.subtotal);
                 $("#paypal-form").submit();
             } else if(this.gateway === "stripe") {
+                $("#stripe-form input[name=amount]").val(this.subtotal);
                 this.stripeCheckout();
             } else {
                 throw new Error(this.mdlstr["invalidgateway"]);
             }
         },
 
-        updateCostView: function() {
-            $("span#localisedcost").text(this.subtotal);
-            $("span.subtotal-display").text(this.subtotal);
-            $("input[name=amount]").val(this.subtotal);
+        getTaxedAmount: function() {
+            //coerce into float
+            var sub = Number.parseFloat(this.subtotal);
+            var tax = Number.parseFloat(this.taxAmount);
+            return Number.parseFloat(sub + (sub * tax)).toFixed(2);
         },
 
-        stripeCheckout: function(courseFullName) {
+        updateCostView: function() {
+            $("span#localisedcost").text(this.getTaxedAmount());
+            $("span.subtotal-display").text(this.getTaxedAmount());
+        },
+
+        stripeCheckout: function() {
             var self = this;
 
             $.getScript("https://checkout.stripe.com/checkout.js", function() {
@@ -341,7 +355,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                   key: self.stripePublishableKey,
                   image: self.stripeLogo || 'https://stripe.com/img/documentation/checkout/marketplace.png',
                   locale: 'auto',
-                  shippingAddress: self.shippingRequired,
+                  shippingAddress: self.shippingRequired == "true" ? true : false,
+                  billingAddress: true,
                   token: function(token) {
                       $('#stripe-form')
                           .append('<input type="hidden" name="stripeToken" value="' + token.id + '" />')
@@ -352,11 +367,11 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 });
 
                 stripeHandler.open({
-                    name: courseFullName,
+                    name: self.courseFullName,
                     description: "Test description",
                     zipCode: true,
                     //Stripe amount is in pennies
-                    amount: Math.floor(Number.parseFloat(self.subtotal) * 100),
+                    amount: Math.floor(Number.parseFloat(self.getTaxedAmount()) * 100),
                 });
 
             }).fail(function() {
@@ -410,7 +425,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , prepayToken
                       , courseFullName
                       , shippingRequired
-                      , stripeLogo ) {
+                      , stripeLogo
+                      , taxAmount ) {
 
             var self = this;
 
@@ -448,8 +464,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             ]);
             str_promise.done(function(strs) {
                 self.mdlstr = strs;
-                self.originalCost = cost;
-                self.subtotal = cost;
+                self.originalCost = Number.parseFloat(cost);
+                self.taxAmount = Number.parseFloat(taxAmount);
+                self.subtotal = Number.parseFloat(cost).toFixed(2);
                 self.instanceid = instanceid;
                 self.stripePublishableKey = stripePublishableKey;
                 self.courseFullName = courseFullName;

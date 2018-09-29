@@ -18,7 +18,7 @@ function get_payment_from_token($prepayToken) {
  * @param $payment payment object from enrol_payment_ipn
  * @return object with "subtotal" and "subtotal_localised" fields.
  */
-function calculate_cost($instance, $payment) {
+function calculate_cost($instance, $payment, $addtax=false) {
     $discount_amount = $instance->customdec1;
     //$ret["discount_amount"] = $discount_amount;
     $cost = $payment->original_cost;
@@ -72,8 +72,15 @@ function calculate_cost($instance, $payment) {
             break;
     }
 
+    if($payment->tax_amount && $addtax) {
+        $subtotal_taxed = $subtotal + ($subtotal * $payment->tax_amount);
+    } else {
+        $subtotal_taxed = $subtotal;
+    }
+
     $ret['subtotal'] = format_float($subtotal, 2, false);
     $ret['subtotal_localised'] = format_float($subtotal, 2, true);
+    $ret['subtotal_taxed'] = format_float($subtotal_taxed, 2, true);
     $ret['oc_discounted'] = format_float($oc_discounted, 2, true);
 
     return $ret;

@@ -99,4 +99,14 @@ if ($ADMIN->fulltree) {
         get_string('defaultcoursewelcomemessage', 'enrol_payment'),
         null,
         null));
+
+    $settings->add(new admin_setting_configcheckbox('enrol_payment/definetaxes',
+        get_string('definetaxes', 'enrol_payment'),
+        '',
+        0));
+
+    $settings->add(new admin_setting_configtextarea('enrol_payment/taxdefinitions',
+        get_string('taxdefinitions', 'enrol_payment'),
+        get_string('taxdefinitions_help', 'enrol_payment'),
+        "NB : 0.15\nNL : 0.15\nNS : 0.15\nPE : 0.15\nON : 0.13"));
 }

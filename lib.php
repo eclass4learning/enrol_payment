@@ -239,24 +239,48 @@ class enrol_payment_plugin extends enrol_plugin {
         email_to_user($user, $contact, $subject, $messagetext, $messagehtml);
     }
 
-    function apply_tax($cost) {
+    function get_tax_info($cost) {
         global $USER;
-        $HST = 0;
-        if($USER->country != "CA") {
-            $HST = 0;
-        } elseif($USER->msn == "NB" || $USER->msn == "NL" || $USER->msn == "NS" || $USER->msn == "PE") {
-            $HST = 0.15 * $cost;
-            $tax_rate = "15% HST";
-        } elseif($USER->msn == "ON") {
-            $HST = 0.13 * $cost;
-            $tax_rate = "13% HST";
-        } else {
-            $HST = 0.05 * $cost;
-            $tax_rate = "GST";
+        if($this->get_config('definetaxes')) {
+            $taxdefs = $this->get_config('taxdefinitions');
+
+            echo "<pre>";
+            print_r($taxdefs);
+            echo "</pre>";
+
+            $taxdef_lines = explode("\n", $taxdefs);
+
+            foreach($taxdef_lines as $l) {
+                $pieces = explode(":", $l);
+                if (sizeof($pieces) == 2) {
+                    $province = strtolower(trim($pieces[0]));
+                    $taxrate = trim($pieces[1]);
+
+                    if($province == strtolower(trim($USER->msn))) {
+                        if(is_numeric($taxrate)) {
+                            try {
+                                $float_taxrate = floatval($taxrate);
+                                return [ "tax_amount" => $float_taxrate
+                                       , "tax_string" => "(" . floor($float_taxrate * 100) . "% HST)"
+                                       ];
+
+                            } catch (Exception $e) {
+                                debugging("Could not convert tax value for $province into a float.");
+                            }
+                        } else {
+                            debugging('Encountered non-numeric tax value.');
+                        }
+                    }
+                } else {
+                    debugging('Incorrect tax definition format.');
+                }
+            }
+
         }
 
-        return [ "tax_amount" => $HST
-               , "tax_rate" => $tax_rate ];
+        return [ "tax_amount" => 0
+               , "tax_string" => ""
+               ];
     }
 
     /**
@@ -311,12 +335,11 @@ class enrol_payment_plugin extends enrol_plugin {
             $cost = (float) $instance->cost;
         }
 
-        $tax_rate = "";
+        $tax_string = "";
 
-        $tax_info = $this->apply_tax($cost);
-        $tax_rate = $tax_info["tax_rate"];
+        $tax_info = $this->get_tax_info($cost);
+        $tax_string = $tax_info["tax_string"];
         $tax_amount = $tax_info["tax_amount"];
-        $cost = $cost; //+ $tax_amount;
 
         if (abs($cost) < 0.01) { // no cost, other enrolment methods (instances) should be used
             echo '<p>'.get_string('nocost', 'enrol_payment').'</p>';
@@ -324,7 +347,7 @@ class enrol_payment_plugin extends enrol_plugin {
 
             // Calculate localised and "." cost, make sure we send PayPal the same value,
             // please note PayPal expects amount with 2 decimal places and "." separator.
-            $localisedcost = format_float($cost, 2, true);
+            $localisedcost = format_float($cost + ($cost * $tax_amount), 2, true);
             $cost = format_float($cost, 2, false);
 
             $wwwroot = $CFG->wwwroot;
@@ -353,6 +376,7 @@ class enrol_payment_plugin extends enrol_plugin {
                                , 'discounted' => false
                                , 'units' => 1
                                , 'original_cost' => $cost
+                               , 'tax_amount' => $tax_amount
                                ];
 
                 $DB->insert_record("enrol_payment_ipn", $paymentdata);
@@ -366,6 +390,7 @@ class enrol_payment_plugin extends enrol_plugin {
                            , $coursefullname
                            , $instance->customint4 //Shipping required?
                            , $stripelogourl
+                           , $tax_amount
                            ];
                 $PAGE->requires->js_call_amd('enrol_payment/enrolpage', 'init', $js_data);
                 $PAGE->requires->css('/enrol/payment/style/styles.css');
@@ -582,9 +607,9 @@ class enrol_payment_plugin extends enrol_plugin {
             $mform->setType('customint5', PARAM_INT);
         }
 
-        $mform->addElement('advcheckbox', 'customint6', get_string('enabletaxcalculation', 'enrol_payment'));
-        $mform->setType('customint6', PARAM_INT);
-        $mform->addHelpButton('customint6', 'enabletaxcalculation', 'enrol_payment');
+        //$mform->addElement('advcheckbox', 'customint6', get_string('enabletaxcalculation', 'enrol_payment'));
+        //$mform->setType('customint6', PARAM_INT);
+        //$mform->addHelpButton('customint6', 'enabletaxcalculation', 'enrol_payment');
 
         if (enrol_accessing_via_instance($instance)) {
             $warningtext = get_string('instanceeditselfwarningtext', 'core_enrol');

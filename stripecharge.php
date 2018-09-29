@@ -52,6 +52,8 @@ if (empty(required_param('stripeToken', PARAM_RAW))) {
 
 $data = new stdClass();
 
+$req = "";
+
 foreach ($_POST as $key => $value) {
     if ($key !== clean_param($key, PARAM_ALPHANUMEXT)) {
         throw new moodle_exception('invalidrequest', 'core_error', '', null, $key);
@@ -63,6 +65,8 @@ foreach ($_POST as $key => $value) {
     $data->$key = fix_utf8($value);
 }
 //$data->prov is now set to the user's msn field.
+
+error_log("AMOUNT: " . $data->amount);
 
 $data->payment_gross    = $data->amount;
 $data->payment_currency = $data->currency_code;
