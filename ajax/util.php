@@ -46,7 +46,8 @@ function get_moodle_users_by_emails($emails) {
     }
 
     if (!empty($notfound)) {
-        throw new Exception(get_string("usersnotfoundwithemail", "enrol_payment") . implode("<li>", $notfound) . "</ul>");
+        throw new Exception(get_string("usersnotfoundwithemail", "enrol_payment") . implode("<li>", $notfound) . "</ul>"
+                          . get_string("usersnotfoundwithemail_continued", "enrol_payment"));
     }
 
     return $users;

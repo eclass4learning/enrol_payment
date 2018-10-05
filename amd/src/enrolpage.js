@@ -48,6 +48,21 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         prepayToken: undefined,
 
         /**
+         * Billing address required
+         */
+        billingAddressRequired: undefined,
+
+        /**
+         * Should stripe validate zip code
+         */
+        validateZipCode: undefined,
+
+        /**
+         * Require user to enter shipping address?
+         */
+        shippingRequired: undefined,
+
+        /**
          * Functions dealing with the multi-user registration system
          */
         MultipleRegistration: {
@@ -82,12 +97,12 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              *
              * @param plus      The plus icon to attach a handler to
              */
-            addPlusClickHandler: function(plus) {
+            addPlusClickHandler: function(plus, mdlstr) {
                 var self = this;
 
                 plus.click(function() {
                     // Get HTML for the field we will create
-                    var nextHtml = self.makeEmailEntryLine();
+                    var nextHtml = self.makeEmailEntryLine(mdlstr);
 
                     // Remove all plus signs (there should only be one at any
                     // given time)
@@ -95,8 +110,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                     // Add the new HTML to the bottom of our container, and update its click handlers.
                     var newLine = $("#multiple-registration-container").append(nextHtml);
-                    self.addPlusClickHandler($('.plus-container'));
-                    self.addMinusClickHandler(newLine.find('.minus-container'));
+                    self.addPlusClickHandler($('.plus-container'), mdlstr);
+                    self.addMinusClickHandler(newLine.find('.minus-container'), mdlstr);
                 });
             },
 
@@ -105,8 +120,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              * adding a new input field and updating the enumeration.
              *
              * @param minus      The minus icon to attach a handler to
+             * @param mdlstr     Moodle Strings
              */
-            addMinusClickHandler: function(minus) {
+            addMinusClickHandler: function(minus, mdlstr) {
                 var self = this;
 
                 minus.click(function() {
@@ -115,8 +131,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                     //Add a plus icon to the last line, if it's not already there
                     if (! $(".mr-email-line:last .plus-container").length) {
-                        $(".mr-email-line:last").append(self.makePlusSign());
-                        self.addPlusClickHandler($('.plus-container'));
+                        $(".mr-email-line:last").append(self.makePlusSign(mdlstr));
+                        self.addPlusClickHandler($('.plus-container'), mdlstr);
                     }
 
                     //Re-number our rows for the user
@@ -128,8 +144,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              * Returns HTML for a plus icon
              *
              */
-            makePlusSign: function() {
-                var plusSign = "<div class=\"plus-container\"><img src=\""
+            makePlusSign: function(mdlstr) {
+                var plusSign = "<div class=\"plus-container\" title=\"" + mdlstr[4] + "\"><img src=\""
                              + MoodleCfg.wwwroot + "/enrol/payment/pix/plus.svg\" class=\"plus\"></div>";
                 return plusSign;
             },
@@ -140,10 +156,11 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              * row.
              *
              * @param n         Number of rows (including this one) that already exist
+             * @param mdlstr    Moodle Strings
              */
-            makePlusAndMinusSigns: function(n) {
-                var plusSign = this.makePlusSign();
-                var minusSign = "<div class=\"minus-container\"><img src=\""
+            makePlusAndMinusSigns: function(n, mdlstr) {
+                var plusSign = this.makePlusSign(mdlstr);
+                var minusSign = "<div class=\"minus-container\" title=\"" + mdlstr[5] + "\"><img src=\""
                              + MoodleCfg.wwwroot + "/enrol/payment/pix/minus.svg\" class=\"minus\"></div>";
                 if (n > 1) {
                     return plusSign + minusSign;
@@ -169,7 +186,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             /**
              * @return HTML for one row of the email entry form.
              */
-            makeEmailEntryLine: function() {
+            makeEmailEntryLine: function(mdlstr) {
                 var self = this;
                 var m = self.refreshEmailNums();
                 var n = self.nextEmailID;
@@ -184,7 +201,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                 // Passing n into makePlusAndMinusSigns works because the first
                 // row never gets a minus.
-                return div + label + emailEntryLine + this.makePlusAndMinusSigns(n) + endDiv;
+                return div + label + emailEntryLine + this.makePlusAndMinusSigns(n, mdlstr) + endDiv;
             },
 
             checkoutConfirmModal: function(enrolPage, successmessage) {
@@ -269,7 +286,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              *
              * @param btn           JQuery object for the button
              */
-            buildForm: function(btn) {
+            buildForm: function(btn, mdlstr) {
                 var self = this;
 
                 //If the button is to enable, build the multiple registration
@@ -281,8 +298,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                     btn.text("Cancel multiple registration");
                     btn.removeClass('enable-mr').addClass('disable-mr');
-                    $("#multiple-registration-container").html(this.makeEmailEntryLine());
-                    self.addPlusClickHandler($(".plus-container"));
+                    $("#multiple-registration-container").html(this.makeEmailEntryLine(mdlstr));
+                    self.addPlusClickHandler($(".plus-container"), mdlstr);
 
                 } else {
                     self.enabled = false;
@@ -329,7 +346,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 $("#stripe-form input[name=amount]").val(this.subtotal);
                 this.stripeCheckout();
             } else {
-                throw new Error(this.mdlstr["invalidgateway"]);
+                throw new Error(this.mdlstr[2]);
             }
         },
 
@@ -355,8 +372,10 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                   key: self.stripePublishableKey,
                   image: self.stripeLogo || 'https://stripe.com/img/documentation/checkout/marketplace.png',
                   locale: 'auto',
-                  shippingAddress: self.shippingRequired == "true" ? true : false,
-                  billingAddress: true,
+                  billingAddressRequired: self.billingAddressRequired,
+                  shippingAddress: self.shippingAddressRequired,
+                  //email: useremail?
+                  zipCode: self.validateZipCode,
                   token: function(token) {
                       $('#stripe-form')
                           .append('<input type="hidden" name="stripeToken" value="' + token.id + '" />')
@@ -387,7 +406,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             });
 
             $("#multiple-registration-btn").click(function() {
-                self.MultipleRegistration.buildForm($(this));
+                self.MultipleRegistration.buildForm($(this), self.mdlstr);
             });
 
             $(".payment-checkout").click(function(e) {
@@ -412,7 +431,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                             self.checkoutFinal();
                         },
                         failure: function() {
-                            alert(self.mdlstr["errcommunicating"]);
+                            alert(self.mdlstr[3]);
                         }
                     });
                 }
@@ -426,7 +445,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , courseFullName
                       , shippingRequired
                       , stripeLogo
-                      , taxAmount ) {
+                      , taxAmount
+                      , validateZipCode
+                      , billingAddressRequired ) {
 
             var self = this;
 
@@ -460,7 +481,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     { key : "discounttypeerror" , component : "enrol_payment" },
                     { key : "discountamounterror" , component : "enrol_payment" },
                     { key : "invalidgateway" , component : "enrol_payment" },
-                    { key : "errcommunicating" , component : "enrol_payment" }
+                    { key : "errcommunicating" , component : "enrol_payment" },
+                    { key : "addaregistrant" , component : "enrol_payment" },
+                    { key : "removearegistrant" , component : "enrol_payment" }
             ]);
             str_promise.done(function(strs) {
                 self.mdlstr = strs;
@@ -473,6 +496,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.shippingRequired = shippingRequired;
                 self.prepayToken = prepayToken;
                 self.stripeLogo = stripeLogo;
+                self.validateZipCode = validateZipCode;
+                self.billingAddressRequired = billingAddressRequired;
 
                 self.initClickHandlers();
                 self.updateCostView();

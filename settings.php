@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once(dirname(__FILE__) . '/classes/util.php');
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
@@ -64,6 +66,13 @@ if ($ADMIN->fulltree) {
                                                     get_string('allowdiscounts', 'enrol_payment'),
                                                     get_string('allowdiscounts_help', 'enrol_payment'),0));
 
+    $settings->add(new admin_setting_configcheckbox('enrol_payment/validatezipcode',
+            get_string('validatezipcode', 'enrol_payment'),
+            get_string('validatezipcode_desc', 'enrol_payment'), 1));
+    $settings->add(new admin_setting_configcheckbox('enrol_payment/billingaddress',
+            get_string('billingaddress', 'enrol_payment'),
+            get_string('billingaddress_desc', 'enrol_payment'), 0));
+
     //--- enrol instance defaults ----------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('enrol_payment_defaults',
         get_string('enrolinstancedefaults', 'admin'), get_string('enrolinstancedefaults_desc', 'admin')));
@@ -73,7 +82,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('enrol_payment/status',
         get_string('status', 'enrol_payment'), get_string('status_desc', 'enrol_payment'), ENROL_INSTANCE_DISABLED, $options));
 
-    $settings->add(new admin_setting_configtext('enrol_payment/cost', get_string('cost', 'enrol_payment'), '', 0, PARAM_FLOAT, 4));
+    $settings->add(new admin_setting_configtext('enrol_payment/cost', get_string('cost', 'enrol_payment'), get_string('cost_desc', 'enrol_payment'), 0, PARAM_FLOAT, 4));
 
     $paymentcurrencies = enrol_get_plugin('payment')->get_currencies();
     $settings->add(new admin_setting_configselect('enrol_payment/currency', get_string('currency', 'enrol_payment'), '', 'USD', $paymentcurrencies));
@@ -109,4 +118,14 @@ if ($ADMIN->fulltree) {
         get_string('taxdefinitions', 'enrol_payment'),
         get_string('taxdefinitions_help', 'enrol_payment'),
         "NB : 0.15\nNL : 0.15\nNS : 0.15\nPE : 0.15\nON : 0.13"));
+
+    $settings->add(new admin_setting_configcheckbox('enrol_payment/allowbanktransfer',
+        get_string('allowbanktransfer', 'enrol_payment'),
+        '',
+        0));
+
+    $settings->add(new \enrol_payment\admin_setting_confightmleditor_nodefaultinfo('enrol_payment/transferinstructions',
+        get_string('transferinstructions', 'enrol_payment'),
+        get_string('transferinstructions_help', 'enrol_payment'),
+        get_string('transferinstructions_default', 'enrol_payment')));
 }

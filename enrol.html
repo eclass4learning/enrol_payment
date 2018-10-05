@@ -1,17 +1,30 @@
 <div id="enrolpage" align="center">
 
-<p><?php print_string("paymentrequired") ?></p>
 <p><b><?php echo $instancename; ?></b></p>
-<b><p><?php echo get_string("cost").": {$instance->currency} "; ?><span id="localisedcost"><?php echo $localisedcost; ?></span> <span id="taxstring"><?php echo $tax_string; ?></span></p></b>
+
+<?php $stringparams = new stdClass; ?>
+<?php $stringparams->coursefullname = $coursefullname; ?>
+<?php $stringparams->localisedcost_untaxed = $localisedcost_untaxed; ?>
+<?php $stringparams->tax_string = $tax_string; ?>
+<?php $stringparams->localisedcost = $localisedcost; ?>
+<?php $stringparams->currency = $instance->currency; ?>
+<?php $stringparams->symbol = ($instance->currency == "USD" || $instance->currency == "CAD") ? '$' : ''; ?>
+<?php if($tax_string): ?>
+    <?php echo get_string("feestring_taxed", "enrol_payment", $stringparams) ?>
+<?php else: ?>
+    <?php echo get_string("feestring_notax", "enrol_payment", $stringparams) ?>
+<?php endif; ?>
 
 <?php if (($instance->customint3) && $enablediscounts): ?>
-    <p style="width: 300px; margin: 0 auto;"><b>Discount code:</b></p>
-    <span style="white-space: nowrap;"><input type="text" name="discountcode" id="discountcode" style="width: 100px;" />
-        <a id="apply-discount" class="btn" style="margin-bottom: 10px;">Apply Discount</a>
+<br><br>
+    <span style="white-space: nowrap;">
+        <b><?php echo (get_string("discountcode", "enrol_payment") . ":"); ?></b>
+        <input type="text" name="discountcode" id="discountcode" style="width: 100px;" />
+        <a id="apply-discount" class="btn" style="margin-bottom: 10px;"><?php print_string("applydiscount", "enrol_payment"); ?></a>
     </span>
 <?php endif; ?>
 
-<p>&nbsp;</p>
+<br><br>
 
 <?php if($multiple_enabled) { ?>
 <div id="multiple-registration-container"></div>
@@ -20,8 +33,6 @@
 </div>
 <?php } ?>
 
-<p><img alt="<?php print_string('paypalaccepted', 'enrol_payment') ?>" src="https://www.paypal.com/en_US/i/logo/PayPal_mark_60x38.gif" /></p>
-<p><?php print_string("paymentinstant") ?></p>
 <?php
     $paypalurl = empty($CFG->usepaypalsandbox) ? 'https://www.paypal.com/cgi-bin/webscr' : 'https://www.sandbox.paypal.com/cgi-bin/webscr';
 ?>
@@ -70,9 +81,15 @@
         </form>
     </div>
 
+    <br>
+    <?php print_string("paypalaccountnotneeded", "enrol_payment"); ?>
+
 <?php } ?>
 
 <?php if($stripe_enabled) { ?>
+    <br><br>
+    <?php print_string("or", "enrol_payment"); ?>
+    <br><br>
     <div>
         <a class="btn btn-info payment-checkout" id="stripe-button"><?php print_string("sendpaymentbutton_stripe", "enrol_payment") ?></a>
         <form id="stripe-form" action="<?php echo "$CFG->wwwroot/enrol/payment/stripecharge.php"?>" method="post">
@@ -136,27 +153,4 @@
 
 </div>
 
-<p>Email money transfer (known as <a
-href="https://www.youtube.com/watch?time_continue=4&v=zL9yoZZXyOE"
-target="_blank"><em>Interac</em> e-Transfer</a>) is an option if you:</p>
-<ul>
-<li>have an email address or a mobile number, and</li>
-<li>are registered for <em>Interac</em> e-Transfer service with your financial
-institution.</li>
-</ul>
-<p>To send an <em>Interac</em> e-Transfer payment:</p>
-<ol>
-<li><p>Log in to your financial institution's online or mobile banking and navigate to
-<em>Interac</em> e-Transfer menu.</p></li>
-<li><p>Select the account from which to withdraw the funds.</p></li>
-<li><p>Add a new recipient using <strong>Four Point Learning</strong> as the name,
-<strong>services@4pointlearning.ca</strong> as the email address, <strong>Who is offering <?php p($courseshortname) ?>?</strong> as the security question, and
-<strong>4PLearning</strong> as the answer.</p></li>
-<li><p>Select <strong>Four Point Learning</strong> as the recipient.</p></li>
-<li><p>Fill in the amount of <strong><span class="subtotal-display"><?php echo $localisedcost; ?></span></strong> and enter
-<strong>your name</strong> in the message area.</p></li>
-<li><p>Follow the on-screen instructions to confirm the information and complete the
-transfer.</p></li>
-</ol>
-<p>Once payment is received, you will be notified of your enrolment in <strong> <?php
-echo htmlspecialchars_decode($coursefullname) ?> </strong>.</p>
+<?php $this->output_transfer_instructions($localisedcost, $coursefullname, $courseshortname); ?>

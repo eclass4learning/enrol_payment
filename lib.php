@@ -239,14 +239,22 @@ class enrol_payment_plugin extends enrol_plugin {
         email_to_user($user, $contact, $subject, $messagetext, $messagehtml);
     }
 
+    function output_transfer_instructions($cost, $coursefullname, $courseshortname) {
+        if ($this->get_config("allowbanktransfer")) {
+            $instructions = $this->get_config("transferinstructions");
+            $instructions = str_replace("{{AMOUNT}}", "<span id=\"banktransfer-cost\">$cost</span>", $instructions);
+            $instructions = str_replace("{{COURSESHORTNAME}}", $courseshortname, $instructions);
+            $instructions = str_replace("{{COURSEFULLNAME}}", $coursefullname, $instructions);
+            echo '<span id="interac-text">';
+            echo $instructions;
+            echo '</span>';
+        }
+    }
+
     function get_tax_info($cost) {
         global $USER;
         if($this->get_config('definetaxes')) {
             $taxdefs = $this->get_config('taxdefinitions');
-
-            echo "<pre>";
-            print_r($taxdefs);
-            echo "</pre>";
 
             $taxdef_lines = explode("\n", $taxdefs);
 
@@ -261,7 +269,7 @@ class enrol_payment_plugin extends enrol_plugin {
                             try {
                                 $float_taxrate = floatval($taxrate);
                                 return [ "tax_amount" => $float_taxrate
-                                       , "tax_string" => "(" . floor($float_taxrate * 100) . "% HST)"
+                                       , "tax_string" => "(" . floor($float_taxrate * 100) . "% tax)"
                                        ];
 
                             } catch (Exception $e) {
@@ -348,6 +356,7 @@ class enrol_payment_plugin extends enrol_plugin {
             // Calculate localised and "." cost, make sure we send PayPal the same value,
             // please note PayPal expects amount with 2 decimal places and "." separator.
             $localisedcost = format_float($cost + ($cost * $tax_amount), 2, true);
+            $localisedcost_untaxed = format_float($cost, 2, false);
             $cost = format_float($cost, 2, false);
 
             $wwwroot = $CFG->wwwroot;
@@ -383,14 +392,19 @@ class enrol_payment_plugin extends enrol_plugin {
 
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
 
+                $validatezipcode = $this->get_config('validatezipcode');
+                $billingAddressRequired = $this->get_config('billingaddress');
+
                 $js_data = [ $instance->id
                            , $stripepublishablekey
                            , $cost
                            , $prepayToken
                            , $coursefullname
-                           , $instance->customint4 //Shipping required?
+                           , $instance->customint4
                            , $stripelogourl
                            , $tax_amount
+                           , $validatezipcode
+                           , $billingAddressRequired
                            ];
                 $PAGE->requires->js_call_amd('enrol_payment/enrolpage', 'init', $js_data);
                 $PAGE->requires->css('/enrol/payment/style/styles.css');
@@ -590,7 +604,7 @@ class enrol_payment_plugin extends enrol_plugin {
             //Discount amount - float
             $mform->addElement('text', 'customdec1', get_string('discountamount', 'enrol_payment'), array('size' => 4));
             $mform->setType('customdec1', PARAM_RAW);
-            $mform->setDefault('customdec1', format_float($this->get_config('cost'), 2, true));
+            $mform->setDefault('customdec1', 0.00);
             $mform->disabledIf('customdec1', 'customint3', 'eq', 0);
 
             //Discount code - text
@@ -599,7 +613,7 @@ class enrol_payment_plugin extends enrol_plugin {
             $mform->disabledIf('customtext2', 'customint3', 'eq', 0);
         }
 
-        $mform->addElement('advcheckbox', 'customint4', get_string('requireshippinginfo', 'enrol_payment'));
+        $mform->addElement('advcheckbox', 'customint4', get_string('requireshipping', 'enrol_payment'));
         $mform->setType('customint4', PARAM_INT);
 
         if($this->get_config('allowmultipleenrol')) {
