@@ -304,7 +304,7 @@ if (strlen($result) > 0) {
 
             if (!empty($mailstudents)) {
                 $a = new stdClass();
-                $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->coursename = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
                 $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
                 $eventdata = new \core\message\message();
@@ -324,7 +324,7 @@ if (strlen($result) > 0) {
             }
 
             if (!empty($mailteachers) && !empty($teacher)) {
-                $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->course = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
                 $a->user = fullname($user);
 
                 $eventdata = new \core\message\message();
@@ -343,7 +343,7 @@ if (strlen($result) > 0) {
             }
 
             if (!empty($mailadmins)) {
-                $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->course = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
                 $a->user = fullname($user);
                 $admins = get_admins();
                 foreach ($admins as $admin) {

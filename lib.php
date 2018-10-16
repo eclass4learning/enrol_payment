@@ -399,12 +399,14 @@ class enrol_payment_plugin extends enrol_plugin {
                            , $stripepublishablekey
                            , $cost
                            , $prepayToken
-                           , $coursefullname
+                           , htmlspecialchars_decode($coursefullname)
                            , $instance->customint4
                            , $stripelogourl
                            , $tax_amount
                            , $validatezipcode
                            , $billingAddressRequired
+                           , $USER->email
+                           , $instance->currency
                            ];
                 $PAGE->requires->js_call_amd('enrol_payment/enrolpage', 'init', $js_data);
                 $PAGE->requires->css('/enrol/payment/style/styles.css');

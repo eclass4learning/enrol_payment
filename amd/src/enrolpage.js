@@ -60,7 +60,17 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         /**
          * Require user to enter shipping address?
          */
-        shippingRequired: undefined,
+        shippingAddressRequired: undefined,
+
+        /**
+         * User's email address
+         */
+        userEmail: undefined,
+
+        /**
+         * Instance currency string
+         */
+        currency: undefined,
 
         /**
          * Functions dealing with the multi-user registration system
@@ -341,6 +351,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             if(this.gateway === "paypal") {
                 $("#paypal-form input[name=amount]").val(this.subtotal);
                 $("#paypal-form input[name=tax]").val(this.taxAmount * this.subtotal);
+                $("#dimmer").css("display", "none");
                 $("#paypal-form").submit();
             } else if(this.gateway === "stripe") {
                 $("#stripe-form input[name=amount]").val(this.subtotal);
@@ -358,7 +369,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         },
 
         updateCostView: function() {
-            $("span#localisedcost").text(this.getTaxedAmount());
+            $("span.localisedcost-untaxed").text(Number.parseFloat(this.subtotal).toFixed(2))
+            $("span.localisedcost").text(this.getTaxedAmount());
             $("span.subtotal-display").text(this.getTaxedAmount());
         },
 
@@ -366,15 +378,19 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             var self = this;
 
             $.getScript("https://checkout.stripe.com/checkout.js", function() {
-                //StripeCheckout is now globally available, but we will only use it here.
+                // StripeCheckout is now globally available, but we will only
+                // use it here. Since this javascript code is called from PHP,
+                // we can't load in checkout.js from the HTML, so we have to
+                // do it here.
 
                 var stripeHandler = StripeCheckout.configure({ //eslint-disable-line no-undef
                   key: self.stripePublishableKey,
                   image: self.stripeLogo || 'https://stripe.com/img/documentation/checkout/marketplace.png',
                   locale: 'auto',
-                  billingAddressRequired: self.billingAddressRequired,
+                  billingAddress: self.billingAddressRequired,
                   shippingAddress: self.shippingAddressRequired,
-                  //email: useremail?
+                  email: self.userEmail || null,
+                  allowRememberMe: false,
                   zipCode: self.validateZipCode,
                   token: function(token) {
                       $('#stripe-form')
@@ -386,11 +402,12 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 });
 
                 stripeHandler.open({
-                    name: self.courseFullName,
-                    description: "Test description",
+                    name: decodeURIComponent(self.courseFullName),
+                    description: "Total enrolment fee: $" + self.getTaxedAmount() + " " + self.currency,
                     zipCode: true,
                     //Stripe amount is in pennies
                     amount: Math.floor(Number.parseFloat(self.getTaxedAmount()) * 100),
+                    closed: function() { $("#dimmer").css('display', 'none'); }
                 });
 
             }).fail(function() {
@@ -410,6 +427,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             });
 
             $(".payment-checkout").click(function(e) {
+                $('#dimmer').css('display', 'block');
                 e.preventDefault();
                 if (e.target.id === "paypal-button") {
                     self.gateway = "paypal";
@@ -443,11 +461,13 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , cost
                       , prepayToken
                       , courseFullName
-                      , shippingRequired
+                      , shippingAddressRequired
                       , stripeLogo
                       , taxAmount
                       , validateZipCode
-                      , billingAddressRequired ) {
+                      , billingAddressRequired
+                      , userEmail
+                      , currency ) {
 
             var self = this;
 
@@ -472,10 +492,13 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
               shadow: '0 0 1px transparent', // Box-shadow for the lines
               position: 'absolute' // Element positioning
             };
-
-            var target = document.getElementById('enrolpage');
-            new Spinner(opts).spin(target);
             */
+
+            //var target = document.getElementById('dimmer');
+            //var spinner = new Spinner(opts).spin(target);
+            //function get_moodlestrings(ms, keys) {
+            //    for(key in keys)
+            //}
 
             var str_promise = MoodleStrings.get_strings([
                     { key : "discounttypeerror" , component : "enrol_payment" },
@@ -493,14 +516,18 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.instanceid = instanceid;
                 self.stripePublishableKey = stripePublishableKey;
                 self.courseFullName = courseFullName;
-                self.shippingRequired = shippingRequired;
+                self.shippingAddressRequired = shippingAddressRequired == 1 ? true : false;
                 self.prepayToken = prepayToken;
                 self.stripeLogo = stripeLogo;
-                self.validateZipCode = validateZipCode;
-                self.billingAddressRequired = billingAddressRequired;
+                self.validateZipCode = validateZipCode == 1 ? true : false;
+                self.billingAddressRequired = billingAddressRequired == 1 ? true : false;
+                self.userEmail = userEmail;
+                self.currency = currency;
 
                 self.initClickHandlers();
                 self.updateCostView();
+
+                $('#dimmer').css('display', 'none');
             });
         }
     };

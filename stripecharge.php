@@ -162,7 +162,7 @@ try {
       "amount" => $cost * 100,
       "currency" => $plugin_instance->currency,
       "card" => required_param('stripeToken', PARAM_RAW),
-      "description" => get_string('charge_description2', 'enrol_payment'),
+      "description" => 'Enrolment in: ' . required_param('item_name', PARAM_TEXT),
       "receipt_email" => required_param('stripeEmail', PARAM_EMAIL)
     ));
 
@@ -225,14 +225,14 @@ try {
 
         if (!empty($mailstudents)) {
                 $a = new stdClass();
-                $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->coursename = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
                 $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
                 $eventdata = new stdClass();
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'payment_enrolment';
-                $eventdata->userfrom          = empty($teacher) ? core_user::get_support_user() : $teacher;
+                $eventdata->userfrom          = core_user::get_support_user();
                 $eventdata->userto            = $user;
                 $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
                 $eventdata->fullmessage       = get_string('welcometocoursetext', '', $a);
@@ -243,7 +243,7 @@ try {
         }
 
         if (!empty($mailteachers) && !empty($teacher)) {
-                $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
+                $a->course = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
                 $a->user = fullname($user);
 
                 $eventdata = new stdClass();
@@ -261,7 +261,7 @@ try {
         }
 
         if (!empty($mailadmins)) {
-            $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
+            $a->course = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
             $a->user = fullname($user);
             $admins = get_admins();
             foreach ($admins as $admin) {
