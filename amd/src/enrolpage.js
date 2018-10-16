@@ -235,6 +235,12 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     modal.getRoot().on(ModalEvents.save, function() {
                         enrolPage.checkoutFinal();
                     });
+                    modal.getRoot().on(ModalEvents.destroyed, function() {
+                        $("#dimmer").css('display','none');
+                    });
+                    modal.getRoot().on(ModalEvents.cancel, function() {
+                        $("#dimmer").css('display','none');
+                    });
                 });
 
                 $("#success-modal-trigger").click();
@@ -352,6 +358,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                         } else {
                             alert(response["failmessage"]);
                         }
+                    },
+                    error: function() {
+                        alert("Incorrect discount code.");
                     }
                 });
             },

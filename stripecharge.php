@@ -84,7 +84,6 @@ $data->userid           = (int)$payment->userid;
 $data->courseid         = (int)$payment->courseid;
 $data->instanceid       = (int)$payment->instanceid;
 $multiple         = (bool)$payment->multiple;
-$multiple_userids = (string)$payment->multiple_userids;
 
 if ($multiple) {
     $multiple_userids = explode(',',$payment->multiple_userids);
@@ -99,6 +98,9 @@ if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
     message_payment_error_to_admin("Not a valid user id", $data);
     redirect($CFG->wwwroot);
 }
+
+// For later redirect
+$purchaser = $user;
 
 if (! $course = $DB->get_record("course", array("id" => $data->courseid))) {
     message_payment_error_to_admin("Not a valid course id", $data);
@@ -279,12 +281,21 @@ try {
         }
     }
 
-    $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
-
     $fullname = $course->fullname;
+    if($multiple) {
+        if(in_array(strval($purchaser->id), $multiple_userids)) {
+            $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
+            redirect($destination, get_string('paymentthanks', '', $fullname));
+        } else {
+            $destination = "$CFG->wwwroot/enrol/payment/return.php?id=$course->id&token=$payment->prepaytoken";
+            redirect($destination);
+        }
+    } else {
+        $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
+        redirect($destination, get_string('paymentthanks', '', $fullname));
+    }
 
     //if (is_enrolled($context, null, '', true)) {
-    redirect($destination, get_string('paymentthanks', '', $fullname));
 
     //} else {   // Somehow they aren't enrolled yet!
     //    $PAGE->set_url($destination);
