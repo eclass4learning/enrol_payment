@@ -502,23 +502,6 @@ class enrol_payment_plugin extends enrol_plugin {
     }
 
     /**
-     * Return a JSON string to put in the customtext2 field.
-     *
-     * @param string $discount_code
-     * @param int $discount_type
-     * @param float $discount_value
-     * @return string
-     */
-    private function pack_discount_info($discount_code, $discount_type, $discount_value) {
-        $r = array();
-        $r['discount_code'] = $discount_code;
-        $r['discount_type'] = $discount_type;
-        $r['discount_value'] = $discount_value;
-
-        return json_encode($r);
-    }
-
-    /**
      * Add elements to the edit instance form.
      *
      * @param stdClass $instance
@@ -527,6 +510,9 @@ class enrol_payment_plugin extends enrol_plugin {
      * @return bool
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $context) {
+        //Add "float2" element for float formatting
+        require_once('HTML/QuickForm.php');
+        MoodleQuickForm::registerElementType('float2', dirname(__FILE__) . '/classes/float2.php', "MoodleQuickForm_float2");
 
         /**
          * Custom fields:
@@ -604,10 +590,11 @@ class enrol_payment_plugin extends enrol_plugin {
             $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_payment'), array(' '), false);
 
             //Discount amount - float
-            $mform->addElement('text', 'customdec1', get_string('discountamount', 'enrol_payment'), array('size' => 4));
+            $mform->addElement('float2', 'customdec1', get_string('discountamount', 'enrol_payment'), array('size' => 4));
             $mform->setType('customdec1', PARAM_RAW);
             $mform->setDefault('customdec1', 0.00);
             $mform->disabledIf('customdec1', 'customint3', 'eq', 0);
+            $mform->addHelpButton('customdec1', 'discountamount', 'enrol_payment');
 
             //Discount code - text
             $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_payment'));

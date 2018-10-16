@@ -113,6 +113,7 @@ $string['valuediscount'] = 'Value discount &nbsp;&nbsp;';
 $string['applydiscount'] = 'Apply discount';
 $string['discountcode'] = 'Discount code';
 $string['discountamount'] = 'Discount amount';
+$string['discountamount_help'] = 'If a Percentage discount is used, values under 1.00 will be treated as a percentage (out of 1.00). For example, you may set a 25% discount by entering either "25", "25.00", or "0.25".';
 $string['discounttypeerror'] = 'Invalid discount type.';
 $string['discountamounterror'] = 'The discount amount is not numeric.';
 $string['discountdigitserror'] = 'The discount amount must have fewer than 12 digits.';

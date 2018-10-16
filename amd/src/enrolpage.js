@@ -1,3 +1,11 @@
+/**
+ * Enrol page JS for Payment plugin
+ *
+ * @package enrol_payment
+ * @copyright 2018 Seth Yoder <seth.a.yoder@gmail.com>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 define([ 'jquery'
        , 'core/modal_factory'
        , 'core/modal_events'
@@ -351,7 +359,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             if(this.gateway === "paypal") {
                 $("#paypal-form input[name=amount]").val(this.subtotal);
                 $("#paypal-form input[name=tax]").val(this.taxAmount * this.subtotal);
-                $("#dimmer").css("display", "none");
                 $("#paypal-form").submit();
             } else if(this.gateway === "stripe") {
                 $("#stripe-form input[name=amount]").val(this.subtotal);
