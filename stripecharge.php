@@ -66,8 +66,6 @@ foreach ($_POST as $key => $value) {
 }
 //$data->prov is now set to the user's msn field.
 
-error_log("AMOUNT: " . $data->amount);
-
 $data->payment_gross    = $data->amount;
 $data->payment_currency = $data->currency_code;
 
@@ -195,7 +193,7 @@ try {
     $mailstudents = $plugin->get_config('mailstudents');
     $mailteachers = $plugin->get_config('mailteachers');
     $mailadmins   = $plugin->get_config('mailadmins');
-    $shortname = format_string($course->shortname, true, array('context' => $context));
+    $shortname = $course->shortname;
 
     // Pass $view=true to filter hidden caps if the user cannot see them.
     if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
@@ -225,7 +223,7 @@ try {
 
         if (!empty($mailstudents)) {
                 $a = new stdClass();
-                $a->coursename = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
+                $a->coursename = $course->fullname;
                 $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
                 $eventdata = new stdClass();
@@ -243,7 +241,7 @@ try {
         }
 
         if (!empty($mailteachers) && !empty($teacher)) {
-                $a->course = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
+                $a->course = $course->fullname;
                 $a->user = fullname($user);
 
                 $eventdata = new stdClass();
@@ -261,7 +259,7 @@ try {
         }
 
         if (!empty($mailadmins)) {
-            $a->course = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
+            $a->course = $course->fullname;
             $a->user = fullname($user);
             $admins = get_admins();
             foreach ($admins as $admin) {
@@ -283,7 +281,7 @@ try {
 
     $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
 
-    $fullname = format_string($course->fullname, true, array('context' => $context));
+    $fullname = $course->fullname;
 
     //if (is_enrolled($context, null, '', true)) {
     redirect($destination, get_string('paymentthanks', '', $fullname));

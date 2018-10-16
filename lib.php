@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once('classes/util.php');
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -208,7 +210,7 @@ class enrol_payment_plugin extends enrol_plugin {
         $context = context_course::instance($course->id);
 
         $a = new stdClass();
-        $a->coursename = format_string($course->fullname, true, array('context'=>$context));
+        $a->coursename = $course->fullname;
         $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id&course=$course->id";
 
         if (trim($instance->customtext1) !== '') {
@@ -230,7 +232,7 @@ class enrol_payment_plugin extends enrol_plugin {
             $messagehtml = text_to_html($messagetext, null, false, true);
         }
 
-        $subject = get_string('welcometocourse', 'enrol_self', format_string($course->fullname, true, array('context'=>$context)));
+        $subject = get_string('welcometocourse', 'enrol_self', $course->fullname);
 
         $sendoption = $instance->customint1;
         $contact = $this->get_welcome_email_contact($sendoption, $context);

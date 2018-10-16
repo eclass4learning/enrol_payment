@@ -12,7 +12,6 @@ $ret = array("success" => true);
 $emails = json_decode(stripslashes($_POST['emails']));
 $instanceid = $_POST['instanceid'];
 $prepayToken = $_POST['prepaytoken'];
-$ipn_id = $_POST['ipn_id'];
 
 if ($CFG->allowaccountssameemail) {
     $ret["success"] = false;
@@ -42,7 +41,7 @@ if ($CFG->allowaccountssameemail) {
 
         if ($payment->tax_amount) {
             $tax_percent = floor(100 * floatval($payment->tax_amount));
-            $tax_string = " + ${tax_percent}% HST";
+            $tax_string = " + ${tax_percent}% tax";
         } else {
             $tax_string = "";
         }

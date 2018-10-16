@@ -198,3 +198,7 @@ $string['transferinstructions_default'] = "<h4>Prefer to pay directly from your 
 "<li><p>Follow the on-screen instructions to confirm the information and complete the transfer.</p></li>".
 "</ol>".
 "<p>Once payment is received, you will be notified of your enrolment in <strong>{{COURSEFULLNAME}}</strong>.</p>";
+
+$string['paypalwait'] = "Please wait while PayPal confirms your payment. You will be redirected once the payment is confirmed. <br>You may navigate away from this page, and you will be given access to the course when the payment has completed.";
+$string['errorcheckingenrolment'] = "Failure checking user enrolment. Please contact your server administrator. In the meantime, you should navigate to the course manually.";
+$string['thanksforpaypal'] = "Thank you for your multiple enrolment purchase. The users have been successfully enrolled in this course.";

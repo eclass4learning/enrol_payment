@@ -41,6 +41,7 @@ require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+
 // PayPal does not like when we return error messages here,
 // the custom handler just logs exceptions and stops.
 set_exception_handler(\enrol_payment\util::get_exception_handler());
@@ -98,10 +99,10 @@ $data->timeupdated      = time();
 
 $multiple         = (bool)$payment->multiple;
 if ($multiple) {
+    $multiple_userids = explode(',',$payment->multiple_userids);
     if(empty($multiple_userids)) {
         throw new moodle_exception('invalidrequest', 'core_error', '', null, "Multiple purchase specified, but no userids found.");
     }
-    $multiple_userids = explode(',',$payment->multiple_userids);
 }
 
 $user = $DB->get_record("user", array("id" => $data->userid), "*", MUST_EXIST);
@@ -176,7 +177,7 @@ if (strlen($result) > 0) {
             $eventdata->name              = 'payment_enrolment';
             $eventdata->userfrom          = get_admin();
             $eventdata->userto            = $user;
-            $eventdata->subject           = "Moodle: PayPal payment";
+            $eventdata->subject           = "E-Learning Payment pending";
             $eventdata->fullmessage       = "Your PayPal payment is pending.";
             $eventdata->fullmessageformat = FORMAT_PLAIN;
             $eventdata->fullmessagehtml   = '';
@@ -274,7 +275,7 @@ if (strlen($result) > 0) {
         $mailstudents = $plugin->get_config('mailstudents');
         $mailteachers = $plugin->get_config('mailteachers');
         $mailadmins   = $plugin->get_config('mailadmins');
-        $shortname = format_string($course->shortname, true, array('context' => $context));
+        $shortname = $course->shortname;
 
         // Pass $view=true to filter hidden caps if the user cannot see them
         if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
@@ -290,6 +291,7 @@ if (strlen($result) > 0) {
                 \enrol_payment\util::message_paypal_error_to_admin("User $data->userid doesn't exist", $data);
                 die;
             }
+
             // Enrol user
             $plugin->enrol_user($plugin_instance, $user->id, $plugin_instance->roleid, $timestart, $timeend);
 
@@ -304,7 +306,7 @@ if (strlen($result) > 0) {
 
             if (!empty($mailstudents)) {
                 $a = new stdClass();
-                $a->coursename = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
+                $a->coursename = $course->fullname;
                 $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
                 $eventdata = new \core\message\message();
@@ -324,7 +326,7 @@ if (strlen($result) > 0) {
             }
 
             if (!empty($mailteachers) && !empty($teacher)) {
-                $a->course = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
+                $a->course = $course->fullname;
                 $a->user = fullname($user);
 
                 $eventdata = new \core\message\message();
@@ -343,7 +345,7 @@ if (strlen($result) > 0) {
             }
 
             if (!empty($mailadmins)) {
-                $a->course = htmlspecialchars_decode(format_string($course->fullname, true, array('context' => $coursecontext)));
+                $a->course = $course->fullname;
                 $a->user = fullname($user);
                 $admins = get_admins();
                 foreach ($admins as $admin) {

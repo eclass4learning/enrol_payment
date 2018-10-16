@@ -345,6 +345,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     success: function(r) {
                         var response = JSON.parse(r);
                         if (response["success"]) {
+                            $('#discount-dimmer').css('display','block');
+                            $('.discount-check').css('visibility','visible');
                             enrolPage.subtotal = response["subtotal"];
                             enrolPage.updateCostView();
                         } else {
@@ -376,7 +378,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         },
 
         updateCostView: function() {
-            $("span.localisedcost-untaxed").text(Number.parseFloat(this.subtotal).toFixed(2))
+            $("span.localisedcost-untaxed").text(Number.parseFloat(this.subtotal).toFixed(2));
             $("span.localisedcost").text(this.getTaxedAmount());
             $("span.subtotal-display").text(this.getTaxedAmount());
         },
@@ -455,7 +457,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                         success: function() {
                             self.checkoutFinal();
                         },
-                        failure: function() {
+                        error: function() {
                             alert(self.mdlstr[3]);
                         }
                     });
@@ -477,35 +479,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , currency ) {
 
             var self = this;
-
-            /*
-            var opts = {
-              lines: 13, // The number of lines to draw
-              length: 38, // The length of each line
-              width: 17, // The line thickness
-              radius: 45, // The radius of the inner circle
-              scale: 0.65, // Scales overall size of the spinner
-              corners: 1, // Corner roundness (0..1)
-              color: '#ffffff', // CSS color or array of colors
-              fadeColor: 'transparent', // CSS color or array of colors
-              speed: 1, // Rounds per second
-              rotate: 0, // The rotation offset
-              animation: 'spinner-line-fade-quick', // The CSS animation name for the lines
-              direction: 1, // 1: clockwise, -1: counterclockwise
-              zIndex: 2e9, // The z-index (defaults to 2000000000)
-              className: 'spinner', // The CSS class to assign to the spinner
-              top: '50%', // Top position relative to parent
-              left: '50%', // Left position relative to parent
-              shadow: '0 0 1px transparent', // Box-shadow for the lines
-              position: 'absolute' // Element positioning
-            };
-            */
-
-            //var target = document.getElementById('dimmer');
-            //var spinner = new Spinner(opts).spin(target);
-            //function get_moodlestrings(ms, keys) {
-            //    for(key in keys)
-            //}
 
             var str_promise = MoodleStrings.get_strings([
                     { key : "discounttypeerror" , component : "enrol_payment" },

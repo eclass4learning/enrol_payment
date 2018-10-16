@@ -86,7 +86,6 @@ class MoodleQuickForm_float2 extends HTML_QuickForm_text implements templatable 
      * Format value to two decimal places
      */
     function setValue($value) {
-        error_log("CALLED!");
         if(floatval($value)) {
             $this->updateAttributes(array("value" => number_format(floatval($value), 2)));
         } else {

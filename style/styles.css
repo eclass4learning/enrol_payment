@@ -66,16 +66,39 @@
     position: relative;
 }
 
+#discount-container {
+    display: inline-block;
+    position:relative;
+}
+
+.discount-check {
+    visibility: hidden;
+    display: inline-block;
+    vertical-align: inherit !important;
+}
+
+#discount-dimmer {
+    display: none;
+    background: #fff;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4000;
+}
+
 #dimmer {
-	background:#fff;
-	opacity:0.5;
-	position:absolute;
-	top:0;
-	left:0;
-	width:100%;
-	height:100%;
-	display:block;
-	z-index:4000;
+    background: #fff;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 4000;
 }
 
 /**
@@ -106,4 +129,14 @@
   1% {
     opacity: 1;
   }
+}
+
+#spin-container {
+    display: block;
+    height: 200px;
+    text-align: center;
+}
+
+#spinner {
+    display: inline-block;
 }

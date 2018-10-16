@@ -19,11 +19,15 @@
 
         <?php if (($instance->customint3) && $enablediscounts): ?>
         <br><br>
-            <span style="white-space: nowrap;">
+        <span style="white-space: nowrap;">
+            <div id="discount-container">
+                <div id="discount-dimmer"></div>
                 <b><?php echo (get_string("discountcode", "enrol_payment") . ":"); ?></b>
                 <input type="text" name="discountcode" id="discountcode" style="width: 100px;" />
                 <a id="apply-discount" class="btn" style="margin-bottom: 10px;"><?php print_string("applydiscount", "enrol_payment"); ?></a>
-            </span>
+            </div>
+            <img class="icon discount-check" src='<?php echo "$CFG->wwwroot/enrol/payment/pix/check.svg" ?>' />
+        </span>
         <?php endif; ?>
 
         <br><br>
@@ -65,7 +69,7 @@
                     <input type="hidden" name="no_note" value="1" />
                     <input type="hidden" name="no_shipping" value="<?php p($paypalShipping) ?>">
                     <input type="hidden" name="notify_url" value="<?php echo "$CFG->wwwroot/enrol/payment/ipn.php"?>" />
-                    <input type="hidden" name="return" value="<?php echo "$CFG->wwwroot/enrol/payment/return.php?id=$course->id" ?>" />
+                    <input type="hidden" name="return" value="<?php echo "$CFG->wwwroot/enrol/payment/return.php?id=$course->id&token=$prepayToken" ?>" />
                     <input type="hidden" name="cancel_return" value="<?php echo $CFG->wwwroot ?>" />
                     <input type="hidden" name="rm" value="2" />
                     <input type="hidden" name="cbt" value="<?php print_string("continuetocourse") ?>" />
