@@ -5,21 +5,20 @@
 define(['jquery', 'enrol_payment/spin', 'core/str', 'core/cfg'], function($, Spinner, MoodleStrings, MoodleCfg) {
     var PayPalReturn = {
 
-        checkEnrol: function(ajaxurl, courseid, mdlstr, dest) {
+        checkEnrol: function(ajaxurl, courseid, mdlstr, dest, paymentid) {
             $.ajax({
                 url : ajaxurl,
                 method : "POST",
                 data : {
                     'courseid' : courseid,
-                    'paymentid', : paymentid
+                    'paymentid' : paymentid
                 },
                 success : function(r) {
                     var res = JSON.parse(r);
                     if (res["result"] === true) {
                         window.location.href = dest;
                     } else if (res["result"] === false && res["reason"] === "Pending") {
-                        htmlStr = 
-                        $('paypal-wait').html();
+                        window.location.href = MoodleCfg.wwwroot + "/enrol/payment/paypalPending.php";
                     }
                 },
                 error : function() {
@@ -60,7 +59,7 @@ define(['jquery', 'enrol_payment/spin', 'core/str', 'core/cfg'], function($, Spi
                 var spinner = new Spinner(spinopts);
                 spinner.spin(target);
 
-                self.checkEnrol(ajaxurl, courseid, strs, dest, paymentid)
+                self.checkEnrol(ajaxurl, courseid, strs, dest, paymentid);
                 setInterval(function() { self.checkEnrol(ajaxurl, courseid, strs, dest, paymentid); }, 5000);
             });
         }
