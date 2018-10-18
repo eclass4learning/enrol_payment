@@ -2,8 +2,10 @@
 
 require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
+require_once('util.php');
 
 $courseid = $_POST['courseid'];
+$paymentid = $_POST['paymentid'];
 
 $context = context_course::instance($courseid, MUST_EXIST);
 
@@ -13,9 +15,16 @@ if (is_enrolled($context, NULL, '', true)) {
         "result" => true
     ]);
 
+} else if(payment_pending($paymentid)) {
+    echo json_encode([
+        "status" => "success",
+        "result" => false,
+        "reason" => "Pending"
+    ]);
 } else {
     echo json_encode([
         "status" => "success",
-        "result" => false
+        "result" => false,
+        "reason" => "Other"
     ]);
 }

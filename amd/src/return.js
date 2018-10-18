@@ -2,7 +2,7 @@
  * PayPal return page for pending payment
  */
 
-define(['jquery', 'enrol_payment/spin', 'core/str'], function($, Spinner, MoodleStrings) {
+define(['jquery', 'enrol_payment/spin', 'core/str', 'core/cfg'], function($, Spinner, MoodleStrings, MoodleCfg) {
     var PayPalReturn = {
 
         checkEnrol: function(ajaxurl, courseid, mdlstr, dest) {
@@ -10,12 +10,16 @@ define(['jquery', 'enrol_payment/spin', 'core/str'], function($, Spinner, Moodle
                 url : ajaxurl,
                 method : "POST",
                 data : {
-                    'courseid' : courseid
+                    'courseid' : courseid,
+                    'paymentid', : paymentid
                 },
                 success : function(r) {
                     var res = JSON.parse(r);
                     if (res["result"] === true) {
                         window.location.href = dest;
+                    } else if (res["result"] === false && res["reason"] === "Pending") {
+                        htmlStr = 
+                        $('paypal-wait').html();
                     }
                 },
                 error : function() {
@@ -24,10 +28,11 @@ define(['jquery', 'enrol_payment/spin', 'core/str'], function($, Spinner, Moodle
             });
         },
 
-        init: function(dest, ajaxurl, courseid) {
+        init: function(dest, ajaxurl, courseid, paymentid) {
             var self = this;
             var str_promise = MoodleStrings.get_strings([
-                { key : "errorcheckingenrolment", component : "enrol_payment" }
+                { key : "errorcheckingenrolment", component : "enrol_payment" },
+                { key : "errorpaymentpending", component : "enrol_payment" }
             ]);
 
             str_promise.done(function(strs) {
@@ -37,7 +42,7 @@ define(['jquery', 'enrol_payment/spin', 'core/str'], function($, Spinner, Moodle
                   length: 38, // The length of each line
                   width: 17, // The line thickness
                   radius: 45, // The radius of the inner circle
-                  scale: 0.3, // Scales overall size of the spinner
+                  scale: 0.45, // Scales overall size of the spinner
                   corners: 1, // Corner roundness (0..1)
                   color: '#000000', // CSS color or array of colors
                   fadeColor: 'transparent', // CSS color or array of colors
@@ -55,8 +60,8 @@ define(['jquery', 'enrol_payment/spin', 'core/str'], function($, Spinner, Moodle
                 var spinner = new Spinner(spinopts);
                 spinner.spin(target);
 
-                self.checkEnrol(ajaxurl, courseid, strs, dest)
-                setInterval(function() { self.checkEnrol(ajaxurl, courseid, strs, dest); }, 5000);
+                self.checkEnrol(ajaxurl, courseid, strs, dest, paymentid)
+                setInterval(function() { self.checkEnrol(ajaxurl, courseid, strs, dest, paymentid); }, 5000);
             });
         }
     };

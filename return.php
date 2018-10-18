@@ -63,14 +63,16 @@ if($purchasing_for_self) {
         redirect($destination, get_string('paymentthanks', '', $fullname));
     } else {   /// IPN is slow, and doesn't always complete immediately...
         $ajaxurl = "$CFG->wwwroot/enrol/payment/ajax/checkEnrol.php";
+
         $PAGE->requires->css('/enrol/payment/style/styles.css');
-        $PAGE->requires->js_call_amd('enrol_payment/return', 'init', array($destination, $ajaxurl, $course->id));
+        $PAGE->requires->js_call_amd('enrol_payment/return', 'init', array($destination, $ajaxurl, $course->id, $payment->id));
         $PAGE->set_url($destination);
+
         echo $OUTPUT->header();
         $a = new stdClass();
         $a->teacher = get_string('defaultcourseteacher');
         $a->fullname = $fullname;
-        echo '<div style="text-align: center;">';
+        echo '<div style="text-align: center;" class="paypal-wait">';
         echo $OUTPUT->box(get_string('paypalwait', 'enrol_payment'), 'generalbox', 'notice');
         echo '</div>';
         echo '<div id="spin-container"></div>';

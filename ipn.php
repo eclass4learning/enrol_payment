@@ -136,8 +136,11 @@ if ($c->get_errno()) {
 /// Now read the response and check if everything is OK.
 
 if (strlen($result) > 0) {
-    if (strcmp($result, "VERIFIED") == 0) {          // VALID PAYMENT!
+    if (strcmp($result, "VERIFIED") == 0) {          // VALID PAYMENT...ish
 
+        //Insert payment even if it wasn't completed... Database contains the payment status, so we can differentiate.
+        $DB->insert_record("enrol_payment", $data);
+        $DB->update_record("enrol_payment_ipn", array("id" => $payment->id, "paypal_txn_id" => $data->txn_id));
 
         // check the payment_status and payment_reason
 
@@ -256,8 +259,6 @@ if (strlen($result) > 0) {
         $data->item_name = $course->fullname;
 
         // ALL CLEAR !
-
-        $DB->insert_record("enrol_payment", $data);
 
         if ($plugin_instance->enrolperiod) {
             $timestart = time();

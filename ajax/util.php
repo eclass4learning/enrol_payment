@@ -26,6 +26,18 @@ function update_payment_data($multiple, $users, $payment) {
     $DB->update_record("enrol_payment_ipn", $payment);
 }
 
+function payment_pending($paymentid) {
+    global $DB;
+    $payment = $DB->get_record("enrol_payment_ipn", array('id' => $paymentid));
+    $transaction = $DB->get_record("enrol_payment", array('txn_id' => $payment->paypal_txn_id));
+
+    if($transaction) {
+        return ($transaction->payment_status == "Pending");
+    } else {
+        return false;
+    }
+}
+
 function get_moodle_users_by_emails($emails) {
     global $DB;
     $notfound = array();
