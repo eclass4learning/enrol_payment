@@ -388,6 +388,7 @@ class enrol_payment_plugin extends enrol_plugin {
                                , 'units' => 1
                                , 'original_cost' => $cost
                                , 'tax_amount' => $tax_amount
+                               , 'paypal_txn_id' => null
                                ];
 
                 $DB->insert_record("enrol_payment_ipn", $paymentdata);

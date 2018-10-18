@@ -42,6 +42,7 @@ require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
 
+
 // PayPal does not like when we return error messages here,
 // the custom handler just logs exceptions and stops.
 set_exception_handler(\enrol_payment\util::get_exception_handler());
@@ -84,11 +85,11 @@ if (empty($data->custom)) {
 
 $payment = get_payment_from_token($data->custom);
 
-unset($data->custom);
-
 if (empty($payment)) {
-    throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Invalid value of the request param: custom');
+    throw new moodle_exception('invalidrequest', 'core_error', '', null, "Invalid value of prepay token: $data->custom");
 }
+
+unset($data->custom);
 
 $data->userid           = (int)$payment->userid;
 $data->courseid         = (int)$payment->courseid;
@@ -138,10 +139,6 @@ if ($c->get_errno()) {
 if (strlen($result) > 0) {
     if (strcmp($result, "VERIFIED") == 0) {          // VALID PAYMENT...ish
 
-        //Insert payment even if it wasn't completed... Database contains the payment status, so we can differentiate.
-        $DB->insert_record("enrol_payment", $data);
-        $DB->update_record("enrol_payment_ipn", array("id" => $payment->id, "paypal_txn_id" => $data->txn_id));
-
         // check the payment_status and payment_reason
 
         // If status is not completed or pending then unenrol the student if already enrolled
@@ -188,6 +185,10 @@ if (strlen($result) > 0) {
             message_send($eventdata);
 
             \enrol_payment\util::message_paypal_error_to_admin("Payment pending", $data);
+
+            $DB->insert_record("enrol_payment", $data);
+            $DB->update_record("enrol_payment_ipn", array("id" => $payment->id, "paypal_txn_id" => $data->txn_id));
+
             die;
         }
 
@@ -259,6 +260,9 @@ if (strlen($result) > 0) {
         $data->item_name = $course->fullname;
 
         // ALL CLEAR !
+        $DB->insert_record("enrol_payment", $data);
+        $DB->update_record("enrol_payment_ipn", array("id" => $payment->id, "paypal_txn_id" => $data->txn_id));
+
 
         if ($plugin_instance->enrolperiod) {
             $timestart = time();

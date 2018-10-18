@@ -2,7 +2,7 @@
  * PayPal return page for pending payment
  */
 
-define(['jquery', 'enrol_payment/spin', 'core/str', 'core/cfg'], function($, Spinner, MoodleStrings, MoodleCfg) {
+define(['jquery', 'enrol_payment/spin', 'core/str', 'core/config'], function($, Spinner, MoodleStrings, MoodleCfg) {
     var PayPalReturn = {
 
         checkEnrol: function(ajaxurl, courseid, mdlstr, dest, paymentid) {
@@ -18,7 +18,8 @@ define(['jquery', 'enrol_payment/spin', 'core/str', 'core/cfg'], function($, Spi
                     if (res["result"] === true) {
                         window.location.href = dest;
                     } else if (res["result"] === false && res["reason"] === "Pending") {
-                        window.location.href = MoodleCfg.wwwroot + "/enrol/payment/paypalPending.php";
+                        window.location.href = MoodleCfg.wwwroot + "/enrol/payment/paypalPending.php?id=" + courseid.toString();
+                    } else {
                     }
                 },
                 error : function() {

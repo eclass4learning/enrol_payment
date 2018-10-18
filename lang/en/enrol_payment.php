@@ -203,4 +203,4 @@ $string['paypalwait'] = "Please wait while PayPal confirms your payment. You wil
 $string['errorcheckingenrolment'] = "Failure checking user enrolment. Please contact your server administrator. In the meantime, you should navigate to the course manually.";
 $string['thanksforpaypal'] = "Thank you for your multiple enrolment purchase. The users have been successfully enrolled in this course.";
 $string['incorrectdiscountcode'] = "Invalid discount code.";
-$string['errorpaymentpending'] = "The PayPal payment is stuck in \"Pending\" status, and the administrator needs to manually accept it. This can happen for a number of reasons, such currency mismatch or other PayPal configuration issues.";
+$string['errorpaymentpending'] = "The PayPal payment is stuck in \"Pending\" status, and the administrator needs to manually accept it. <br>This can happen for a number of reasons, such as currency mismatch or other PayPal configuration issues.<br> Please contact the site administrator for more information.";
