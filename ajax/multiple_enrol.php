@@ -39,9 +39,10 @@ if ($CFG->allowaccountssameemail) {
         //Tack new subtotals onto return data
         $ret = array_merge($ret, calculate_cost($instance, $payment, true));
 
-        if ($payment->tax_amount) {
-            $tax_percent = floor(100 * floatval($payment->tax_amount));
-            $tax_string = " + ${tax_percent}% tax";
+        if ($payment->tax_percent) {
+            $tax_amount = $ret['tax_amount'];
+            $tax_percent = floor(100 * floatval($payment->tax_percent));
+            $tax_string = " + $${tax_amount} (${tax_percent}% tax)";
         } else {
             $tax_string = "";
         }
@@ -52,7 +53,7 @@ if ($CFG->allowaccountssameemail) {
             . "</ul>"
             . "<br>"
             . get_string("totalcost", "enrol_payment")
-            . $ret["oc_discounted"] . " × " . $payment->units . $tax_string . "= <b>" . $ret["subtotal_taxed"] . " " . $instance->currency . "</b>"
+            . $ret["oc_discounted"] . " × " . $payment->units . $tax_string . " = <b>" . $ret["subtotal_taxed"] . " " . $instance->currency . "</b>"
         ;
 
     } catch (Exception $e) {

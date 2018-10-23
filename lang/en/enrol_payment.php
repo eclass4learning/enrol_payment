@@ -91,7 +91,7 @@ $string['processexpirationstask'] = 'Payment enrolment send expiry notifications
 $string['sendpaymentbutton_paypal'] = 'Send payment via PayPal';
 $string['sendpaymentbutton_stripe'] = 'Send payment via Stripe';
 $string['status'] = 'Allow Payment enrolments';
-$string['status_desc'] = 'Allow users to use PayPal and Stripe to enroll';
+$string['status_desc'] = 'Allow users to use PayPal and Stripe to enrol';
 $string['transactions'] = 'PayPal transactions';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
 $string['sendcoursewelcomemessage'] = 'Send course welcome message';
@@ -134,9 +134,9 @@ $string['multipleregistration'] = 'Multiple Registration';
 
 //TODO add description - ensure registrants have an account on (long name)
 //(Registrant 1 email, instead of Email 1)
-$string['multipleregistration_help'] = 'Purchase a registration for multiple users.<br>';
+$string['multipleregistration_help'] = 'Purchase enrolment for other(s). Enter your email address if registering yourself as well.<br>';
 $string['allowmultipleenrol'] = 'Allow multiple registration';
-$string['allowmultipleenrol_help'] = 'Allow a user to enrol other users by entering their email addresses';
+$string['allowmultipleenrol_help'] = 'Allow a user to enrol other users by entering their email address';
 $string['sameemailaccountsallowed'] = "Error: Accounts sharing the same email address are allowed on this Moodle site. Because of this, the Multiple Registration cannot be used. Please contact your site administrator.";
 $string['duplicateemail'] = "Error: Duplicate emails were entered in the multiple registration form.";
 
@@ -174,14 +174,12 @@ $string['taxdefinitions_help'] = "The format for each entry is Province/State Co
 "QC : 0.05<br>".
 "Enter each tax definition on a <b>separate</b> line. The script will pull the province/state code from the MSN field in the user profile (setup instructions are detailed in the ReadMe.txt file) to determine how much tax to add to the course fee.";
 $string['definetaxes'] = 'Allow custom tax definitions';
-$string['feestring_taxed'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost-untaxed">{$a->localisedcost_untaxed}</span></b> + <span class="taxstring">{$a->tax_string}</span> = <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}';
+$string['feestring_taxed'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost-untaxed">{$a->localisedcost_untaxed}</span></b> + $<span class="taxamountstring">{$a->tax_amount_string}</span> <span class="taxstring">{$a->tax_string}</span> = <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}';
 $string['feestring_notax'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}';
 
 $string['allowbanktransfer'] = "Allow Bank/Email transfer payment";
 $string['transferinstructions'] = "Bank/Email transfer payment instructions";
-$string['transferinstructions_help'] = "Bank or email money transfer instructions are customizable, but it is advisable to not alter the ".
-"{{AMOUNT}}, {{COURSEFULLNAME}}, or {{COURSESHORTNAME}} variables, as these variables are replaced by the plugin code. i.e., {{AMOUNT}} is ".
-"replaced with the course fee + tax (if applicable). Note that this text will appear on the course enrolment page.";
+$string['transferinstructions_help'] = "This text will appear on the course enrolment page. Bank or email money transfer instructions are customizable, but it is advisable to not alter {{AMOUNT}}, {{COURSEFULLNAME}} or {{COURSESHORTNAME}}. These variables are replaced by the plugin code. Note that {{AMOUNT}} is replaced with the course fee + tax (if applicable).";
 $string['transferinstructions_default'] = "<h4>Prefer to pay directly from your bank account?</h4><br>".
 "<p>Email money transfer (known as <a href=\"https://www.youtube.com/watch?time_continue=4&v=zL9yoZZXyOE\" target=\"_blank\"><em>Interac</em> e-Transfer</a>) is an option if you:</p>".
 "<ul>".
@@ -204,3 +202,6 @@ $string['errorcheckingenrolment'] = "Failure checking user enrolment. Please con
 $string['thanksforpaypal'] = "Thank you for your multiple enrolment purchase. The users have been successfully enrolled in this course.";
 $string['incorrectdiscountcode'] = "Invalid discount code.";
 $string['errorpaymentpending'] = "The PayPal payment is stuck in \"Pending\" status, and the administrator needs to manually accept it. <br>This can happen for a number of reasons, such as currency mismatch or other PayPal configuration issues.<br> Please contact the site administrator for more information.";
+$string['needdiscountcode'] = "Please provide a discount code.";
+$string['needdiscountamount'] = "Please provide a discount amount.";
+$string['enrolothers'] = "Enrol other(s)";

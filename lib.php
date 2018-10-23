@@ -270,7 +270,7 @@ class enrol_payment_plugin extends enrol_plugin {
                         if(is_numeric($taxrate)) {
                             try {
                                 $float_taxrate = floatval($taxrate);
-                                return [ "tax_amount" => $float_taxrate
+                                return [ "tax_percent" => $float_taxrate
                                        , "tax_string" => "(" . floor($float_taxrate * 100) . "% tax)"
                                        ];
 
@@ -288,7 +288,7 @@ class enrol_payment_plugin extends enrol_plugin {
 
         }
 
-        return [ "tax_amount" => 0
+        return [ "tax_percent" => 0
                , "tax_string" => ""
                ];
     }
@@ -349,7 +349,7 @@ class enrol_payment_plugin extends enrol_plugin {
 
         $tax_info = $this->get_tax_info($cost);
         $tax_string = $tax_info["tax_string"];
-        $tax_amount = $tax_info["tax_amount"];
+        $tax_percent = $tax_info["tax_percent"];
 
         if (abs($cost) < 0.01) { // no cost, other enrolment methods (instances) should be used
             echo '<p>'.get_string('nocost', 'enrol_payment').'</p>';
@@ -357,7 +357,7 @@ class enrol_payment_plugin extends enrol_plugin {
 
             // Calculate localised and "." cost, make sure we send PayPal the same value,
             // please note PayPal expects amount with 2 decimal places and "." separator.
-            $localisedcost = format_float($cost + ($cost * $tax_amount), 2, true);
+            $localisedcost = format_float($cost + ($cost * $tax_percent), 2, true);
             $localisedcost_untaxed = format_float($cost, 2, false);
             $cost = format_float($cost, 2, false);
 
@@ -387,7 +387,7 @@ class enrol_payment_plugin extends enrol_plugin {
                                , 'discounted' => false
                                , 'units' => 1
                                , 'original_cost' => $cost
-                               , 'tax_amount' => $tax_amount
+                               , 'tax_percent' => $tax_percent
                                , 'paypal_txn_id' => null
                                ];
 
@@ -405,7 +405,7 @@ class enrol_payment_plugin extends enrol_plugin {
                            , htmlspecialchars_decode($coursefullname)
                            , $instance->customint4
                            , $stripelogourl
-                           , $tax_amount
+                           , $tax_percent
                            , $validatezipcode
                            , $billingAddressRequired
                            , $USER->email
@@ -415,16 +415,18 @@ class enrol_payment_plugin extends enrol_plugin {
                 $PAGE->requires->css('/enrol/payment/style/styles.css');
 
                 //Sanitise some fields before building the PayPal form
-                $courseshortname  = $shortname;
-                $userfullname     = fullname($USER);
-                $userfirstname    = $USER->firstname;
-                $userlastname     = $USER->lastname;
-                $useraddress      = $USER->address;
-                $usercity         = $USER->city;
-                $paypalShipping   = $instance->customint4 ? 2 : 1;
-                $stripeShipping   = $instance->customint4;
-                $instancename     = $this->get_instance_name($instance);
-                $enablediscounts  = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
+                $courseshortname   = $shortname;
+                $userfullname      = fullname($USER);
+                $userfirstname     = $USER->firstname;
+                $userlastname      = $USER->lastname;
+                $useraddress       = $USER->address;
+                $usercity          = $USER->city;
+                $paypalShipping    = $instance->customint4 ? 2 : 1;
+                $stripeShipping    = $instance->customint4;
+                $instancename      = $this->get_instance_name($instance);
+                $enablediscounts   = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
+                $tax_amount_string = format_float($tax_percent * $cost, 2, true);
+                $tax_amount        = format_float($tax_percent * $cost, 2, false);
 
                 include($CFG->dirroot.'/enrol/payment/enrol.html');
             }
@@ -592,10 +594,10 @@ class enrol_payment_plugin extends enrol_plugin {
             $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('valuediscount', 'enrol_payment'), 2);
             $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_payment'), array(' '), false);
 
-            //Discount amount - float
+            //Discount amount - float2
             $mform->addElement('float2', 'customdec1', get_string('discountamount', 'enrol_payment'), array('size' => 4));
             $mform->setType('customdec1', PARAM_RAW);
-            $mform->setDefault('customdec1', 0.00);
+            $mform->setDefault('customdec1', floatval(0.00));
             $mform->disabledIf('customdec1', 'customint3', 'eq', 0);
             $mform->addHelpButton('customdec1', 'discountamount', 'enrol_payment');
 
@@ -637,24 +639,38 @@ class enrol_payment_plugin extends enrol_plugin {
     public function edit_instance_validation($data, $files, $instance, $context) {
         $errors = array();
 
-        if (!empty($data['enrolenddate']) and $data['enrolenddate'] < $data['enrolstartdate']) {
+        if(!empty($data['enrolenddate']) and $data['enrolenddate'] < $data['enrolstartdate']) {
             $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_payment');
         }
 
         $cost = str_replace(get_string('decsep', 'langconfig'), '.', $data['cost']);
-        if (!is_numeric($cost)) {
+        if(!is_numeric($cost)) {
             $errors['cost'] = get_string('costerror', 'enrol_payment');
         }
 
-        if (array_key_exists("customdec1", $data)) {
-            $discount_amount = str_replace(get_string('decsep', 'langconfig'), '.', $data['customdec1']);
-            if (!is_numeric($discount_amount)) {
-                $errors['customdec1'] = get_string('discountamounterror', 'enrol_payment');
+        if(array_key_exists("customdec1", $data)) {
+            if(!empty($data['customdec1'])) {
+                $discount_amount = str_replace(get_string('decsep', 'langconfig'), '.', $data['customdec1']);
+                if (!is_numeric($discount_amount)) {
+                    $errors['customdec1'] = get_string('discountamounterror', 'enrol_payment');
+                }
+                $totaldigits = strlen(str_replace('.','',$discount_amount));
+                $digitsafterdecimal = strlen(substr(strrchr($discount_amount, "."), 1));
+                if ($totaldigits > 12 || $digitsafterdecimal > 7) {
+                    $errors['customdec1'] = get_string('discountdigitserror', 'enrol_payment');
+                }
+
+                //If discount amount is filled, discount code must be filled
+                if((!array_key_exists("customtext2", $data)) || empty($data['customtext2'])) {
+                    $errors['customtext2'] = get_string('needdiscountcode', 'enrol_payment');
+                }
             }
-            $totaldigits = strlen(str_replace('.','',$discount_amount));
-            $digitsafterdecimal = strlen(substr(strrchr($discount_amount, "."), 1));
-            if ($totaldigits > 12 || $digitsafterdecimal > 7) {
-                $errors['customdec1'] = get_string('discountdigitserror', 'enrol_payment');
+        }
+
+        //If discount code is filled, discount amount must be filled
+        if(array_key_exists("customtext2", $data) && (!empty($data['customtext2']))) {
+            if((!array_key_exists("customdec1", $data)) || empty($data['customdec1'])) {
+                $errors['customdec1'] = get_string('needdiscountamount', 'enrol_payment');
             }
         }
 

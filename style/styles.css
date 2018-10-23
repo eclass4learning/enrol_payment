@@ -71,12 +71,6 @@
     position:relative;
 }
 
-.discount-check {
-    visibility: hidden;
-    display: inline-block;
-    vertical-align: inherit !important;
-}
-
 #discount-dimmer {
     display: none;
     background: #fff;

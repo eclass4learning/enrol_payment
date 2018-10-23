@@ -43,6 +43,11 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         /**
          *
          */
+        taxPercent: undefined,
+
+        /**
+         *
+         */
         taxAmount: undefined,
 
         /**
@@ -352,7 +357,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                         var response = JSON.parse(r);
                         if (response["success"]) {
                             $('#discount-dimmer').css('display','block');
-                            $('.discount-check').css('visibility','visible');
                             enrolPage.subtotal = response["subtotal"];
                             enrolPage.updateCostView();
                         } else {
@@ -369,7 +373,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         checkoutFinal: function() {
             if(this.gateway === "paypal") {
                 $("#paypal-form input[name=amount]").val(this.subtotal);
-                $("#paypal-form input[name=tax]").val(this.taxAmount * this.subtotal);
+                $("#paypal-form input[name=tax]").val(this.taxAmount);
                 $("#paypal-form").submit();
             } else if(this.gateway === "stripe") {
                 $("#stripe-form input[name=amount]").val(this.subtotal);
@@ -380,16 +384,15 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         },
 
         getTaxedAmount: function() {
-            //coerce into float
-            var sub = Number.parseFloat(this.subtotal);
-            var tax = Number.parseFloat(this.taxAmount);
-            return Number.parseFloat(sub + (sub * tax)).toFixed(2);
+            return (parseFloat(this.subtotal) + parseFloat(this.taxAmount)).toFixed(2);
         },
 
         updateCostView: function() {
+            this.taxAmount = Number.parseFloat(this.subtotal * this.taxPercent).toFixed(2);
             $("span.localisedcost-untaxed").text(Number.parseFloat(this.subtotal).toFixed(2));
             $("span.localisedcost").text(this.getTaxedAmount());
             $("span.subtotal-display").text(this.getTaxedAmount());
+            $("span.taxamountstring").text(Number.parseFloat(this.taxAmount).toFixed(2));
         },
 
         stripeCheckout: function() {
@@ -481,7 +484,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , courseFullName
                       , shippingAddressRequired
                       , stripeLogo
-                      , taxAmount
+                      , taxPercent
                       , validateZipCode
                       , billingAddressRequired
                       , userEmail
@@ -499,9 +502,10 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             ]);
             str_promise.done(function(strs) {
                 self.mdlstr = strs;
-                self.originalCost = Number.parseFloat(cost);
-                self.taxAmount = Number.parseFloat(taxAmount);
-                self.subtotal = Number.parseFloat(cost).toFixed(2);
+                self.originalCost = parseFloat(cost);
+                self.taxPercent = parseFloat(taxPercent);
+                self.subtotal = parseFloat(cost);
+                self.taxAmount = parseFloat(taxPercent * cost);
                 self.instanceid = instanceid;
                 self.stripePublishableKey = stripePublishableKey;
                 self.courseFullName = courseFullName;

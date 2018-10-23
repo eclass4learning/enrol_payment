@@ -2,12 +2,11 @@
     <div id="dimmer">
     </div>
 
-        <p><b><?php echo $instancename; ?></b></p>
-
         <?php $stringparams = new stdClass; ?>
         <?php $stringparams->coursefullname = $coursefullname; ?>
         <?php $stringparams->localisedcost_untaxed = $localisedcost_untaxed; ?>
         <?php $stringparams->tax_string = $tax_string; ?>
+        <?php $stringparams->tax_amount_string = $tax_amount_string; ?>
         <?php $stringparams->localisedcost = $localisedcost; ?>
         <?php $stringparams->currency = $instance->currency; ?>
         <?php $stringparams->symbol = ($instance->currency == "USD" || $instance->currency == "CAD") ? '$' : ''; ?>
@@ -26,7 +25,6 @@
                 <input type="text" name="discountcode" id="discountcode" style="width: 100px;" />
                 <a id="apply-discount" class="btn" style="margin-bottom: 10px;"><?php print_string("applydiscount", "enrol_payment"); ?></a>
             </div>
-            <img class="icon discount-check" src='<?php echo "$CFG->wwwroot/enrol/payment/pix/check.svg" ?>' />
         </span>
         <?php endif; ?>
 
@@ -34,7 +32,7 @@
 
         <?php if($multiple_enabled) { ?>
         <div id="multiple-registration-container"></div>
-        <div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr">Multiple Registration</a>
+        <div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr"><?php print_string('enrolothers', 'enrol_payment'); ?></a>
             <?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_payment'))?>
         </div>
         <?php } ?>

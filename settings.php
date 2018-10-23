@@ -68,7 +68,7 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configcheckbox('enrol_payment/validatezipcode',
             get_string('validatezipcode', 'enrol_payment'),
-            get_string('validatezipcode_desc', 'enrol_payment'), 1));
+            get_string('validatezipcode_desc', 'enrol_payment'), 0));
     $settings->add(new admin_setting_configcheckbox('enrol_payment/billingaddress',
             get_string('billingaddress', 'enrol_payment'),
             get_string('billingaddress_desc', 'enrol_payment'), 0));

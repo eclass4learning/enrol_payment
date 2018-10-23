@@ -72,15 +72,18 @@ function calculate_cost($instance, $payment, $addtax=false) {
             break;
     }
 
-    if($payment->tax_amount && $addtax) {
-        $subtotal_taxed = $subtotal + ($subtotal * $payment->tax_amount);
+    if($payment->tax_percent && $addtax) {
+        $tax_amount = $subtotal * $payment->tax_percent;
+        $subtotal_taxed = $subtotal + $tax_amount;
     } else {
+        $tax_amount = 0;
         $subtotal_taxed = $subtotal;
     }
 
     $ret['subtotal'] = format_float($subtotal, 2, false);
     $ret['subtotal_localised'] = format_float($subtotal, 2, true);
     $ret['subtotal_taxed'] = format_float($subtotal_taxed, 2, true);
+    $ret['tax_amount'] = format_float($tax_amount, 2, true);
     $ret['oc_discounted'] = format_float($oc_discounted, 2, true);
 
     return $ret;
