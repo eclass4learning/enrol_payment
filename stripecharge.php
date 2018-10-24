@@ -140,7 +140,7 @@ $original_cost = format_float($original_cost, 2, false);
 
 //What should the user have paid? Verify using info stored in the
 //database.
-$cost = calculate_cost($plugin_instance, $payment)["subtotal"];
+$cost = calculate_cost($plugin_instance, $payment, true)["subtotal_taxed"];
 
 if ($data->amount + 0.01 < $cost) {
     //This shouldn't happen unless the user spoofs their requests, but
@@ -162,13 +162,12 @@ try {
       "amount" => $cost * 100,
       "currency" => $plugin_instance->currency,
       "card" => required_param('stripeToken', PARAM_RAW),
-      "description" => 'Enrolment in: ' . required_param('item_name', PARAM_TEXT),
+      "description" => get_string('charge_enrolment', 'enrol_payment') . required_param('item_name', PARAM_TEXT),
       "receipt_email" => required_param('stripeEmail', PARAM_EMAIL)
     ));
 
     // Send the file, this line will be reached if no error was thrown above.
     $data->txn_id = $charge->balance_transaction;
-    $data->tax = $charge->amount / 100;
     $data->memo = $charge->id;
     $data->payment_status = $charge->status;
     $data->pending_reason = $charge->failure_message;

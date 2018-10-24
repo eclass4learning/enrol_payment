@@ -26,7 +26,7 @@ $string['assignrole'] = 'Assign role';
 $string['businessemail'] = 'PayPal business email';
 $string['businessemail_desc'] = 'The email address of your business PayPal account';
 $string['cost'] = 'Enrol cost';
-$string['cost_desc'] = 'While a site-wide cost can be set here, the cost specified in the individual course setting overrides the site cost.';
+$string['cost_desc'] = 'Note that the cost specified in the individual course setting overrides the site-wide cost.';
 $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costorkey'] = 'Please choose one of the following methods of enrolment.';
 $string['currency'] = 'Currency';
@@ -149,8 +149,7 @@ $string['or'] = "OR";
 
 
 //TODO use site long name
-$string['usersnotfoundwithemail'] = "The following emails are not associated with an account in the database:<br><ul><li>";
-$string['usersnotfoundwithemail_continued'] = "Either the registrant has not yet created an account or their account is associated with a different email address.";
+$string['usersnotfoundwithemail'] = "Either the registrant(s) have not yet created an account or their account is associated with a different email address:<br><ul><li>";
 $string['totalcost'] = "Total cost: ";
 $string['multipleregistrationconfirmuserlist'] = "You are purchasing a registration for each of the following: <br><ul><li>";
 $string['enabletaxcalculation'] = "Enable tax calculation";
@@ -197,11 +196,19 @@ $string['transferinstructions_default'] = "<h4>Prefer to pay directly from your 
 "</ol>".
 "<p>Once payment is received, you will be notified of your enrolment in <strong>{{COURSEFULLNAME}}</strong>.</p>";
 
-$string['paypalwait'] = "Please wait while PayPal confirms your payment. You will be redirected once the payment is confirmed. <br>You may navigate away from this page, and you will be given access to the course when the payment has completed.";
+$string['paypalwait'] = 'Please wait while PayPal confirms your payment. You will be given access to <i>{$a}</i> when the payment has completed.';
 $string['errorcheckingenrolment'] = "Failure checking user enrolment. Please contact your server administrator. In the meantime, you should navigate to the course manually.";
-$string['thanksforpaypal'] = "Thank you for your multiple enrolment purchase. The users have been successfully enrolled in this course.";
+$string['thanksforpaypal'] = 'Thank you for your multiple enrolment purchase. The registrants have been successfully enrolled in <i>{$a}</i>.';
 $string['incorrectdiscountcode'] = "Invalid discount code.";
-$string['errorpaymentpending'] = "The PayPal payment is stuck in \"Pending\" status, and the administrator needs to manually accept it. <br>This can happen for a number of reasons, such as currency mismatch or other PayPal configuration issues.<br> Please contact the site administrator for more information.";
+$string['errorpaymentpending'] = 'Your PayPal payment is stuck in "Pending" status. This can be due to currency mismatch or other PayPal configuration issues. Please {$a} the site administrator.';
 $string['needdiscountcode'] = "Please provide a discount code.";
 $string['needdiscountamount'] = "Please provide a discount amount.";
 $string['enrolothers'] = "Enrol other(s)";
+$string['cancelenrolothers'] = "Cancel multiple enrolment";
+$string['confirmpurchase'] = "Confirm Purchase";
+$string['continue'] = "Continue";
+$string['invalidpaymentprovider'] = "Invalid payment provider.";
+$string['dismiss'] = "Dismiss";
+$string['novalidemailsentered'] = "No valid email addresses have been entered.";
+$string['totalenrolmentfee'] = "Total enrolment fee:";
+$string['charge_enrolment'] = "Enrolment in: ";

@@ -117,7 +117,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtextarea('enrol_payment/taxdefinitions',
         get_string('taxdefinitions', 'enrol_payment'),
         get_string('taxdefinitions_help', 'enrol_payment'),
-        "NB : 0.15\nNL : 0.15\nNS : 0.15\nPE : 0.15\nON : 0.13"));
+        "NS : 0.15\nPE : 0.15\nON : 0.13\nQC : 0.05"));
 
     $settings->add(new admin_setting_configcheckbox('enrol_payment/allowbanktransfer',
         get_string('allowbanktransfer', 'enrol_payment'),

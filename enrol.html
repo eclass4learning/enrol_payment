@@ -100,8 +100,8 @@
 
                     <input type="hidden" name="cmd" value="_xclick" />
                     <input type="hidden" name="charset" value="utf-8" />
-                    <input type="hidden" name="item_name" value="<?php p($coursefullname) ?>" />
-                    <input type="hidden" name="item_number" value="<?php p($courseshortname) ?>" />
+                    <input type="hidden" name="item_name" value="<?php echo $coursefullname; ?>" />
+                    <input type="hidden" name="item_number" value="<?php echo $courseshortname; ?>" />
                     <input type="hidden" name="quantity" value="1" />
                     <input type="hidden" name="on0" value="<?php print_string("user") ?>" />
                     <input type="hidden" name="os0" value="<?php p($userfullname) ?>" />
@@ -110,7 +110,7 @@
 
                     <input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
                     <input type="hidden" name="amount" value="<?php p($cost) ?>" />
-                    <!--<input type="hidden" name="tax" value="0" />-->
+                    <input type="hidden" name="tax" value="0" />
                     <input type="hidden" name="tax" value="<?php p($tax_amount) ?>" />
                     <input type="hidden" name="prov" value="<?php p($USER->msn)?>" />
 

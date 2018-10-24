@@ -73,7 +73,7 @@ if($purchasing_for_self) {
         $a->teacher = get_string('defaultcourseteacher');
         $a->fullname = $fullname;
         echo '<div style="text-align: center;" class="paypal-wait">';
-        echo $OUTPUT->box(get_string('paypalwait', 'enrol_payment'), 'generalbox', 'notice');
+        echo $OUTPUT->box(get_string('paypalwait', 'enrol_payment', $course->fullname), 'generalbox', 'notice');
         echo '</div>';
         echo '<div id="spin-container"></div>';
         echo $OUTPUT->footer();
@@ -83,7 +83,7 @@ if($purchasing_for_self) {
     $PAGE->set_url($destination);
     echo $OUTPUT->header();
     echo '<div style="text-align: center;">';
-    echo $OUTPUT->box(get_string('thanksforpaypal', 'enrol_payment'), 'generalbox', 'notice');
+    echo $OUTPUT->box(get_string('thanksforpaypal', 'enrol_payment', $course->fullname), 'generalbox', 'notice');
     echo '</div>';
     echo $OUTPUT->footer();
 }

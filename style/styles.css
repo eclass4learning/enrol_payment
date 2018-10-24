@@ -1,7 +1,7 @@
 .plus {
     position: absolute;
-    height: 18px;
-    width: 18px;
+    height: 16px;
+    width: 16px;
     top: 50%;
     margin-top: -13px;
     margin-left: 5px;
@@ -17,8 +17,8 @@
 .minus {
     position: absolute;
     left: 23px;
-    height: 18px;
-    width: 18px;
+    height: 16px;
+    width: 16px;
     top: 50%;
     margin-top: -13px;
     margin-left: 5px;

@@ -41,12 +41,12 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         subtotal: undefined,
 
         /**
-         *
+         * Tax as a percentage of the purchase subtotal
          */
         taxPercent: undefined,
 
         /**
-         *
+         * Dollar tax amount
          */
         taxAmount: undefined,
 
@@ -168,8 +168,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              *
              */
             makePlusSign: function(mdlstr) {
-                var plusSign = "<div class=\"plus-container\" title=\"" + mdlstr[4] + "\"><img src=\""
-                             + MoodleCfg.wwwroot + "/enrol/payment/pix/plus.svg\" class=\"plus\"></div>";
+                var plusSign = "<div class=\"plus-container\" title=\"" + mdlstr["addaregistrant"] + "\"><img src=\""
+                             + MoodleCfg.wwwroot + "/enrol/payment/pix/user_add.gif\" class=\"plus\"></div>";
                 return plusSign;
             },
 
@@ -183,8 +183,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              */
             makePlusAndMinusSigns: function(n, mdlstr) {
                 var plusSign = this.makePlusSign(mdlstr);
-                var minusSign = "<div class=\"minus-container\" title=\"" + mdlstr[5] + "\"><img src=\""
-                             + MoodleCfg.wwwroot + "/enrol/payment/pix/minus.svg\" class=\"minus\"></div>";
+                var minusSign = "<div class=\"minus-container\" title=\"" + mdlstr["removearegistrant"] + "\"><img src=\""
+                             + MoodleCfg.wwwroot + "/enrol/payment/pix/user_delete.gif\" class=\"minus\"></div>";
                 if (n > 1) {
                     return plusSign + minusSign;
                 } else {
@@ -233,19 +233,14 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                 ModalFactory.create({
                     type: ModalFactory.types.SAVE_CANCEL,
-                    title: "Continue Checkout",
+                    title: enrolPage.mdlstr["confirmpurchase"],
                     body: successmessage,
                 }, trigger).done(function(modal) {
-                    modal.setSaveButtonText("Confirm Payment");
+                    modal.setSaveButtonText(enrolPage.mdlstr["continue"]);
                     modal.getRoot().on(ModalEvents.save, function() {
                         enrolPage.checkoutFinal();
                     });
-                    modal.getRoot().on(ModalEvents.destroyed, function() {
-                        $("#dimmer").css('display','none');
-                    });
-                    modal.getRoot().on(ModalEvents.cancel, function() {
-                        $("#dimmer").css('display','none');
-                    });
+                    enrolPage.removeDimmer(modal);
                 });
 
                 $("#success-modal-trigger").click();
@@ -267,8 +262,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     ModalFactory.create({
                         type: ModalFactory.types.DEFAULT,
                         body: response["failmessage"],
-                        closebuttontitle: "Dismiss",
-                    }, trigger);
+                        closebuttontitle: enrolPage.mdlstr["dismiss"],
+                    }, trigger).done(function(modal) { enrolPage.removeDimmer(modal); });
                     $('#error-modal-trigger').click();
                 }
             },
@@ -281,14 +276,15 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 var self = this;
 
                 if((enrolPage.gateway !== 'paypal') && (enrolPage.gateway !== 'stripe')) {
-                    alert("Invalid payment provider.");
-                    throw new Error("Invalid payment provider.");
+                    alert(enrolPage.mdlstr["invalidpaymentprovider"]);
+                    throw new Error(enrolPage.mdlstr["invlidpaymentprovider"]);
                 }
 
                 var emails = self.getEmails();
 
                 if (!emails.length) {
-                    alert("No valid emails have been entered.");
+                    alert(enrolPage.mdlstr["novalidemailsentered"]);
+                    $("#dimmer").css("display", "none");
                 } else {
                     var ajaxURL = MoodleCfg.wwwroot + "/enrol/payment/ajax/multiple_enrol.php";
                     $.ajax({
@@ -325,18 +321,20 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     self.nextEmailID = 1;
                     //Build DOM for a multiple-registration form
 
-                    btn.text("Cancel multiple registration");
+                    btn.text(mdlstr["cancelenrolothers"]);
                     btn.removeClass('enable-mr').addClass('disable-mr');
                     $("#multiple-registration-container").html(this.makeEmailEntryLine(mdlstr));
                     self.addPlusClickHandler($(".plus-container"), mdlstr);
+                    $("#multiple-registration-btn-container img.iconhelp").css("display", "none");
 
                 } else {
                     self.enabled = false;
                     //Return to single registration mode
 
-                    btn.text("Multiple Registration");
+                    btn.text(mdlstr["enrolothers"]);
                     btn.removeClass('disable-mr').addClass('enable-mr');
                     $(".mr-email-line").remove();
+                    $("#multiple-registration-btn-container img.iconhelp").css("display", "inline-block");
                 }
             },
         },
@@ -371,15 +369,17 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         },
 
         checkoutFinal: function() {
+            this.updateCostView();
             if(this.gateway === "paypal") {
                 $("#paypal-form input[name=amount]").val(this.subtotal);
                 $("#paypal-form input[name=tax]").val(this.taxAmount);
                 $("#paypal-form").submit();
             } else if(this.gateway === "stripe") {
-                $("#stripe-form input[name=amount]").val(this.subtotal);
+                $("#stripe-form input[name=amount]").val(this.getTaxedAmount());
+                $("#stripe-form input[name=tax]").val(this.taxAmount);
                 this.stripeCheckout();
             } else {
-                throw new Error(this.mdlstr[2]);
+                throw new Error(this.mdlstr["invalidgateway"]);
             }
         },
 
@@ -423,7 +423,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                 stripeHandler.open({
                     name: decodeURIComponent(self.courseFullName),
-                    description: "Total enrolment fee: $" + self.getTaxedAmount() + " " + self.currency,
+                    description: self.mdlstr["totalenrolmentfee"] + " $" + self.getTaxedAmount() + " " + self.currency,
                     zipCode: self.validateZipCode ? "true" : "false",
                     //Stripe amount is in pennies
                     amount: Math.floor(Number.parseFloat(self.getTaxedAmount()) * 100),
@@ -432,6 +432,21 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
             }).fail(function() {
                 throw new Error("Could not load Stripe checkout library.");
+            });
+        },
+
+        /**
+         * Attach events to Moodle modal box to destroy dimmer.
+         */
+        removeDimmer: function(modal) {
+            modal.getRoot().on(ModalEvents.destroyed, function() {
+                $("#dimmer").css('display','none');
+            });
+            modal.getRoot().on(ModalEvents.cancel, function() {
+                $("#dimmer").css('display','none');
+            });
+            modal.getRoot().on(ModalEvents.hidden, function() {
+                $("#dimmer").css('display','none');
             });
         },
 
@@ -469,10 +484,33 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                             self.checkoutFinal();
                         },
                         error: function() {
-                            alert(self.mdlstr[3]);
+                            alert(self.mdlstr["errcommunicating"]);
                         }
                     });
                 }
+            });
+        },
+
+        /**
+         * Process a list of enrol_payment language strings into a list index
+         * by string name.
+         *
+         * Then in the callback, we can do e.g.
+         * function(strs) { console.log(strs["enrolothers"]); }
+         * to write the "enrolothers" language string.
+         */
+        loadStrings: function(keys, callback) {
+            var strs = [];
+            for(var i=0; i<keys.length; i++) {
+                strs.push({ key : keys[i], component : "enrol_payment" });
+            }
+            var str_promise = MoodleStrings.get_strings(strs);
+            str_promise.done(function(strs) {
+                var ret = [];
+                for(var i=0; i<keys.length; i++) {
+                    ret[keys[i]] = strs[i];
+                }
+                callback(ret);
             });
         },
 
@@ -490,16 +528,22 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , currency ) {
 
             var self = this;
-
-            var str_promise = MoodleStrings.get_strings([
-                    { key : "discounttypeerror" , component : "enrol_payment" },
-                    { key : "discountamounterror" , component : "enrol_payment" },
-                    { key : "invalidgateway" , component : "enrol_payment" },
-                    { key : "errcommunicating" , component : "enrol_payment" },
-                    { key : "addaregistrant" , component : "enrol_payment" },
-                    { key : "removearegistrant" , component : "enrol_payment" }
-            ]);
-            str_promise.done(function(strs) {
+            var stringKeys = [ "discounttypeerror"
+                             , "discountamounterror"
+                             , "invalidgateway"
+                             , "errcommunicating"
+                             , "addaregistrant"
+                             , "removearegistrant"
+                             , "enrolothers"
+                             , "cancelenrolothers"
+                             , "confirmpurchase"
+                             , "continue"
+                             , "dismiss"
+                             , "invalidpaymentprovider"
+                             , "novalidemailsentered"
+                             , "totalenrolmentfee"
+                             ];
+            self.loadStrings(stringKeys, function(strs) {
                 self.mdlstr = strs;
                 self.originalCost = parseFloat(cost);
                 self.taxPercent = parseFloat(taxPercent);
