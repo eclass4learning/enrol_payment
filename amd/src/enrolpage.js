@@ -412,7 +412,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                   shippingAddress: self.shippingAddressRequired,
                   email: self.userEmail || null,
                   allowRememberMe: false,
-                  zipCode: self.validateZipCode,
                   token: function(token) {
                       $('#stripe-form')
                           .append('<input type="hidden" name="stripeToken" value="' + token.id + '" />')
@@ -425,7 +424,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 stripeHandler.open({
                     name: decodeURIComponent(self.courseFullName),
                     description: "Total enrolment fee: $" + self.getTaxedAmount() + " " + self.currency,
-                    zipCode: true,
+                    zipCode: self.validateZipCode ? "true" : "false",
                     //Stripe amount is in pennies
                     amount: Math.floor(Number.parseFloat(self.getTaxedAmount()) * 100),
                     closed: function() { $("#dimmer").css('display', 'none'); }
