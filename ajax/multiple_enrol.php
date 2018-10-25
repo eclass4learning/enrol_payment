@@ -51,9 +51,8 @@ if ($CFG->allowaccountssameemail) {
             get_string("multipleregistrationconfirmuserlist", "enrol_payment")
             . implode("<li>", array_map("pretty_print_user", $ret["users"]))
             . "</ul>"
-            . "<br>"
             . get_string("totalcost", "enrol_payment")
-            . $ret["oc_discounted"] . " × " . $payment->units . $tax_string . " = <b>" . $ret["subtotal_taxed"] . " " . $instance->currency . "</b>"
+            . "$" . $ret["oc_discounted"] . " × " . $payment->units . $tax_string . " = <b>$" . $ret["subtotal_taxed"] . " " . $instance->currency . "</b>"
         ;
 
     } catch (Exception $e) {

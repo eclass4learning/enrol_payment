@@ -134,7 +134,7 @@ $string['multipleregistration'] = 'Multiple Registration';
 
 //TODO add description - ensure registrants have an account on (long name)
 //(Registrant 1 email, instead of Email 1)
-$string['multipleregistration_help'] = 'Purchase enrolment for other(s). Enter your email address if registering yourself as well.<br>';
+$string['multipleregistration_help'] = 'Purchase enrolment for other(s). To register yourself as well as others, enter your email address and click on the "Add a registrant" icon.<br>';
 $string['allowmultipleenrol'] = 'Allow multiple registration';
 $string['allowmultipleenrol_help'] = 'Allow a user to enrol other users by entering their email address';
 $string['sameemailaccountsallowed'] = "Error: Accounts sharing the same email address are allowed on this Moodle site. Because of this, the Multiple Registration cannot be used. Please contact your site administrator.";
