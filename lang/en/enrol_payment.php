@@ -173,7 +173,7 @@ $string['taxdefinitions_help'] = "The format for each entry is Province/State Co
 "QC : 0.05<br>".
 "Enter each tax definition on a <b>separate</b> line. The script will pull the province/state code from the MSN field in the user profile (setup instructions are detailed in the ReadMe.txt file) to determine how much tax to add to the course fee.";
 $string['definetaxes'] = 'Allow custom tax definitions';
-$string['feestring_taxed'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost-untaxed">{$a->localisedcost_untaxed}</span></b> + $<span class="taxamountstring">{$a->tax_amount_string}</span> <span class="taxstring">{$a->tax_string}</span> = <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}';
+$string['feestring_taxed'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost-untaxed">{$a->localisedcost_untaxed}</span></b> + {$a->symbol}<span class="taxamountstring">{$a->tax_amount_string}</span> <span class="taxstring">{$a->tax_string}</span> = <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}';
 $string['feestring_notax'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}';
 
 $string['allowbanktransfer'] = "Allow Bank/Email transfer payment";
@@ -209,6 +209,7 @@ $string['confirmpurchase'] = "Confirm Purchase";
 $string['continue'] = "Continue";
 $string['invalidpaymentprovider'] = "Invalid payment provider.";
 $string['dismiss'] = "Dismiss";
-$string['novalidemailsentered'] = "No valid email addresses have been entered.";
+$string['novalidemailsentered_desc'] = "No valid email address(es) have been entered. Either enter at least one email address or click on the <i>Cancel multiple enrolment</i> button.";
+$string['novalidemailsentered'] = "No valid email addresses";
 $string['totalenrolmentfee'] = "Total enrolment fee:";
 $string['charge_enrolment'] = "Enrolment in: ";

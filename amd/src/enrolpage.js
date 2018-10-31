@@ -86,6 +86,11 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         currency: undefined,
 
         /**
+         * Currency symbol (currently only $ supported)
+         */
+        symbol: undefined,
+
+        /**
          * Functions dealing with the multi-user registration system
          */
         MultipleRegistration: {
@@ -283,7 +288,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 var emails = self.getEmails();
 
                 if (!emails.length) {
-                    alert(enrolPage.mdlstr["novalidemailsentered"]);
+                    enrolPage.genericErrorModal("novalidemailsentered",
+                                                "novalidemailsentered_desc",
+                                                "no-valid-emails-entered");
                     $("#dimmer").css("display", "none");
                 } else {
                     var ajaxURL = MoodleCfg.wwwroot + "/enrol/payment/ajax/multiple_enrol.php";
@@ -295,6 +302,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                               , 'prepaytoken' : enrolPage.prepayToken
                               , 'emails'      : JSON.stringify(emails)
                               , 'ipn_id'      : $("#" + enrolPage.gateway + "-custom").val()
+                              , 'symbol'      : enrolPage.symbol
                               },
                         context: document.body,
                         success: function(r) {
@@ -393,6 +401,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             $("span.localisedcost").text(this.getTaxedAmount());
             $("span.subtotal-display").text(this.getTaxedAmount());
             $("span.taxamountstring").text(Number.parseFloat(this.taxAmount).toFixed(2));
+            $("span#banktransfer-cost").text(this.getTaxedAmount());
         },
 
         stripeCheckout: function() {
@@ -423,7 +432,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
 
                 stripeHandler.open({
                     name: decodeURIComponent(self.courseFullName),
-                    description: self.mdlstr["totalenrolmentfee"] + " $" + self.getTaxedAmount() + " " + self.currency,
+                    description: self.mdlstr["totalenrolmentfee"] + " " + self.symbol + self.getTaxedAmount() + " " + self.currency,
                     zipCode: self.validateZipCode ? "true" : "false",
                     //Stripe amount is in pennies
                     amount: Math.floor(Number.parseFloat(self.getTaxedAmount()) * 100),
@@ -434,6 +443,27 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 throw new Error("Could not load Stripe checkout library.");
             });
         },
+
+        /**
+         * Create a generic error popup.
+         */
+        genericErrorModal: function(titleString, errorString, id) {
+            var self = this;
+            $("#moodle-modals").append('<a id="' + id + '"></a>');
+            var trigger = $("#moodle-modals #" + id);
+            trigger.off();
+
+            ModalFactory.create({
+                type: ModalFactory.types.DEFAULT,
+                title: self.mdlstr[titleString],
+                body: self.mdlstr[errorString],
+            }, trigger).done(function(modal) {
+                self.removeDimmer(modal);
+            });
+
+            trigger.click();
+        },
+
 
         /**
          * Attach events to Moodle modal box to destroy dimmer.
@@ -541,6 +571,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                              , "dismiss"
                              , "invalidpaymentprovider"
                              , "novalidemailsentered"
+                             , "novalidemailsentered_desc"
                              , "totalenrolmentfee"
                              ];
             self.loadStrings(stringKeys, function(strs) {
@@ -559,6 +590,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.billingAddressRequired = billingAddressRequired == 1 ? true : false;
                 self.userEmail = userEmail;
                 self.currency = currency;
+                self.symbol = (self.currency == 'CAD' || self.currency == 'USD') ? '$' : '';
 
                 self.initClickHandlers();
                 self.updateCostView();

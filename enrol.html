@@ -41,8 +41,10 @@
             $paypalurl = empty($CFG->usepaypalsandbox) ? 'https://www.paypal.com/cgi-bin/webscr' : 'https://www.sandbox.paypal.com/cgi-bin/webscr';
         ?>
 
-        <a id="error-modal-trigger"></a>
-        <a id="success-modal-trigger"></a>
+        <div id="moodle-modals">
+            <a id="error-modal-trigger"></a>
+            <a id="success-modal-trigger"></a>
+        </div>
 
         <?php if($gateways_enabled == 2) { ?>
         <?php } ?>
