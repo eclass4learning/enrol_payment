@@ -9,7 +9,7 @@
         <?php $stringparams->tax_amount_string = $tax_amount_string; ?>
         <?php $stringparams->localisedcost = $localisedcost; ?>
         <?php $stringparams->currency = $instance->currency; ?>
-        <?php $stringparams->symbol = ($instance->currency == "USD" || $instance->currency == "CAD") ? '$' : ''; ?>
+        <?php $stringparams->symbol = $symbol; ?>
         <?php if($tax_string): ?>
             <?php echo get_string("feestring_taxed", "enrol_payment", $stringparams) ?>
         <?php else: ?>

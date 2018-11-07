@@ -288,8 +288,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 var emails = self.getEmails();
 
                 if (!emails.length) {
-                    enrolPage.genericErrorModal("novalidemailsentered",
-                                                "novalidemailsentered_desc",
+                    enrolPage.genericErrorModal(enrolPage.mdlstr["novalidemailsentered"],
+                                                enrolPage.mdlstr["novalidemailsentered_desc"],
                                                 "no-valid-emails-entered");
                     $("#dimmer").css("display", "none");
                 } else {
@@ -366,11 +366,17 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                             enrolPage.subtotal = response["subtotal"];
                             enrolPage.updateCostView();
                         } else {
-                            alert(response["failmessage"]);
+                            $('#dimmer').css('display', 'block');
+                            enrolPage.genericErrorModal(enrolPage.mdlstr["incorrectdiscountcode"],
+                                                        response["failmessage"],
+                                                        "invalid-code-modal");
                         }
                     },
                     error: function() {
-                        alert("Incorrect discount code.");
+                        $('#dimmer').css('display', 'block');
+                        enrolPage.genericErrorModal(enrolPage.mdlstr["incorrectdiscountcode"],
+                                                    enrolPage.mdlstr["incorrectdiscountcode_desc"],
+                                                    "invalid-code-modal");
                     }
                 });
             },
@@ -401,7 +407,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             $("span.localisedcost").text(this.getTaxedAmount());
             $("span.subtotal-display").text(this.getTaxedAmount());
             $("span.taxamountstring").text(Number.parseFloat(this.taxAmount).toFixed(2));
-            $("span#banktransfer-cost").text(this.getTaxedAmount());
+            $("span#banktransfer-cost").text(this.symbol + this.getTaxedAmount());
         },
 
         stripeCheckout: function() {
@@ -436,6 +442,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     zipCode: self.validateZipCode ? "true" : "false",
                     //Stripe amount is in pennies
                     amount: Math.floor(Number.parseFloat(self.getTaxedAmount()) * 100),
+                    currency: self.currency,
                     closed: function() { $("#dimmer").css('display', 'none'); }
                 });
 
@@ -449,14 +456,16 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
          */
         genericErrorModal: function(titleString, errorString, id) {
             var self = this;
-            $("#moodle-modals").append('<a id="' + id + '"></a>');
+            if ($("#" + id).length == 0) {
+                $("#moodle-modals").append('<a id="' + id + '"></a>');
+            }
             var trigger = $("#moodle-modals #" + id);
             trigger.off();
 
             ModalFactory.create({
                 type: ModalFactory.types.DEFAULT,
-                title: self.mdlstr[titleString],
-                body: self.mdlstr[errorString],
+                title: titleString,
+                body: errorString,
             }, trigger).done(function(modal) {
                 self.removeDimmer(modal);
             });
@@ -544,6 +553,11 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             });
         },
 
+        /**
+         * Get currency symbol.
+         */
+
+
         init: function( instanceid
                       , stripePublishableKey
                       , cost
@@ -555,7 +569,8 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , validateZipCode
                       , billingAddressRequired
                       , userEmail
-                      , currency ) {
+                      , currency
+                      , symbol ) {
 
             var self = this;
             var stringKeys = [ "discounttypeerror"
@@ -573,6 +588,9 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                              , "novalidemailsentered"
                              , "novalidemailsentered_desc"
                              , "totalenrolmentfee"
+                             , "error"
+                             , "incorrectdiscountcode"
+                             , "incorrectdiscountcode_desc"
                              ];
             self.loadStrings(stringKeys, function(strs) {
                 self.mdlstr = strs;
@@ -590,7 +608,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.billingAddressRequired = billingAddressRequired == 1 ? true : false;
                 self.userEmail = userEmail;
                 self.currency = currency;
-                self.symbol = (self.currency == 'CAD' || self.currency == 'USD') ? '$' : '';
+                self.symbol = symbol;
 
                 self.initClickHandlers();
                 self.updateCostView();

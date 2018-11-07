@@ -38,6 +38,18 @@ function payment_pending($paymentid) {
     }
 }
 
+function get_payment_status($paymentid) {
+    global $DB;
+    $payment = $DB->get_record("enrol_payment_ipn", array('id' => $paymentid));
+    $transaction = $DB->get_record("enrol_payment", array('txn_id' => $payment->paypal_txn_id));
+
+    if($transaction) {
+        return $transaction->payment_status;
+    } else {
+        return false;
+    }
+}
+
 function get_moodle_users_by_emails($emails) {
     global $DB;
     $notfound = array();

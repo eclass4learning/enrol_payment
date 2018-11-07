@@ -38,7 +38,7 @@ if($correct_code) {
     echo json_encode($to_return);
 } else {
     echo json_encode([ "success" => false
-                     , "failmessage" => get_string('incorrectdiscountcode','enrol_payment')]);
+                     , "failmessage" => get_string('incorrectdiscountcode_desc','enrol_payment')]);
 }
 
 ?>

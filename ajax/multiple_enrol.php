@@ -43,7 +43,7 @@ if ($CFG->allowaccountssameemail) {
         if ($payment->tax_percent) {
             $tax_amount = $ret['tax_amount'];
             $tax_percent = floor(100 * floatval($payment->tax_percent));
-            $tax_string = " + " . $symbol . $tax_amount . "(${tax_percent}% tax)";
+            $tax_string = " + " . $symbol . $tax_amount . " (${tax_percent}% tax)";
         } else {
             $tax_string = "";
         }
@@ -53,7 +53,7 @@ if ($CFG->allowaccountssameemail) {
             . implode("<li>", array_map("pretty_print_user", $ret["users"]))
             . "</ul>"
             . get_string("totalcost", "enrol_payment")
-            . $symbol . $ret["oc_discounted"] . " × " . $payment->units . $tax_string . " = <b>" . $symbol . $ret["subtotal_taxed"] . " " . $instance->currency . "</b>"
+            . $symbol . $ret["oc_discounted"] . " × " . $payment->units . $tax_string . " = <b>" . $symbol . $ret["subtotal_taxed"] . "</b> " . $instance->currency;
         ;
 
     } catch (Exception $e) {

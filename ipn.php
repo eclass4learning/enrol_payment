@@ -170,8 +170,9 @@ if (strlen($result) > 0) {
         // Email user to let them know. Email admin.
 
         if ($data->payment_status == "Pending" and $data->pending_reason != "echeck") {
-            $eventdata = new \core\message\message();
-            $eventdata->courseid          = empty($data->courseid) ? SITEID : $data->courseid;
+            //$eventdata = new \core\message\message();
+            // $eventdata->courseid          = empty($data->courseid) ? SITEID : $data->courseid;
+            $eventdata = new stdClass();
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_payment';
             $eventdata->name              = 'payment_enrolment';
@@ -314,8 +315,7 @@ if (strlen($result) > 0) {
                 $a->coursename = $course->fullname;
                 $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
-                $eventdata = new \core\message\message();
-                $eventdata->courseid          = $course->id;
+                $eventdata = new stdClass();
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'paypal_enrolment';
@@ -334,11 +334,10 @@ if (strlen($result) > 0) {
                 $a->course = $course->fullname;
                 $a->user = fullname($user);
 
-                $eventdata = new \core\message\message();
-                $eventdata->courseid          = $course->id;
+                $eventdata = new stdClass();
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_payment';
-                $eventdata->name              = 'paypal_enrolment';
+                $eventdata->name              = 'payment_enrolment';
                 $eventdata->userfrom          = $user;
                 $eventdata->userto            = $teacher;
                 $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
@@ -354,11 +353,10 @@ if (strlen($result) > 0) {
                 $a->user = fullname($user);
                 $admins = get_admins();
                 foreach ($admins as $admin) {
-                    $eventdata = new \core\message\message();
-                    $eventdata->courseid          = $course->id;
+                    $eventdata = new stdClass();
                     $eventdata->modulename        = 'moodle';
                     $eventdata->component         = 'enrol_payment';
-                    $eventdata->name              = 'paypal_enrolment';
+                    $eventdata->name              = 'payment_enrolment';
                     $eventdata->userfrom          = $user;
                     $eventdata->userto            = $admin;
                     $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);

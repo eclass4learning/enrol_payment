@@ -17,9 +17,12 @@ define(['jquery', 'enrol_payment/spin', 'core/str', 'core/config'], function($, 
                     var res = JSON.parse(r);
                     if (res["result"] === true) {
                         window.location.href = dest;
-                    } else if (res["result"] === false && res["reason"] === "Pending") {
-                        window.location.href = MoodleCfg.wwwroot + "/enrol/payment/paypalPending.php?id=" + courseid.toString();
+                    } else if (res["result"] === false && res["reason"]) {
+                        window.location.href = MoodleCfg.wwwroot +
+                                              "/enrol/payment/paypalPending.php?id=" +
+                                              courseid.toString() + "&reason=" + res["reason"];
                     } else {
+                        return;
                     }
                 },
                 error : function() {

@@ -22,9 +22,10 @@ if (is_enrolled($context, NULL, '', true)) {
         "reason" => "Pending"
     ]);
 } else {
+    $reason = get_payment_status($paymentid);
     echo json_encode([
         "status" => "success",
         "result" => false,
-        "reason" => "Other"
+        "reason" => $reason
     ]);
 }

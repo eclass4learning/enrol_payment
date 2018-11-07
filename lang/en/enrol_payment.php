@@ -136,7 +136,7 @@ $string['multipleregistration'] = 'Multiple Registration';
 //(Registrant 1 email, instead of Email 1)
 $string['multipleregistration_help'] = 'Purchase enrolment for other(s). To register yourself as well as others, enter your email address and click on the "Add a registrant" icon.<br>';
 $string['allowmultipleenrol'] = 'Allow multiple registration';
-$string['allowmultipleenrol_help'] = 'Allow a user to enrol other users by entering their email address';
+$string['allowmultipleenrol_help'] = 'Allow a user to enrol other users by entering their email address.';
 $string['sameemailaccountsallowed'] = "Error: Accounts sharing the same email address are allowed on this Moodle site. Because of this, the Multiple Registration cannot be used. Please contact your site administrator.";
 $string['duplicateemail'] = "Error: Duplicate emails were entered in the multiple registration form.";
 
@@ -191,7 +191,7 @@ $string['transferinstructions_default'] = "<h4>Prefer to pay directly from your 
 "<li><p>Select the account from which to withdraw the funds.</p></li>" .
 "<li><p>Add a new recipient using <strong>ENTER RECIPIENT NAME</strong> as the name, <strong>ENTER EMAIL ADDRESS TO RECEIVE THE FUNDS</strong> as the email address, <strong>Who is offering {{COURSESHORTNAME}}</strong> as the security question, and <strong>ENTER THE ANSWER WITH A MINIMUM OF 5 CHARACTERS</strong> as the answer.</p></li>".
 "<li><p>Select <strong>ENTER RECIPIENT NAME</strong> as the recipient.</p></li>".
-"<li><p>Fill in the amount of \${{AMOUNT}} and enter <strong>your name</strong> in the message area.</p></li>".
+"<li><p>Fill in the amount of <strong>{{AMOUNT}}</strong> and enter <strong>your name</strong> in the message area.</p></li>".
 "<li><p>Follow the on-screen instructions to confirm the information and complete the transfer.</p></li>".
 "</ol>".
 "<p>Once payment is received, you will be notified of your enrolment in <strong>{{COURSEFULLNAME}}</strong>.</p>";
@@ -199,8 +199,9 @@ $string['transferinstructions_default'] = "<h4>Prefer to pay directly from your 
 $string['paypalwait'] = 'Please wait while PayPal confirms your payment. You will be given access to <i>{$a}</i> when the payment has completed.';
 $string['errorcheckingenrolment'] = "Failure checking user enrolment. Please contact your server administrator. In the meantime, you should navigate to the course manually.";
 $string['thanksforpaypal'] = 'Thank you for your multiple enrolment purchase. The registrants have been successfully enrolled in <i>{$a}</i>.';
-$string['incorrectdiscountcode'] = "Invalid discount code.";
-$string['errorpaymentpending'] = 'Your PayPal payment is stuck in "Pending" status. This can be due to currency mismatch or other PayPal configuration issues. Please {$a} the site administrator.';
+$string['incorrectdiscountcode'] = "Invalid discount code";
+$string['incorrectdiscountcode_desc'] = "The discount code you have entered is incorrect.";
+$string['errorpaymentpending'] = 'Your PayPal payment is stuck in "{$a->reason}" status. This can be due to currency mismatch or other PayPal configuration issues. Please {$a->supportemaillink} the site administrator.';
 $string['needdiscountcode'] = "Please provide a discount code.";
 $string['needdiscountamount'] = "Please provide a discount amount.";
 $string['enrolothers'] = "Enrol other(s)";
@@ -210,6 +211,7 @@ $string['continue'] = "Continue";
 $string['invalidpaymentprovider'] = "Invalid payment provider.";
 $string['dismiss'] = "Dismiss";
 $string['novalidemailsentered_desc'] = "No valid email address(es) have been entered. Either enter at least one email address or click on the <i>Cancel multiple enrolment</i> button.";
-$string['novalidemailsentered'] = "No valid email addresses";
+$string['novalidemailsentered'] = "No registrant(s) specified";
 $string['totalenrolmentfee'] = "Total enrolment fee:";
 $string['charge_enrolment'] = "Enrolment in: ";
+$string['error'] = "Error";

@@ -25,6 +25,7 @@
  */
 
 require_once('classes/util.php');
+require_once('currencyCodes.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -398,6 +399,9 @@ class enrol_payment_plugin extends enrol_plugin {
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingAddressRequired = $this->get_config('billingaddress');
 
+                $symbol = get_currency_symbol($instance->currency);
+                error_log($symbol);
+
                 $js_data = [ $instance->id
                            , $stripepublishablekey
                            , $cost
@@ -410,6 +414,7 @@ class enrol_payment_plugin extends enrol_plugin {
                            , $billingAddressRequired
                            , $USER->email
                            , $instance->currency
+                           , $symbol
                            ];
                 $PAGE->requires->js_call_amd('enrol_payment/enrolpage', 'init', $js_data);
                 $PAGE->requires->css('/enrol/payment/style/styles.css');
@@ -662,7 +667,9 @@ class enrol_payment_plugin extends enrol_plugin {
 
                 //If discount amount is filled, discount code must be filled
                 if((!array_key_exists("customtext2", $data)) || empty($data['customtext2'])) {
-                    $errors['customtext2'] = get_string('needdiscountcode', 'enrol_payment');
+                    if(array_key_exists("customint3", $data) && ($data["customint3"] != 0)) {
+                        $errors['customtext2'] = get_string('needdiscountcode', 'enrol_payment');
+                    }
                 }
             }
         }
@@ -670,7 +677,9 @@ class enrol_payment_plugin extends enrol_plugin {
         //If discount code is filled, discount amount must be filled
         if(array_key_exists("customtext2", $data) && (!empty($data['customtext2']))) {
             if((!array_key_exists("customdec1", $data)) || empty($data['customdec1'])) {
-                $errors['customdec1'] = get_string('needdiscountamount', 'enrol_payment');
+                if(array_key_exists("customint3", $data) && ($data["customint3"] != 0)) {
+                    $errors['customdec1'] = get_string('needdiscountamount', 'enrol_payment');
+                }
             }
         }
 
