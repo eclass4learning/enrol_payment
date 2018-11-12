@@ -198,7 +198,7 @@ $string['transferinstructions_default'] = "<h4>Prefer to pay directly from your 
 
 $string['paypalwait'] = 'Please wait while PayPal confirms your payment. You will be given access to <i>{$a}</i> when the payment has completed.';
 $string['errorcheckingenrolment'] = "Failure checking user enrolment. Please contact your server administrator. In the meantime, you should navigate to the course manually.";
-$string['thanksforpaypal'] = 'Thank you for your multiple enrolment purchase. The registrants have been successfully enrolled in <i>{$a}</i>.';
+$string['thanksforpaypal'] = 'Thank you for your multiple enrolment purchase. The registrant(s) have been successfully enrolled in <i>{$a}</i>.';
 $string['incorrectdiscountcode'] = "Invalid discount code";
 $string['incorrectdiscountcode_desc'] = "The discount code you have entered is incorrect.";
 $string['errorpaymentpending'] = 'Your PayPal payment is stuck in "{$a->reason}" status. This can be due to currency mismatch or other PayPal configuration issues. Please {$a->supportemaillink} the site administrator.';
