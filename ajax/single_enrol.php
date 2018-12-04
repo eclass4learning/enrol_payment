@@ -1,7 +1,12 @@
 <?php
 
 /**
- * Modify payment data - set to a single enrollment
+ * AJAX handler to enrol a single user
+ *
+ * @package    enrol_payment
+ * @copyright  2018 Seth Yoder <seth.a.yoder@gmail.com>
+ * @author     Seth Yoder
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(__FILE__).'/../../../config.php');

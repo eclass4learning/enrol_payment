@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Get currency info from 3-letter ISO currency code.
+ *
+ * @package    enrol_payment
+ * @copyright  2018 Seth Yoder <seth.a.yoder@gmail.com>
+ * @author     Seth Yoder
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 /*
  * Courtesy of https://gist.github.com/Fluidbyte/2973986
  */

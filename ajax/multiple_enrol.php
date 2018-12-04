@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * AJAX handler for multiple enrolment purchase
+ *
+ * @package    enrol_payment
+ * @copyright  2018 Seth Yoder
+ * @author     Seth Yoder
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
 require_once(dirname(__FILE__).'/../lang/en/enrol_payment.php');

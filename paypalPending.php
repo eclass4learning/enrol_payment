@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Notify the user that their PayPal payment is pending
+ *
+ * @package    enrol_payment
+ * @copyright  2018 Seth Yoder <seth.a.yoder@gmail.com>
+ * @author     Seth Yoder
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require("../../config.php");
 
 $id=required_param('id', PARAM_INT);
