@@ -3,9 +3,23 @@ This Moodle plugin is a superset of Moodle's **enrol\_paypal** functionality.
 
 ## Features
 - Use Stripe or PayPal payment backend
-- Define discount codes with percentage-based or amount-based discounts
-- Define custom tax rules (see **Adding a Province/State Field**, below)
+- Define discount codes with percentage-based or amount-based discounts (see **Discounts**, below)
 - Allow users to enrol other users (see **Multiple Enrolment**, below)
+- Define custom tax rules (see **Adding a Province/State Field**, below)
+
+## Discounts
+To set up a discount code:
+- Ensure that "Allow course enrolment to include a discount" is checked in the site-wide plugin settings.
+- In the settings for an individual enrolment instance, select a discount type and enter the corresponding 
+discount amount and discount code.
+
+## Multiple Enrolment
+To enable the Multiple Enrolment system:
+- In the site-wide plugin settings, check "Allow multiple registration".
+- In the settings for an individual enrolment instance, check "Allow multiple registration".
+
+This will allow users to enroll 1 or more other users in the course, provided the users' email addressses 
+are known.
 
 ## Adding a Province/State Field
 Since Moodle does not natively collect province/state info, the instructions
