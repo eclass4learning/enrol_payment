@@ -18,10 +18,11 @@ require_once(dirname(__FILE__).'/../paymentlib.php');
 global $DB;
 
 $ret = array("success" => true);
-$emails = json_decode(stripslashes($_POST['emails']));
-$instanceid = $_POST['instanceid'];
-$prepayToken = $_POST['prepaytoken'];
-$symbol = isset($_POST['symbol']) ? $_POST['symbol'] : '';
+$emails_raw = required_param('emails', PARAM_RAW);
+$emails = json_decode(stripslashes($emails_raw));
+$instanceid = required_param('instanceid', PARAM_RAW);
+$prepayToken = required_param('prepaytoken', PARAM_ALPHANUM);
+$symbol = optional_param('symbol','',PARAM_RAW);
 
 if ($CFG->allowaccountssameemail) {
     $ret["success"] = false;

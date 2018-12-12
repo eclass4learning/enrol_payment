@@ -1,9 +1,9 @@
 <?php
 /**
- * PayPal enrolment plugin utility class.
+ * Payment enrolment plugin utility class.
  *
  * @package    enrol_payment
- * @copyright  2016 Cameron Ball <cameron@cameron1729.xyz>
+ * @copyright  2018 Seth Yoder <seth.a.yoder@gmail.com> - based on enrol_paypal code by Cameron Ball <cameron@cameron1729.xyz>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -11,14 +11,6 @@ namespace enrol_payment;
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * PayPal enrolment plugin utility class.
- *
- * @package   enrol_payment
- * @copyright 2018 Seth Yoder <seth.a.yoder@gmail.com>
- * @author    Seth Yoder
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 final class util {
 
     public static function myURLEncode($string) {

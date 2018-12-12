@@ -1,4 +1,4 @@
-.plus {
+.path-enrol-payment .plus {
     position: absolute;
     height: 16px;
     width: 16px;
@@ -7,14 +7,14 @@
     margin-left: 5px;
 }
 
-.plus-container {
+.path-enrol-payment .plus-container {
     position: relative;
     display: inline-block;
     margin: 0 auto;
     cursor: pointer;
 }
 
-.minus {
+.path-enrol-payment .minus {
     position: absolute;
     left: 23px;
     height: 16px;
@@ -24,54 +24,54 @@
     margin-left: 5px;
 }
 
-.minus-container {
+.path-enrol-payment .minus-container {
     position: relative;
     display: inline-block;
     margin: 0 auto;
     cursor: pointer;
 }
 
-.mr-email-label-container {
+.path-enrol-payment .mr-email-label-container {
     width: 86px;
     display: inline-block;
 }
 
-.mr-email-line {
+.path-enrol-payment .mr-email-line {
     margin-bottom: 15px;
     margin-right: 64px;
 }
 
-.mr-email-line label {
+.path-enrol-payment .mr-email-line label {
     font-weight: bold;
 }
 
-.mr-email-line input {
+.path-enrol-payment .mr-email-line input {
     margin: 0 auto;
     display: inline-block;
 }
 
-#multiple-registration-btn-container {
+.path-enrol-payment #multiple-registration-btn-container {
     margin-bottom: 20px;
 }
 
-#paypal-button {
+.path-enrol-payment #paypal-button {
     margin-bottom: 5px;
 }
 
-#stripe-button {
+.path-enrol-payment #stripe-button {
     margin-bottom: 10px;
 }
 
-#enrolpage {
+.path-enrol-payment #enrolpage {
     position: relative;
 }
 
-#discount-container {
+.path-enrol-payment #discount-container {
     display: inline-block;
     position:relative;
 }
 
-#discount-dimmer {
+.path-enrol-payment #discount-dimmer {
     display: none;
     background: #fff;
     opacity: 0.5;
@@ -83,7 +83,7 @@
     z-index: 4000;
 }
 
-#dimmer {
+.path-enrol-payment #dimmer {
     background: #fff;
     opacity: 0.5;
     position: absolute;
@@ -125,13 +125,13 @@
   }
 }
 
-#spin-container {
+.path-enrol-payment #spin-container {
     display: block;
     height: 150px;
     text-align: center;
 }
 
-#spinner {
+.path-enrol-payment #spinner {
     display: inline-block;
     position: relative !important;
 }

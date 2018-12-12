@@ -16,11 +16,12 @@ require_once(dirname(__FILE__).'/../paymentlib.php');
 
 global $DB;
 
-$instanceid = $_GET['instanceid'];
-$prepayToken = $_GET['prepaytoken'];
+$instanceid = required_param('instanceid', PARAM_INT);
+$prepayToken = required_param('prepaytoken', PARAM_ALPHANUM);
+$discountcode = required_param('discountcode', PARAM_RAW);
 
 $instance = $DB->get_record('enrol', array('id' => $instanceid), '*', MUST_EXIST);
-$correct_code = (trim($_GET['discountcode']) == trim($instance->customtext2));
+$correct_code = (trim($discountcode) == trim($instance->customtext2));
 $payment = null;
 
 if($correct_code) {

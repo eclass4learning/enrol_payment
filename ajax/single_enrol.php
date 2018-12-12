@@ -17,7 +17,7 @@ require_once(dirname(__FILE__).'/../paymentlib.php');
 
 global $DB;
 
-$prepayToken = $_POST['prepaytoken'];
+$prepayToken = required_param('prepaytoken', PARAM_ALPHANUM);
 
 $ret = array();
 

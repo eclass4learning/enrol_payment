@@ -13,8 +13,8 @@ require_once(dirname(__FILE__).'/../../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
 require_once('util.php');
 
-$courseid = $_POST['courseid'];
-$paymentid = $_POST['paymentid'];
+$courseid = required_param('courseid', PARAM_INT);
+$paymentid = required_param('paymentid', PARAM_INT);
 
 $context = context_course::instance($courseid, MUST_EXIST);
 
