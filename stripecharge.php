@@ -19,7 +19,6 @@ define('NO_DEBUG_DISPLAY', true);
 require("../../config.php");
 require_once("lib.php");
 require_once("paymentlib.php");
-require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/group/lib.php');
@@ -212,7 +211,7 @@ try {
                 $a->coursename = $course->fullname;
                 $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
-                $eventdata = new stdClass();
+                $eventdata = new \core\message\message();
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'payment_enrolment';
@@ -230,7 +229,7 @@ try {
                 $a->course = $course->fullname;
                 $a->user = fullname($user);
 
-                $eventdata = new stdClass();
+                $eventdata = new \core\message\message();
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'payment_enrolment';
@@ -249,7 +248,7 @@ try {
             $a->user = fullname($user);
             $admins = get_admins();
             foreach ($admins as $admin) {
-                $eventdata = new stdClass();
+                $eventdata = new \core\message\message();
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'payment_enrolment';

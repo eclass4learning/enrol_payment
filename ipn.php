@@ -21,7 +21,6 @@ define('NO_DEBUG_DISPLAY', true);
 require("../../config.php");
 require_once("lib.php");
 require_once("paymentlib.php");
-require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/group/lib.php');
@@ -155,9 +154,8 @@ if (strlen($result) > 0) {
         // Email user to let them know. Email admin.
 
         if ($data->payment_status == "Pending" and $data->pending_reason != "echeck") {
-            //$eventdata = new \core\message\message();
             // $eventdata->courseid          = empty($data->courseid) ? SITEID : $data->courseid;
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_payment';
             $eventdata->name              = 'payment_enrolment';
@@ -300,7 +298,7 @@ if (strlen($result) > 0) {
                 $a->coursename = $course->fullname;
                 $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
-                $eventdata = new stdClass();
+                $eventdata = new \core\message\message();
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'paypal_enrolment';
@@ -316,10 +314,11 @@ if (strlen($result) > 0) {
             }
 
             if (!empty($mailteachers) && !empty($teacher)) {
+                $a = new stdClass();
                 $a->course = $course->fullname;
                 $a->user = fullname($user);
 
-                $eventdata = new stdClass();
+                $eventdata = new \core\message\message();
                 $eventdata->modulename        = 'moodle';
                 $eventdata->component         = 'enrol_payment';
                 $eventdata->name              = 'payment_enrolment';
@@ -338,7 +337,7 @@ if (strlen($result) > 0) {
                 $a->user = fullname($user);
                 $admins = get_admins();
                 foreach ($admins as $admin) {
-                    $eventdata = new stdClass();
+                    $eventdata = new \core\message\message();
                     $eventdata->modulename        = 'moodle';
                     $eventdata->component         = 'enrol_payment';
                     $eventdata->name              = 'payment_enrolment';

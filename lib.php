@@ -386,7 +386,6 @@ class enrol_payment_plugin extends enrol_plugin {
                 $billingAddressRequired = $this->get_config('billingaddress');
 
                 $symbol = get_currency_symbol($instance->currency);
-                error_log($symbol);
 
                 $js_data = [ $instance->id
                            , $stripepublishablekey
@@ -753,7 +752,6 @@ function enrol_payment_pluginfile($course, $cm, $context, $filearea, $args, $for
     $fs = get_file_storage();
     $file = $fs->get_file($context->id, 'enrol_payment', $filearea, 0, $filepath, $filename);
     if (!$file) {
-        error_log("ack");
         return false; // The file does not exist.
     }
 
