@@ -135,3 +135,7 @@
     display: inline-block;
     position: relative !important;
 }
+
+.discount-threshold-info {
+    display: none;
+}

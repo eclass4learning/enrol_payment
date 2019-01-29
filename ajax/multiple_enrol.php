@@ -41,14 +41,14 @@ if ($CFG->allowaccountssameemail) {
 
     try {
         $ret['users'] = get_moodle_users_by_emails($emails);
-        $payment = get_payment_from_token($prepayToken);
+        $payment = paymentlib\get_payment_from_token($prepayToken);
 
         update_payment_data(true, $ret['users'], $payment);
 
         $instance = $DB->get_record('enrol', array("id" => $instanceid), '*', MUST_EXIST);
 
         //Tack new subtotals onto return data
-        $ret = array_merge($ret, calculate_cost($instance, $payment, true));
+        $ret = array_merge($ret, paymentlib\calculate_cost($instance, $payment, true));
 
         if ($payment->tax_percent) {
             $tax_amount = $ret['tax_amount'];

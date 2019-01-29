@@ -15,7 +15,7 @@ require_once("$CFG->dirroot/enrol/paypal/lib.php");
 $id = required_param('id', PARAM_INT);
 $token = required_param('token', PARAM_RAW);
 $userid = $USER->id;
-$payment = get_payment_from_token($token);
+$payment = paymentlib\get_payment_from_token($token);
 $purchasing_for_self = true;
 
 if (!$course = $DB->get_record("course", array("id"=>$id))) {

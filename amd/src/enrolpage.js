@@ -91,6 +91,16 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
         symbol: undefined,
 
         /**
+         * Does the user need a code in order to get a discount?
+         */
+        discountCodeRequired: undefined,
+
+        /**
+         *
+         */
+        discountThreshold: undefined,
+
+        /**
          * Functions dealing with the multi-user registration system
          */
         MultipleRegistration: {
@@ -365,6 +375,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                             $('#discount-dimmer').css('display','block');
                             enrolPage.subtotal = response["subtotal"];
                             enrolPage.updateCostView();
+                            $('.discount-threshold-info').css('display','block');
                         } else {
                             $('#dimmer').css('display', 'block');
                             enrolPage.genericErrorModal(enrolPage.mdlstr["incorrectdiscountcode"],
@@ -566,11 +577,14 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                       , shippingAddressRequired
                       , stripeLogo
                       , taxPercent
+                      , subtotal
                       , validateZipCode
                       , billingAddressRequired
                       , userEmail
                       , currency
-                      , symbol ) {
+                      , symbol
+                      , discountCodeRequired
+                      , discountThreshold ) {
 
             var self = this;
             var stringKeys = [ "discounttypeerror"
@@ -596,7 +610,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.mdlstr = strs;
                 self.originalCost = parseFloat(cost);
                 self.taxPercent = parseFloat(taxPercent);
-                self.subtotal = parseFloat(cost);
+                self.subtotal = parseFloat(subtotal);
                 self.taxAmount = parseFloat(taxPercent * cost);
                 self.instanceid = instanceid;
                 self.stripePublishableKey = stripePublishableKey;
@@ -609,9 +623,15 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.userEmail = userEmail;
                 self.currency = currency;
                 self.symbol = symbol;
+                self.discountCodeRequired = discountCodeRequired == 1 ? true : false;
+                self.discountThreshold = discountThreshold;
 
                 self.initClickHandlers();
                 self.updateCostView();
+
+                if(!self.discountCodeRequired && self.discountThreshold > 1) {
+                    $('.discount-threshold-info').css('display', 'block');
+                }
 
                 $('#dimmer').css('display', 'none');
             });

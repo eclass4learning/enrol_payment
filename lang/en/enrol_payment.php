@@ -92,10 +92,15 @@ The following placeholders may be included in the message:
 * User fullname {$a->fullname}';
 
 $string['discounttype'] = 'Discount type';
+$string['discounttype_help'] = 'Select type of discount. If "Value discount" is selected and multiple enrolments are purchased, the discount will be applied per-item.';
 $string['nodiscount'] = 'No discount &nbsp;&nbsp;';
 $string['percentdiscount'] = 'Percentage discount &nbsp;&nbsp;';
 $string['valuediscount'] = 'Value discount &nbsp;&nbsp;';
 $string['applydiscount'] = 'Apply discount';
+$string['discountthreshold'] = 'Discount threshold';
+$string['discountthreshold_help'] = 'Minimum number of seats that a user must purchase in order for a discount to be applied.<br>This allows course creators to set up discounts for bulk purchases.';
+$string['requirediscountcode'] = 'Require discount code';
+$string['requirediscountcode_help'] = 'If unchecked, the discount will be applied to all purchases, assuming the discount threshold is met.';
 $string['discountcode'] = 'Discount code';
 $string['discountamount'] = 'Discount amount';
 $string['discountamount_help'] = 'If a Percentage discount is used, values under 1.00 will be treated as a percentage (out of 1.00). For example, you may set a 25% discount by entering either "25", "25.00", or "0.25".';
@@ -158,8 +163,9 @@ $string['taxdefinitions_help'] = "The format for each entry is Province/State Co
 "QC : 0.05<br>".
 "Enter each tax definition on a <b>separate</b> line. The script will pull the province/state code from the MSN field in the user profile (setup instructions are detailed in the ReadMe.txt file) to determine how much tax to add to the course fee.";
 $string['definetaxes'] = 'Allow custom tax definitions';
-$string['feestring_taxed'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost-untaxed">{$a->localisedcost_untaxed}</span></b> + {$a->symbol}<span class="taxamountstring">{$a->tax_amount_string}</span> <span class="taxstring">{$a->tax_string}</span> = <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}';
-$string['feestring_notax'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}';
+$string['feestring_taxed'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost-untaxed">{$a->localisedcost_untaxed}</span></b> + {$a->symbol}<span class="taxamountstring">{$a->tax_amount_string}</span> <span class="taxstring">{$a->tax_string}</span> = <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}.<br>';
+$string['feestring_notax'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}.<br>';
+$string['discountwillbeapplied'] = 'A {$a->symbol}{$a->discountAmount} discount will be applied to a purchase of {$a->discountThreshold} or more registrants.';
 
 $string['allowbanktransfer'] = "Allow Bank/Email transfer payment";
 $string['transferinstructions'] = "Bank/Email transfer payment instructions";

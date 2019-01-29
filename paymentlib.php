@@ -1,5 +1,7 @@
 <?php
 
+namespace paymentlib;
+
 /**
  * Library for handling payment tokens for the enrol_payment plugin.
  *
@@ -8,6 +10,7 @@
  * @author Seth Yoder
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 
 require_once(dirname(__FILE__).'/../../config.php');
 require_once("$CFG->libdir/moodlelib.php");
@@ -28,6 +31,7 @@ function get_payment_from_token($prepayToken) {
  * @return object with "subtotal" and "subtotal_localised" fields.
  */
 function calculate_cost($instance, $payment, $addtax=false) {
+    $discount_threshold = $instance->customint8;
     $discount_amount = $instance->customdec1;
     //$ret["discount_amount"] = $discount_amount;
     $cost = $payment->original_cost;
@@ -47,10 +51,15 @@ function calculate_cost($instance, $payment, $addtax=false) {
 
     $oc_discounted = $cost;
 
-    switch ($instance->customint3) {
+    $apply_discount = $instance->customint3;
+
+    if($payment->units < $discount_threshold) {
+        $apply_discount = 0;
+    }
+
+    switch ($apply_discount) {
         case 0:
             $subtotal = $cost * $payment->units;
-
             break;
         case 1:
             if($discount_amount > 100) {

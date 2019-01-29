@@ -67,7 +67,7 @@ if (empty($data->custom)) {
     throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Missing request param: custom');
 }
 
-$payment = get_payment_from_token($data->custom);
+$payment = paymentlib\get_payment_from_token($data->custom);
 
 if (empty($payment)) {
     throw new moodle_exception('invalidrequest', 'core_error', '', null, "Invalid value of prepay token: $data->custom");
@@ -231,7 +231,7 @@ if (strlen($result) > 0) {
 
         //What should the user have paid? Verify using info stored in the
         //database.
-        $cost = calculate_cost($plugin_instance, $payment)["subtotal"];
+        $cost = paymentlib\calculate_cost($plugin_instance, $payment)["subtotal"];
 
         if ($data->payment_gross + 0.01 < $cost) {
             //This shouldn't happen unless the user spoofs their requests, but

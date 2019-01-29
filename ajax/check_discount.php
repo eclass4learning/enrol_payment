@@ -26,7 +26,7 @@ $payment = null;
 
 if($correct_code) {
     try {
-        $payment = get_payment_from_token($prepayToken);
+        $payment = paymentlib\get_payment_from_token($prepayToken);
     } catch (Exception $e) {
         echo json_encode([ 'success' => false
                          , 'failmessage' => $e->getMessage() ]);
@@ -37,7 +37,7 @@ if($correct_code) {
     try {
         $payment->discounted = true;
         $DB->update_record('enrol_payment_ipn', $payment);
-        $to_return = calculate_cost($instance, $payment);
+        $to_return = paymentlib\calculate_cost($instance, $payment);
     } catch (Exception $e) {
         echo json_encode([ 'success' => false
                          , 'failmessage' => "$e->getMessage"]);

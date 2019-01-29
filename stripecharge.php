@@ -60,7 +60,7 @@ if (empty($data->custom)) {
     throw new moodle_exception('invalidrequest', 'core_error', '', null, 'Missing request param: custom');
 }
 
-$payment = get_payment_from_token($data->custom);
+$payment = paymentlib\get_payment_from_token($data->custom);
 
 unset($data->custom);
 
@@ -124,7 +124,7 @@ $original_cost = format_float($original_cost, 2, false);
 
 //What should the user have paid? Verify using info stored in the
 //database.
-$cost = calculate_cost($plugin_instance, $payment, true)["subtotal_taxed"];
+$cost = paymentlib\calculate_cost($plugin_instance, $payment, true)["subtotal_taxed"];
 
 if ($data->amount + 0.01 < $cost) {
     //This shouldn't happen unless the user spoofs their requests, but

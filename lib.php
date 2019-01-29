@@ -12,6 +12,7 @@
 
 require_once('classes/util.php');
 require_once('currencyCodes.php');
+require_once('paymentlib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -327,26 +328,20 @@ class enrol_payment_plugin extends enrol_plugin {
         }
 
         if ( (float) $instance->cost <= 0 ) {
-            $cost = (float) $this->get_config('cost');
+            $original_cost = (float) $this->get_config('cost');
         } else {
-            $cost = (float) $instance->cost;
+            $original_cost = (float) $instance->cost;
         }
 
         $tax_string = "";
 
-        $tax_info = $this->get_tax_info($cost);
+        $tax_info = $this->get_tax_info($original_cost);
         $tax_string = $tax_info["tax_string"];
         $tax_percent = $tax_info["tax_percent"];
 
-        if (abs($cost) < 0.01) { // no cost, other enrolment methods (instances) should be used
+        if (abs($original_cost) < 0.01) { // no cost, other enrolment methods (instances) should be used
             echo '<p>'.get_string('nocost', 'enrol_payment').'</p>';
         } else {
-
-            // Calculate localised and "." cost, make sure we send PayPal the same value,
-            // please note PayPal expects amount with 2 decimal places and "." separator.
-            $localisedcost = format_float($cost + ($cost * $tax_percent), 2, true);
-            $localisedcost_untaxed = format_float($cost, 2, false);
-            $cost = format_float($cost, 2, false);
 
             $wwwroot = $CFG->wwwroot;
 
@@ -357,49 +352,67 @@ class enrol_payment_plugin extends enrol_plugin {
             $stripepublishablekey = $stripe_enabled ? $this->get_config('stripepublishablekey') : null;
 
             if (isguestuser()) { // force login only for guest user, not real users with guest role
-                echo '<div class="mdl-align"><p>'.get_string('paymentrequired').'</p>';
-                echo '<p><b>'.get_string('cost').": $instance->currency $localisedcost".'</b></p>';
+                //echo '<div class="mdl-align"><p>'.get_string('paymentrequired').'</p>';
+                //echo '<p><b>'.get_string('cost').": $instance->currency $localisedcost".'</b></p>';
                 echo '<p><a href="'.$wwwroot.'/login/">'.get_string('loginsite').'</a></p>';
                 echo '</div>';
             } else {
                 //Used to verify payment data so that it can't be spoofed.
                 $prepayToken = bin2hex(random_bytes(16));
+                error_log("discountCodeRequired: $instance->customint7");
+                $discountCodeRequired = $instance->customint7;
+                $discountThreshold = $instance->customint8;
 
+                //The only way the purchase can be discounted already is if the
+                //discount threshold == 1 and a discount code isn't required.
+                $discounted = ($discountThreshold == 1) && !$discountCodeRequired;
                 $paymentdata = [ 'prepaytoken' => $prepayToken
                                , 'userid' => $USER->id
                                , 'courseid' => $course->id
                                , 'instanceid' => $instance->id
                                , 'multiple' => false
                                , 'multiple_userids' => null
-                               , 'discounted' => false
+                               , 'discounted' => $discounted
                                , 'units' => 1
-                               , 'original_cost' => $cost
+                               , 'original_cost' => $original_cost
                                , 'tax_percent' => $tax_percent
                                , 'paypal_txn_id' => null
                                ];
 
-                $DB->insert_record("enrol_payment_ipn", $paymentdata);
+                $payment_id = $DB->insert_record("enrol_payment_ipn", $paymentdata);
+
+                // Calculate localised and "." cost, make sure we send PayPal/Stripe the same value,
+                // please note PayPal expects amount with 2 decimal places and "." separator.
+                $payment_obj = $DB->get_record("enrol_payment_ipn", array("id" => $payment_id));
+                $localisedcost = paymentlib\calculate_cost($instance,$payment_obj,true)['subtotal_localised'];
+                $localisedcost_untaxed = paymentlib\calculate_cost($instance,$payment_obj,false)['subtotal_localised'];
+                $original_cost = format_float($original_cost, 2, false);
+                $nonlocalised_untaxed_cost = paymentlib\calculate_cost($instance,$payment_obj,false)['subtotal'];
 
                 $coursefullname  = format_string($course->fullname, true, array('context'=>$context));
-
+                $enableDiscountCodes = $this->get_config('enablediscounts') && $instance->customint7 && $instance->customint3; //Are discounts enabled in the admin settings?
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingAddressRequired = $this->get_config('billingaddress');
+                $discountAmount = format_float($instance->customdec1, 2, true);
 
                 $symbol = get_currency_symbol($instance->currency);
 
                 $js_data = [ $instance->id
                            , $stripepublishablekey
-                           , $cost
+                           , $original_cost
                            , $prepayToken
                            , htmlspecialchars_decode($coursefullname)
                            , $instance->customint4
                            , $stripelogourl
                            , $tax_percent
+                           , $localisedcost_untaxed
                            , $validatezipcode
                            , $billingAddressRequired
                            , $USER->email
                            , $instance->currency
                            , $symbol
+                           , $discountCodeRequired
+                           , $discountThreshold
                            ];
                 $PAGE->requires->js_call_amd('enrol_payment/enrolpage', 'init', $js_data);
                 $PAGE->requires->css('/enrol/payment/style/styles.css');
@@ -414,9 +427,8 @@ class enrol_payment_plugin extends enrol_plugin {
                 $paypalShipping    = $instance->customint4 ? 2 : 1;
                 $stripeShipping    = $instance->customint4;
                 $instancename      = $this->get_instance_name($instance);
-                $enablediscounts   = $this->get_config('enablediscounts'); //Are discounts enabled in the admin settings?
-                $tax_amount_string = format_float($tax_percent * $cost, 2, true);
-                $tax_amount        = format_float($tax_percent * $cost, 2, false);
+                $tax_amount_string = format_float($tax_percent * $original_cost, 2, true);
+                $tax_amount        = format_float($tax_percent * $original_cost, 2, false);
 
                 include($CFG->dirroot.'/enrol/payment/enrol.html');
             }
@@ -517,10 +529,13 @@ class enrol_payment_plugin extends enrol_plugin {
          * customint3 - Discount type (0: No discount, 1: Percentage discount, 2: Value discount)
          * customint4 - require shipping info at checkout (bool)
          * customint5 - allow multiple enrollments (bool)
-         * customint6 - Tax calculation based on province in "msn" field (bool)
+         * customint6 - Enable custom tax calculation based on province in "msn" field (bool)
+         * customint7 - Discount code required (bool)
          *
          * customtext1 - Custom welcome message
          * customtext2 - Discount code
+         *
+         * customdec1 - Discount amount
          */
 
         $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
@@ -583,6 +598,7 @@ class enrol_payment_plugin extends enrol_plugin {
             $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('percentdiscount', 'enrol_payment'), 1);
             $radioarray[]=$mform->createElement('radio', 'customint3', '', get_string('valuediscount', 'enrol_payment'), 2);
             $mform->addGroup($radioarray, 'customint3', get_string('discounttype', 'enrol_payment'), array(' '), false);
+            $mform->addHelpButton('customint3', 'discounttype', 'enrol_payment');
 
             //Discount amount - float2
             $mform->addElement('float2', 'customdec1', get_string('discountamount', 'enrol_payment'), array('size' => 4));
@@ -591,10 +607,23 @@ class enrol_payment_plugin extends enrol_plugin {
             $mform->disabledIf('customdec1', 'customint3', 'eq', 0);
             $mform->addHelpButton('customdec1', 'discountamount', 'enrol_payment');
 
+            $mform->addElement('advcheckbox', 'customint7', get_string('requirediscountcode', 'enrol_payment'));
+            $mform->setType('customint7', PARAM_INT);
+            $mform->setDefault('customint7', 1);
+
             //Discount code - text
             $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_payment'));
             $mform->setType('customtext2', PARAM_TEXT);
+            $mform->setDefault('customtext2', '');
             $mform->disabledIf('customtext2', 'customint3', 'eq', 0);
+            $mform->disabledIf('customtext2', 'customint7', 'eq', 0);
+
+            //Discount threshold - customint8
+            $mform->addElement('text', 'customint8', get_string('discountthreshold', 'enrol_payment'));
+            $mform->setType('customint8', PARAM_INT);
+            $mform->setDefault('customint8', 1);
+            $mform->disabledIf('customint8', 'customint3', 'eq', 0);
+            $mform->addHelpButton('customint8', 'discountthreshold', 'enrol_payment');
         }
 
         $mform->addElement('advcheckbox', 'customint4', get_string('requireshipping', 'enrol_payment'));

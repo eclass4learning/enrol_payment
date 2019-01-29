@@ -17,26 +17,36 @@
                 <?php echo get_string("feestring_notax", "enrol_payment", $stringparams) ?>
             <?php endif; ?>
 
-            <?php if (($instance->customint3) && $enablediscounts): ?>
-            <br><br>
-            <span style="white-space: nowrap;">
-                <div id="discount-container">
-                    <div id="discount-dimmer"></div>
-                    <b><?php echo (get_string("discountcode", "enrol_payment") . ":"); ?></b>
-                    <input type="text" name="discountcode" id="discountcode" style="width: 100px;" />
-                    <a id="apply-discount" class="btn" style="margin-bottom: 10px;"><?php print_string("applydiscount", "enrol_payment"); ?></a>
-                </div>
-            </span>
+            <?php if ($discountThreshold > 1): ?>
+                <?php $stringparams = new stdClass; ?>
+                <?php $stringparams->discountAmount = $discountAmount; ?>
+                <?php $stringparams->symbol = $symbol; ?>
+                <?php $stringparams->currency = $instance->currency; ?>
+                <?php $stringparams->discountThreshold = $discountThreshold; ?>
+                <span class="discount-threshold-info"><?php echo get_string("discountwillbeapplied", "enrol_payment", $stringparams) ?></span>
+            <?php endif; ?>
+
+
+            <?php if ($enableDiscountCodes): ?>
+                <br><br>
+                <span style="white-space: nowrap;">
+                    <div id="discount-container">
+                        <div id="discount-dimmer"></div>
+                        <b><?php echo (get_string("discountcode", "enrol_payment") . ":"); ?></b>
+                        <input type="text" name="discountcode" id="discountcode" style="width: 100px;" />
+                        <a id="apply-discount" class="btn" style="margin-bottom: 10px;"><?php print_string("applydiscount", "enrol_payment"); ?></a>
+                    </div>
+                </span>
             <?php endif; ?>
 
             <br><br>
 
-            <?php if($multiple_enabled) { ?>
-            <div id="multiple-registration-container"></div>
-            <div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr"><?php print_string('enrolothers', 'enrol_payment'); ?></a>
-                <?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_payment'))?>
-            </div>
-            <?php } ?>
+            <?php if($multiple_enabled): ?>
+                <div id="multiple-registration-container"></div>
+                <div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr"><?php print_string('enrolothers', 'enrol_payment'); ?></a>
+                    <?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_payment'))?>
+                </div>
+            <?php endif; ?>
 
             <?php
                 $paypalurl = empty($CFG->usepaypalsandbox) ? 'https://www.paypal.com/cgi-bin/webscr' : 'https://www.sandbox.paypal.com/cgi-bin/webscr';
@@ -64,7 +74,7 @@
                         <input id="paypal-custom" class="enrol-payment-custom" type="hidden" name="custom" value="<?php echo "$prepayToken" ?>" />
 
                         <input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
-                        <input type="hidden" name="amount" value="<?php p($cost) ?>" />
+                        <input type="hidden" name="amount" value="<?php p($nonlocalised_untaxed_cost) ?>" />
 
                         <input type="hidden" name="for_auction" value="false" />
                         <input type="hidden" name="no_note" value="1" />
@@ -112,7 +122,7 @@
                         <input id="stripe-custom" class="enrol-payment-custom" type="hidden" name="custom" value="<?php echo "$prepayToken" ?>" />
 
                         <input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
-                        <input type="hidden" name="amount" value="<?php p($cost) ?>" />
+                        <input type="hidden" name="amount" value="<?php p($nonlocalised_untaxed_cost) ?>" />
                         <input type="hidden" name="tax" value="0" />
                         <input type="hidden" name="tax" value="<?php p($tax_amount) ?>" />
                         <input type="hidden" name="prov" value="<?php p($USER->msn)?>" />

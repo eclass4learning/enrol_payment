@@ -22,7 +22,7 @@ $prepayToken = required_param('prepaytoken', PARAM_ALPHANUM);
 $ret = array();
 
 try {
-    $payment = get_payment_from_token($prepayToken);
+    $payment = paymentlib\get_payment_from_token($prepayToken);
     update_payment_data(false, null, $payment);
 } catch (Exception $e) {
     $ret["success"] = false;
