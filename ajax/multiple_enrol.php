@@ -45,8 +45,6 @@ if ($CFG->allowaccountssameemail) {
 
         update_payment_data(true, $ret['users'], $payment);
 
-        error_log("yo! $payment->units");
-
         $instance = $DB->get_record('enrol', array("id" => $instanceid), '*', MUST_EXIST);
 
         //Tack new subtotals onto return data

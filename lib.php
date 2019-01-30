@@ -359,7 +359,6 @@ class enrol_payment_plugin extends enrol_plugin {
             } else {
                 //Used to verify payment data so that it can't be spoofed.
                 $prepayToken = bin2hex(random_bytes(16));
-                error_log("discountCodeRequired: $instance->customint7");
                 $discountCodeRequired = $instance->customint7;
                 $discountThreshold = $instance->customint8;
 
