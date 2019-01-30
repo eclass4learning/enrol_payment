@@ -19,7 +19,7 @@ global $DB;
  * When switching between Single and Multiple mode, make the necessary
  * adjustments to our payment row in the database.
  */
-function update_payment_data($multiple, $users, $payment) {
+function update_payment_data($multiple, $users, &$payment) {
     global $DB;
 
     $userids = array();
@@ -32,13 +32,16 @@ function update_payment_data($multiple, $users, $payment) {
     $payment->multiple = $multiple;
     $payment->multiple_userids = $multiple ? implode(",",$userids) : null;
     $payment->units = $multiple ? sizeof($userids) : 1;
-    $DB->update_record("enrol_payment_ipn", $payment);
+    $DB->update_record("enrol_payment_session", $payment);
 }
 
+/**
+ * Return true if the corresponding transaction is pending
+ */
 function payment_pending($paymentid) {
     global $DB;
-    $payment = $DB->get_record("enrol_payment_ipn", array('id' => $paymentid));
-    $transaction = $DB->get_record("enrol_payment", array('txn_id' => $payment->paypal_txn_id));
+    $payment = $DB->get_record("enrol_payment_session", array('id' => $paymentid));
+    $transaction = $DB->get_record("enrol_payment_transaction", array('txn_id' => $payment->paypal_txn_id));
 
     if($transaction) {
         return ($transaction->payment_status == "Pending");
@@ -49,8 +52,8 @@ function payment_pending($paymentid) {
 
 function get_payment_status($paymentid) {
     global $DB;
-    $payment = $DB->get_record("enrol_payment_ipn", array('id' => $paymentid));
-    $transaction = $DB->get_record("enrol_payment", array('txn_id' => $payment->paypal_txn_id));
+    $payment = $DB->get_record("enrol_payment_session", array('id' => $paymentid));
+    $transaction = $DB->get_record("enrol_payment_transaction", array('txn_id' => $payment->paypal_txn_id));
 
     if($transaction) {
         return $transaction->payment_status;

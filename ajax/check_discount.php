@@ -35,8 +35,8 @@ if($correct_code) {
     }
 
     try {
-        $payment->discounted = true;
-        $DB->update_record('enrol_payment_ipn', $payment);
+        $payment->code_given = true;
+        $DB->update_record('enrol_payment_session', $payment);
         $to_return = paymentlib\calculate_cost($instance, $payment);
     } catch (Exception $e) {
         echo json_encode([ 'success' => false

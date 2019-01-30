@@ -99,6 +99,8 @@ $string['valuediscount'] = 'Value discount &nbsp;&nbsp;';
 $string['applydiscount'] = 'Apply discount';
 $string['discountthreshold'] = 'Discount threshold';
 $string['discountthreshold_help'] = 'Minimum number of seats that a user must purchase in order for a discount to be applied.<br>This allows course creators to set up discounts for bulk purchases.';
+$string['discountthresholdtoolow'] = 'Discount threshold must be greater than 0.';
+$string['discountthresholdbutnomultipleenrol'] = 'If mulitple enrolment is disabled, the discount threshold must equal 1.';
 $string['requirediscountcode'] = 'Require discount code';
 $string['requirediscountcode_help'] = 'If unchecked, the discount will be applied to all purchases, assuming the discount threshold is met.';
 $string['discountcode'] = 'Discount code';
@@ -165,7 +167,7 @@ $string['taxdefinitions_help'] = "The format for each entry is Province/State Co
 $string['definetaxes'] = 'Allow custom tax definitions';
 $string['feestring_taxed'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost-untaxed">{$a->localisedcost_untaxed}</span></b> + {$a->symbol}<span class="taxamountstring">{$a->tax_amount_string}</span> <span class="taxstring">{$a->tax_string}</span> = <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}.<br>';
 $string['feestring_notax'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}.<br>';
-$string['discountwillbeapplied'] = 'A {$a->symbol}{$a->discountAmount} discount will be applied to a purchase of {$a->discountThreshold} or more registrants.';
+$string['discountwillbeapplied'] = 'A {$a->symbol}{$a->discountAmount}{$a->perSeat} discount will be applied to a purchase of {$a->discountThreshold} or more registrants.';
 
 $string['allowbanktransfer'] = "Allow Bank/Email transfer payment";
 $string['transferinstructions'] = "Bank/Email transfer payment instructions";

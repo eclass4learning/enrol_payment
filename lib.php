@@ -363,27 +363,24 @@ class enrol_payment_plugin extends enrol_plugin {
                 $discountCodeRequired = $instance->customint7;
                 $discountThreshold = $instance->customint8;
 
-                //The only way the purchase can be discounted already is if the
-                //discount threshold == 1 and a discount code isn't required.
-                $discounted = ($discountThreshold == 1) && !$discountCodeRequired;
                 $paymentdata = [ 'prepaytoken' => $prepayToken
                                , 'userid' => $USER->id
                                , 'courseid' => $course->id
                                , 'instanceid' => $instance->id
                                , 'multiple' => false
                                , 'multiple_userids' => null
-                               , 'discounted' => $discounted
+                               , 'code_given' => false
                                , 'units' => 1
                                , 'original_cost' => $original_cost
                                , 'tax_percent' => $tax_percent
                                , 'paypal_txn_id' => null
                                ];
 
-                $payment_id = $DB->insert_record("enrol_payment_ipn", $paymentdata);
+                $payment_id = $DB->insert_record("enrol_payment_session", $paymentdata);
 
                 // Calculate localised and "." cost, make sure we send PayPal/Stripe the same value,
                 // please note PayPal expects amount with 2 decimal places and "." separator.
-                $payment_obj = $DB->get_record("enrol_payment_ipn", array("id" => $payment_id));
+                $payment_obj = $DB->get_record("enrol_payment_session", array("id" => $payment_id));
                 $localisedcost = paymentlib\calculate_cost($instance,$payment_obj,true)['subtotal_localised'];
                 $localisedcost_untaxed = paymentlib\calculate_cost($instance,$payment_obj,false)['subtotal_localised'];
                 $original_cost = format_float($original_cost, 2, false);
@@ -693,6 +690,24 @@ class enrol_payment_plugin extends enrol_plugin {
             if((!array_key_exists("customdec1", $data)) || empty($data['customdec1'])) {
                 if(array_key_exists("customint3", $data) && ($data["customint3"] != 0)) {
                     $errors['customdec1'] = get_string('needdiscountamount', 'enrol_payment');
+                }
+            }
+        }
+
+        if(array_key_exists("customint8", $data)) {
+            //Ensure Discount Threshold is greater than 0
+            if($data['customint8'] < 1) {
+                $errors['customint8'] = get_string('discountthresholdtoolow', 'enrol_payment');
+            } else if($data['customint8'] > 1) {
+                //Ensure Multiple Enrolment is enabled if discount threshold is greater than 1
+                if(array_key_exists("customint5", $data)) {
+                    if(!$data['customint5']) {
+                        $errors['customint8'] = get_string('discountthresholdbutnomultipleenrol', 'enrol_payment');
+                    }
+                }
+
+                if(!$this->get_config('allowmultipleenrol')) {
+                    $errors['customint8'] = get_string('discountthresholdbutnomultipleenrol', 'enrol_payment');
                 }
             }
         }

@@ -629,10 +629,6 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 self.initClickHandlers();
                 self.updateCostView();
 
-                if(!self.discountCodeRequired && self.discountThreshold > 1) {
-                    $('.discount-threshold-info').css('display', 'block');
-                }
-
                 $('#dimmer').css('display', 'none');
             });
         }

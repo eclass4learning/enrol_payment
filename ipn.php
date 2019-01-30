@@ -170,8 +170,8 @@ if (strlen($result) > 0) {
 
             \enrol_payment\util::message_paypal_error_to_admin("Payment pending", $data);
 
-            $DB->insert_record("enrol_payment", $data);
-            $DB->update_record("enrol_payment_ipn", array("id" => $payment->id, "paypal_txn_id" => $data->txn_id));
+            $DB->insert_record("enrol_payment_transaction", $data);
+            $DB->update_record("enrol_payment_session", array("id" => $payment->id, "paypal_txn_id" => $data->txn_id));
 
             die;
         }
@@ -187,7 +187,7 @@ if (strlen($result) > 0) {
         // At this point we only proceed with a status of completed or pending with a reason of echeck
 
         // Make sure this transaction doesn't exist already.
-        if ($existing = $DB->get_record("enrol_payment", array("txn_id" => $data->txn_id), "*", IGNORE_MULTIPLE)) {
+        if ($existing = $DB->get_record("enrol_payment_transaction", array("txn_id" => $data->txn_id), "*", IGNORE_MULTIPLE)) {
             \enrol_payment\util::message_paypal_error_to_admin("Transaction $data->txn_id is being repeated!", $data);
             die;
         }
@@ -244,8 +244,8 @@ if (strlen($result) > 0) {
         $data->item_name = $course->fullname;
 
         // ALL CLEAR !
-        $DB->insert_record("enrol_payment", $data);
-        $DB->update_record("enrol_payment_ipn", array("id" => $payment->id, "paypal_txn_id" => $data->txn_id));
+        $DB->insert_record("enrol_payment_transaction", $data);
+        $DB->update_record("enrol_payment_session", array("id" => $payment->id, "paypal_txn_id" => $data->txn_id));
 
 
         if ($plugin_instance->enrolperiod) {
@@ -354,7 +354,7 @@ if (strlen($result) > 0) {
         }
 
     } else if (strcmp ($result, "INVALID") == 0) { // ERROR
-        $DB->insert_record("enrol_payment", $data, false);
+        $DB->insert_record("enrol_payment_transaction", $data, false);
         throw new moodle_exception('erripninvalid', 'enrol_payment', '', null, json_encode($data));
     }
 }

@@ -123,5 +123,38 @@ function xmldb_enrol_payment_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2018051405, 'enrol', 'payment');
     }
 
+    if ($oldversion < 2019013001) {
+        $old_transaction_table = new xmldb_table('enrol_payment');
+        if($dbman->table_exists($old_transaction_table)) {
+            $dbman->rename_table($old_transaction_table, 'enrol_payment_transaction');
+        }
+
+        upgrade_plugin_savepoint(true, 2019013001, 'enrol', 'payment');
+    }
+
+    if ($oldversion < 2019013001) {
+        $old_session_table = new xmldb_table('enrol_payment_ipn');
+        if($dbman->table_exists($old_session_table)) {
+            $dbman->rename_table($old_session_table, 'enrol_payment_session');
+        }
+
+        upgrade_plugin_savepoint(true, 2019013001, 'enrol', 'payment');
+    }
+
+    if ($oldversion < 2019013001) {
+        // Rename field code_given on table enrol_payment_session to NEWNAMEGOESHERE.
+        $table = new xmldb_table('enrol_payment_session');
+        $field = new xmldb_field('discounted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'multiple_userids');
+        $newfield = new xmldb_field('code_given', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'multiple_userids');
+
+        if(!$dbman->field_exists($table, $newfield)) {
+            // Launch rename field code_given.
+            $dbman->rename_field($table, $field, 'code_given');
+        }
+
+        // Payment savepoint reached.
+        upgrade_plugin_savepoint(true, 2019013001, 'enrol', 'payment');
+    }
+
     return true;
 }

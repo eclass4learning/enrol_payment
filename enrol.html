@@ -17,13 +17,16 @@
                 <?php echo get_string("feestring_notax", "enrol_payment", $stringparams) ?>
             <?php endif; ?>
 
-            <?php if ($discountThreshold > 1): ?>
+            <?php if (($discountThreshold > 1) && ($instance->customint3 != 0)): ?>
                 <?php $stringparams = new stdClass; ?>
                 <?php $stringparams->discountAmount = $discountAmount; ?>
                 <?php $stringparams->symbol = $symbol; ?>
                 <?php $stringparams->currency = $instance->currency; ?>
                 <?php $stringparams->discountThreshold = $discountThreshold; ?>
-                <span class="discount-threshold-info"><?php echo get_string("discountwillbeapplied", "enrol_payment", $stringparams) ?></span>
+                <?php $stringparams->perSeat = $instance->customint3 == 2 ? " per-seat" : "" ?>
+                <span class="discount-threshold-info" style="display: <?php echo ($discountCodeRequired ? 'none' : 'block') ?> ">
+                    <?php echo get_string("discountwillbeapplied", "enrol_payment", $stringparams) ?>
+                </span>
             <?php endif; ?>
 
 
@@ -149,7 +152,7 @@
                             data-key="<?php echo $stripepublishablekey; ?>"
                             data-image=""
                             data-name="<?php p($coursefullname) ?>"
-                            data-description="Enrolment Cost (<?php p($instance->currency) ?><?php p($cost) ?>)"
+                            data-description="Enrolment Cost (<?php p($instance->currency) ?><?php //p($cost) ?>)"
                             data-metadata="6"
                             data-currency="<?php p($instance->currency) ?>"
                             data-amount="<?php p($cost * 100) ?>"
