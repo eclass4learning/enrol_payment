@@ -134,7 +134,7 @@ function xmldb_enrol_payment_upgrade($oldversion) {
             $dbman->rename_table($old_session_table, 'enrol_payment_session');
         }
 
-        // Rename field code_given on table enrol_payment_session to NEWNAMEGOESHERE.
+        // Rename field discounted on table enrol_payment_session to code_given.
         $table = new xmldb_table('enrol_payment_session');
         $field = new xmldb_field('discounted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'multiple_userids');
         $newfield = new xmldb_field('code_given', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'multiple_userids');
@@ -146,6 +146,32 @@ function xmldb_enrol_payment_upgrade($oldversion) {
 
         // Payment savepoint reached.
         upgrade_plugin_savepoint(true, 2019013001, 'enrol', 'payment');
+    }
+
+    // There was an upgrade issue in the 2019013001 version, so re-doing those steps here if necessary.
+    if($oldversion < 2019013100) {
+        $old_transaction_table = new xmldb_table('enrol_payment');
+        if($dbman->table_exists($old_transaction_table)) {
+            $dbman->rename_table($old_transaction_table, 'enrol_payment_transaction');
+        }
+
+        $old_session_table = new xmldb_table('enrol_payment_ipn');
+        if($dbman->table_exists($old_session_table)) {
+            $dbman->rename_table($old_session_table, 'enrol_payment_session');
+        }
+
+        // Rename field discounted on table enrol_payment_session to code_given.
+        $table = new xmldb_table('enrol_payment_session');
+        $field = new xmldb_field('discounted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'multiple_userids');
+        $newfield = new xmldb_field('code_given', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'multiple_userids');
+
+        if(!($dbman->field_exists($table, $newfield))) {
+            // Launch rename field code_given.
+            $dbman->rename_field($table, $field, 'code_given');
+        }
+
+        // Payment savepoint reached.
+        upgrade_plugin_savepoint(true, 2019013100, 'enrol', 'payment');
     }
 
     return true;
