@@ -19,8 +19,16 @@
 
             <?php if (($discountThreshold > 1) && ($instance->customint3 != 0)): ?>
                 <?php $stringparams = new stdClass; ?>
-                <?php $stringparams->discountAmount = $discountAmount; ?>
-                <?php $stringparams->symbol = $symbol; ?>
+                <?php if($instance->customint3 == 1): ?>
+                    <?php $stringparams->discountAmount = $percentDisplay; ?>
+                    <?php $stringparams->percentSymbol = '%'; ?>
+                    <?php $stringparams->symbol = ''; ?>
+                <?php else: ?>
+                    <?php $stringparams->discountAmount = $discountAmount; ?>
+                    <?php $stringparams->percentSymbol = ''; ?>
+                    <?php $stringparams->symbol = $symbol; ?>
+                <?php endif; ?>
+
                 <?php $stringparams->currency = $instance->currency; ?>
                 <?php $stringparams->discountThreshold = $discountThreshold; ?>
                 <?php $stringparams->perSeat = $instance->customint3 == 2 ? " per-seat" : "" ?>
@@ -146,21 +154,6 @@
                         <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
 
 
-                        <!--
-                        <script
-                            src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                            data-key="<?php echo $stripepublishablekey; ?>"
-                            data-image=""
-                            data-name="<?php p($coursefullname) ?>"
-                            data-description="Enrolment Cost (<?php p($instance->currency) ?><?php //p($cost) ?>)"
-                            data-metadata="6"
-                            data-currency="<?php p($instance->currency) ?>"
-                            data-amount="<?php p($cost * 100) ?>"
-                            data-data-zip-code="true"
-                            data-billing-address="true"
-                        >
-                        </script>
-                        -->
                         <!--<input id="enrol-payment-submit-stripe" class="enrol-payment-submit" type="submit" value="<?php print_string("sendpaymentbutton_stripe", "enrol_payment") ?>" />-->
 
                     </form>

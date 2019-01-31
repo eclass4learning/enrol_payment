@@ -25,6 +25,15 @@ function get_payment_from_token($prepayToken) {
                               array('prepaytoken' => $prepayToken));
 }
 
+function normalize_percent_discount($instance) {
+    $amount = $instance->customdec1;
+    if($instance->customint3 == 1 && $amount > 1.0) {
+        return $amount * 0.01;
+    } else {
+        return $amount;
+    }
+}
+
 /**
  * @param $instance enrol_payment instance
  * @param $payment payment object from enrol_payment_session
@@ -64,6 +73,8 @@ function calculate_cost($instance, $payment, $addtax=false) {
     }
 
     $oc_discounted = $cost;
+    $normalized_discount = normalize_percent_discount($instance);
+
 
     switch ($apply_discount) {
         case 0:
@@ -75,12 +86,6 @@ function calculate_cost($instance, $payment, $addtax=false) {
             }
 
             //Percentages over 1 converted to a float between 0 and 1.
-            if($discount_amount > 1.0) {
-                $normalized_discount = $discount_amount * 0.01;
-            } else {
-                $normalized_discount = $discount_amount;
-            }
-
             //Per-unit cost is the difference between the full cost and the percent discount.
             $per_unit_cost = $cost - ($cost * $normalized_discount);
             $subtotal = $per_unit_cost * $payment->units;
@@ -111,6 +116,7 @@ function calculate_cost($instance, $payment, $addtax=false) {
     $ret['subtotal_taxed'] = format_float($subtotal_taxed, 2, true);
     $ret['tax_amount'] = format_float($tax_amount, 2, true);
     $ret['oc_discounted'] = format_float($oc_discounted, 2, true);
+    $ret['percent_discount'] = floor($normalized_discount * 100); 
 
     return $ret;
 }

@@ -167,7 +167,7 @@ $string['taxdefinitions_help'] = "The format for each entry is Province/State Co
 $string['definetaxes'] = 'Allow custom tax definitions';
 $string['feestring_taxed'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost-untaxed">{$a->localisedcost_untaxed}</span></b> + {$a->symbol}<span class="taxamountstring">{$a->tax_amount_string}</span> <span class="taxstring">{$a->tax_string}</span> = <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}.<br>';
 $string['feestring_notax'] = 'The fee for <b>{$a->coursefullname}</b><br>is <b>{$a->symbol}<span class="localisedcost">{$a->localisedcost}</span></b> {$a->currency}.<br>';
-$string['discountwillbeapplied'] = 'A {$a->symbol}{$a->discountAmount}{$a->perSeat} discount will be applied to a purchase of {$a->discountThreshold} or more registrants.';
+$string['discountwillbeapplied'] = 'A {$a->symbol}{$a->discountAmount}{$a->percentSymbol}{$a->perSeat} discount will be applied to a purchase of {$a->discountThreshold} or more registrants.';
 
 $string['allowbanktransfer'] = "Allow Bank/Email transfer payment";
 $string['transferinstructions'] = "Bank/Email transfer payment instructions";

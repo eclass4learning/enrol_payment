@@ -380,8 +380,17 @@ class enrol_payment_plugin extends enrol_plugin {
                 // Calculate localised and "." cost, make sure we send PayPal/Stripe the same value,
                 // please note PayPal expects amount with 2 decimal places and "." separator.
                 $payment_obj = $DB->get_record("enrol_payment_session", array("id" => $payment_id));
-                $localisedcost = paymentlib\calculate_cost($instance,$payment_obj,true)['subtotal_localised'];
-                $localisedcost_untaxed = paymentlib\calculate_cost($instance,$payment_obj,false)['subtotal_localised'];
+
+                $calculatecost = paymentlib\calculate_cost($instance,$payment_obj,true);
+                $calculatecost_untaxed = paymentlib\calculate_cost($instance,$payment_obj,false);
+                $localisedcost = $calculatecost['subtotal_localised']; 
+                $localisedcost_untaxed = $calculatecost_untaxed['subtotal_localised'];
+
+                //If percentage discount, get the percentage amount to display
+                if($instance->customint3 == 1) {
+                    $percentDisplay = $calculatecost['percent_discount'];
+                }
+
                 $original_cost = format_float($original_cost, 2, false);
                 $nonlocalised_untaxed_cost = paymentlib\calculate_cost($instance,$payment_obj,false)['subtotal'];
 

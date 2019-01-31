@@ -65,7 +65,7 @@ if ($ADMIN->fulltree) {
     $options = array(ENROL_INSTANCE_ENABLED  => get_string('yes'),
                      ENROL_INSTANCE_DISABLED => get_string('no'));
     $settings->add(new admin_setting_configselect('enrol_payment/status',
-        get_string('status', 'enrol_payment'), get_string('status_desc', 'enrol_payment'), ENROL_INSTANCE_DISABLED, $options));
+        get_string('status', 'enrol_payment'), get_string('status_desc', 'enrol_payment'), ENROL_INSTANCE_ENABLED, $options));
 
     $settings->add(new admin_setting_configtext('enrol_payment/cost', get_string('cost', 'enrol_payment'), get_string('cost_desc', 'enrol_payment'), 0, PARAM_FLOAT, 4));
 
