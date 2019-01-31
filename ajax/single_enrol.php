@@ -18,12 +18,17 @@ require_once(dirname(__FILE__).'/../paymentlib.php');
 global $DB;
 
 $prepayToken = required_param('prepaytoken', PARAM_ALPHANUM);
+$instanceid = required_param('instanceid', PARAM_RAW);
 
 $ret = array();
 
 try {
+    $instance = $DB->get_record('enrol', array("id" => $instanceid), '*', MUST_EXIST);
+
     $payment = paymentlib\get_payment_from_token($prepayToken);
     update_payment_data(false, null, $payment);
+    $ret = paymentlib\calculate_cost($instance, $payment, true);
+    $ret["success"] = true;
 } catch (Exception $e) {
     $ret["success"] = false;
     $ret["failmessage"] = "Payment UUID ".$prepayToken." not found in database.";

@@ -329,7 +329,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
              *
              * @param btn           JQuery object for the button
              */
-            buildForm: function(btn, mdlstr) {
+            buildForm: function(btn, mdlstr, enrolPage) {
                 var self = this;
 
                 //If the button is to enable, build the multiple registration
@@ -346,6 +346,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     $("#multiple-registration-btn-container img.iconhelp").css("display", "none");
 
                 } else {
+                    $('#dimmer').css('display', 'block');
                     self.enabled = false;
                     //Return to single registration mode
 
@@ -353,6 +354,36 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                     btn.removeClass('disable-mr').addClass('enable-mr');
                     $(".mr-email-line").remove();
                     $("#multiple-registration-btn-container img.iconhelp").css("display", "inline-block");
+
+                    $.ajax({
+                        //Flip database row to single enrollment mode
+                        url: MoodleCfg.wwwroot + "/enrol/payment/ajax/single_enrol.php",
+                        method: "POST",
+                        data: {
+                            "prepaytoken" : enrolPage.prepayToken,
+                            "instanceid" : enrolPage.instanceid
+                        },
+                        success: function(r) {
+                            response = JSON.parse(r);
+                            $('#dimmer').css('display', 'none');
+                            if(response["success"]) {
+                                enrolPage.subtotal = response["subtotal"];
+                                enrolPage.updateCostView();
+                            } else {
+                                var trigger = $("#error-modal-trigger");
+                                trigger.off();
+                                ModalFactory.create({
+                                    type: ModalFactory.types.DEFAULT,
+                                    body: response["failmessage"],
+                                    closebuttontitle: enrolPage.mdlstr["dismiss"],
+                                }, trigger).done(function(modal) { enrolPage.removeDimmer(modal); });
+                                $('#error-modal-trigger').click();
+                            }
+                        },
+                        error: function() {
+                            alert(enrolPage.mdlstr["errcommunicating"]);
+                        }
+                    });
                 }
             },
         },
@@ -508,7 +539,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
             });
 
             $("#multiple-registration-btn").click(function() {
-                self.MultipleRegistration.buildForm($(this), self.mdlstr);
+                self.MultipleRegistration.buildForm($(this), self.mdlstr, self);
             });
 
             $(".payment-checkout").click(function(e) {
@@ -523,20 +554,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                 if(self.MultipleRegistration.enabled) {
                     self.MultipleRegistration.verifyAndSubmit(self);
                 } else {
-                    $.ajax({
-                        //Flip database row to single enrollment mode
-                        url: MoodleCfg.wwwroot + "/enrol/payment/ajax/single_enrol.php",
-                        method: "POST",
-                        data: {
-                            "prepaytoken" : self.prepayToken
-                        },
-                        success: function() {
-                            self.checkoutFinal();
-                        },
-                        error: function() {
-                            alert(self.mdlstr["errcommunicating"]);
-                        }
-                    });
+                    self.checkoutFinal();
                 }
             });
         },

@@ -63,18 +63,16 @@ function calculate_cost($instance, $payment, $addtax=false) {
      * * If a discount code isn't required, apply the discount.
      * * If a discount code is required and the user has provided it, apply the discount.
      */
+    $apply_discount = 0;
     if($payment->units >= $discount_threshold) {
-        $apply_discount = $instance->customint3;
         if(!$discount_code_required || ($discount_code_required && $payment->code_given)) {
+            $apply_discount = $instance->customint3;
             $discount_amount = $instance->customdec1;
         }
-    } else {
-        $apply_discount = 0;
     }
 
     $oc_discounted = $cost;
     $normalized_discount = normalize_percent_discount($instance);
-
 
     switch ($apply_discount) {
         case 0:
