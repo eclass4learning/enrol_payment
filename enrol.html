@@ -17,27 +17,6 @@
                 <?php echo get_string("feestring_notax", "enrol_payment", $stringparams) ?>
             <?php endif; ?>
 
-            <?php if (($discountThreshold > 1) && ($instance->customint3 != 0)): ?>
-                <?php $stringparams = new stdClass; ?>
-                <?php if($instance->customint3 == 1): ?>
-                    <?php $stringparams->discountAmount = $percentDisplay; ?>
-                    <?php $stringparams->percentSymbol = '%'; ?>
-                    <?php $stringparams->symbol = ''; ?>
-                <?php else: ?>
-                    <?php $stringparams->discountAmount = $discountAmount; ?>
-                    <?php $stringparams->percentSymbol = ''; ?>
-                    <?php $stringparams->symbol = $symbol; ?>
-                <?php endif; ?>
-
-                <?php $stringparams->currency = $instance->currency; ?>
-                <?php $stringparams->discountThreshold = $discountThreshold; ?>
-                <?php $stringparams->perSeat = $instance->customint3 == 2 ? " per-seat" : "" ?>
-                <span class="discount-threshold-info" style="display: <?php echo ($discountCodeRequired ? 'none' : 'block') ?> ">
-                    <?php echo get_string("discountwillbeapplied", "enrol_payment", $stringparams) ?>
-                </span>
-            <?php endif; ?>
-
-
             <?php if ($enableDiscountCodes): ?>
                 <br><br>
                 <span style="white-space: nowrap;">
@@ -57,6 +36,28 @@
                 <div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr"><?php print_string('enrolothers', 'enrol_payment'); ?></a>
                     <?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_payment'))?>
                 </div>
+
+                <?php if (($discountThreshold > 1) && ($instance->customint3 != 0)): ?>
+                    <?php $stringparams = new stdClass; ?>
+                    <?php if($instance->customint3 == 1): ?>
+                        <?php $stringparams->discountAmount = $percentDisplay; ?>
+                        <?php $stringparams->percentSymbol = '%'; ?>
+                        <?php $stringparams->symbol = ''; ?>
+                    <?php else: ?>
+                        <?php $stringparams->discountAmount = $discountAmount; ?>
+                        <?php $stringparams->percentSymbol = ''; ?>
+                        <?php $stringparams->symbol = $symbol; ?>
+                    <?php endif; ?>
+
+                    <?php $stringparams->currency = $instance->currency; ?>
+                    <?php $stringparams->discountThreshold = $discountThreshold; ?>
+                    <?php $stringparams->perSeat = $instance->customint3 == 2 ? " per-person" : "" ?>
+                    <span class="discount-threshold-info" style="display: <?php echo ($discountCodeRequired ? 'none' : 'block') ?> ">
+                        <?php echo get_string("discountwillbeapplied", "enrol_payment", $stringparams) ?>
+                    </span>
+                <?php endif; ?>
+                <br>
+
             <?php endif; ?>
 
             <?php
@@ -109,15 +110,14 @@
                     </form>
                 </div>
 
-                <br>
                 <?php print_string("paypalaccountnotneeded", "enrol_payment"); ?>
 
             <?php } ?>
 
             <?php if($stripe_enabled) { ?>
-                <br><br>
+                <p>
                 <?php print_string("or", "enrol_payment"); ?>
-                <br><br>
+                </p>
                 <div>
                     <a class="btn btn-info payment-checkout" id="stripe-button"><?php print_string("sendpaymentbutton_stripe", "enrol_payment") ?></a>
                     <form id="stripe-form" action="<?php echo "$CFG->wwwroot/enrol/payment/stripecharge.php"?>" method="post">
