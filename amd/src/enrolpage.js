@@ -364,7 +364,7 @@ function($, ModalFactory, ModalEvents, MoodleStrings, MoodleCfg, Spinner) { //es
                             "instanceid" : enrolPage.instanceid
                         },
                         success: function(r) {
-                            response = JSON.parse(r);
+                            var response = JSON.parse(r);
                             $('#dimmer').css('display', 'none');
                             if(response["success"]) {
                                 enrolPage.subtotal = response["subtotal"];
