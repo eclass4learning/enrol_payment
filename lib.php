@@ -615,7 +615,7 @@ class enrol_payment_plugin extends enrol_plugin {
             $mform->addElement('advcheckbox', 'customint7', get_string('requirediscountcode', 'enrol_payment'));
             $mform->addHelpButton('customint7', 'requirediscountcode', 'enrol_payment');
             $mform->setType('customint7', PARAM_INT);
-            $mform->setDefault('customint7', 1);
+            $mform->setDefault('customint7', 0);
 
             //Discount code - text
             $mform->addElement('text', 'customtext2', get_string('discountcode', 'enrol_payment'));

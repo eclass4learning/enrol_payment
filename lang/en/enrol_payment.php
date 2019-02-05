@@ -182,7 +182,7 @@ $string['transferinstructions_default'] = "<h4>Prefer to pay directly from your 
 "<ol>".
 "<li><p>Log in to your financial institution's online or mobile banking and navigate to <em>Interac</em> e-Transfer menu.</p></li>".
 "<li><p>Select the account from which to withdraw the funds.</p></li>" .
-"<li><p>Add a new recipient using <strong>ENTER RECIPIENT NAME</strong> as the name, <strong>ENTER EMAIL ADDRESS TO RECEIVE THE FUNDS</strong> as the email address, <strong>Who is offering {{COURSESHORTNAME}}</strong> as the security question, and <strong>ENTER THE ANSWER WITH A MINIMUM OF 5 CHARACTERS</strong> as the answer.</p></li>".
+"<li><p>Add a new recipient using <strong>ENTER RECIPIENT NAME</strong> as the name, <strong>ENTER EMAIL ADDRESS TO RECEIVE THE FUNDS</strong> as the email address, <strong>Who is offering {{COURSESHORTNAME}}?</strong> as the security question, and <strong>ENTER THE ANSWER WITH A MINIMUM OF 5 CHARACTERS</strong> as the answer.</p></li>".
 "<li><p>Select <strong>ENTER RECIPIENT NAME</strong> as the recipient.</p></li>".
 "<li><p>Fill in the amount of <strong>{{AMOUNT}}</strong> and enter <strong>your name</strong> in the message area.</p></li>".
 "<li><p>Follow the on-screen instructions to confirm the information and complete the transfer.</p></li>".

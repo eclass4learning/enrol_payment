@@ -160,7 +160,7 @@ try {
 
     // ALL CLEAR !
 
-    $DB->insert_record("enrol_payment", $data);
+    $DB->insert_record("enrol_payment_transaction", $data);
 
     if ($plugin_instance->enrolperiod) {
         $timestart = time();

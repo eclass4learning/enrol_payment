@@ -18,7 +18,7 @@
             <?php endif; ?>
 
             <?php if ($enableDiscountCodes): ?>
-                <br><br>
+                <br>
                 <span style="white-space: nowrap;">
                     <div id="discount-container">
                         <div id="discount-dimmer"></div>
@@ -29,9 +29,8 @@
                 </span>
             <?php endif; ?>
 
-            <br><br>
-
             <?php if($multiple_enabled): ?>
+                <br>
                 <div id="multiple-registration-container"></div>
                 <div id="multiple-registration-btn-container"><a id="multiple-registration-btn" class="btn enable-mr"><?php print_string('enrolothers', 'enrol_payment'); ?></a>
                     <?php echo($OUTPUT->help_icon('multipleregistration', 'enrol_payment'))?>

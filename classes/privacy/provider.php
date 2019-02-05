@@ -52,27 +52,27 @@ class provider implements
 
         // The enrol_payment has a DB table that contains user data.
         $collection->add_database_table(
-                'enrol_payment',
+                'enrol_payment_transaction',
                 [
-                    'business'            => 'privacy:metadata:enrol_payment:enrol_payment:business',
-                    'receiver_email'      => 'privacy:metadata:enrol_payment:enrol_payment:receiver_email',
-                    'receiver_id'         => 'privacy:metadata:enrol_payment:enrol_payment:receiver_id',
-                    'item_name'           => 'privacy:metadata:enrol_payment:enrol_payment:item_name',
-                    'courseid'            => 'privacy:metadata:enrol_payment:enrol_payment:courseid',
-                    'userid'              => 'privacy:metadata:enrol_payment:enrol_payment:userid',
-                    'instanceid'          => 'privacy:metadata:enrol_payment:enrol_payment:instanceid',
-                    'memo'                => 'privacy:metadata:enrol_payment:enrol_payment:memo',
-                    'tax'                 => 'privacy:metadata:enrol_payment:enrol_payment:tax',
-                    'option_selection1_x' => 'privacy:metadata:enrol_payment:enrol_payment:option_selection1_x',
-                    'payment_status'      => 'privacy:metadata:enrol_payment:enrol_payment:payment_status',
-                    'pending_reason'      => 'privacy:metadata:enrol_payment:enrol_payment:pending_reason',
-                    'reason_code'         => 'privacy:metadata:enrol_payment:enrol_payment:reason_code',
-                    'txn_id'              => 'privacy:metadata:enrol_payment:enrol_payment:txn_id',
-                    'parent_txn_id'       => 'privacy:metadata:enrol_payment:enrol_payment:parent_txn_id',
-                    'payment_type'        => 'privacy:metadata:enrol_payment:enrol_payment:payment_type',
-                    'timeupdated'         => 'privacy:metadata:enrol_payment:enrol_payment:timeupdated'
+                    'business'            => 'privacy:metadata:enrol_payment:enrol_payment_transaction:business',
+                    'receiver_email'      => 'privacy:metadata:enrol_payment:enrol_payment_transaction:receiver_email',
+                    'receiver_id'         => 'privacy:metadata:enrol_payment:enrol_payment_transaction:receiver_id',
+                    'item_name'           => 'privacy:metadata:enrol_payment:enrol_payment_transaction:item_name',
+                    'courseid'            => 'privacy:metadata:enrol_payment:enrol_payment_transaction:courseid',
+                    'userid'              => 'privacy:metadata:enrol_payment:enrol_payment_transaction:userid',
+                    'instanceid'          => 'privacy:metadata:enrol_payment:enrol_payment_transaction:instanceid',
+                    'memo'                => 'privacy:metadata:enrol_payment:enrol_payment_transaction:memo',
+                    'tax'                 => 'privacy:metadata:enrol_payment:enrol_payment_transaction:tax',
+                    'option_selection1_x' => 'privacy:metadata:enrol_payment:enrol_payment_transaction:option_selection1_x',
+                    'payment_status'      => 'privacy:metadata:enrol_payment:enrol_payment_transaction:payment_status',
+                    'pending_reason'      => 'privacy:metadata:enrol_payment:enrol_payment_transaction:pending_reason',
+                    'reason_code'         => 'privacy:metadata:enrol_payment:enrol_payment_transaction:reason_code',
+                    'txn_id'              => 'privacy:metadata:enrol_payment:enrol_payment_transaction:txn_id',
+                    'parent_txn_id'       => 'privacy:metadata:enrol_payment:enrol_payment_transaction:parent_txn_id',
+                    'payment_type'        => 'privacy:metadata:enrol_payment:enrol_payment_transaction:payment_type',
+                    'timeupdated'         => 'privacy:metadata:enrol_payment:enrol_payment_transaction:timeupdated'
                 ],
-                'privacy:metadata:enrol_payment:enrol_payment'
+                'privacy:metadata:enrol_payment:enrol_payment_transaction'
         );
 
         return $collection;
@@ -90,7 +90,7 @@ class provider implements
         // Values of ep.receiver_email and ep.business are already normalised to lowercase characters by PayPal,
         // therefore there is no need to use LOWER() on them in the following query.
         $sql = "SELECT ctx.id
-                  FROM {enrol_payment} ep
+                  FROM {enrol_payment_transaction} ep
                   JOIN {enrol} e ON ep.instanceid = e.id
                   JOIN {context} ctx ON e.courseid = ctx.instanceid AND ctx.contextlevel = :contextcourse
              LEFT JOIN {user} u ON u.id = :emailuserid AND (
@@ -130,7 +130,7 @@ class provider implements
         // Values of ep.receiver_email and ep.business are already normalised to lowercase characters by PayPal,
         // therefore there is no need to use LOWER() on them in the following query.
         $sql = "SELECT ep.*
-                  FROM {enrol_payment} ep
+                  FROM {enrol_payment_transaction} ep
                   JOIN {enrol} e ON ep.instanceid = e.id
                   JOIN {context} ctx ON e.courseid = ctx.instanceid AND ctx.contextlevel = :contextcourse
              LEFT JOIN {user} u ON u.id = :emailuserid AND (
@@ -226,7 +226,7 @@ class provider implements
             return;
         }
 
-        $DB->delete_records('enrol_payment', array('courseid' => $context->instanceid));
+        $DB->delete_records('enrol_payment_transaction', array('courseid' => $context->instanceid));
     }
 
     /**
@@ -255,17 +255,17 @@ class provider implements
 
         $select = "userid = :userid AND courseid $insql";
         $params = $inparams + ['userid' => $user->id];
-        $DB->delete_records_select('enrol_payment', $select, $params);
+        $DB->delete_records_select('enrol_payment_transaction', $select, $params);
 
         // We do not want to delete the payment record when the user is just the receiver of payment.
         // In that case, we just delete the receiver's info from the transaction record.
 
         $select = "business = :business AND courseid $insql";
         $params = $inparams + ['business' => \core_text::strtolower($user->email)];
-        $DB->set_field_select('enrol_payment', 'business', '', $select, $params);
+        $DB->set_field_select('enrol_payment_transaction', 'business', '', $select, $params);
 
         $select = "receiver_email = :receiver_email AND courseid $insql";
         $params = $inparams + ['receiver_email' => \core_text::strtolower($user->email)];
-        $DB->set_field_select('enrol_payment', 'receiver_email', '', $select, $params);
+        $DB->set_field_select('enrol_payment_transaction', 'receiver_email', '', $select, $params);
     }
 }
