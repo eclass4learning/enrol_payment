@@ -687,8 +687,12 @@ class enrol_payment_plugin extends enrol_plugin {
 
                 //If discount amount is filled, discount code must be filled
                 if((!array_key_exists("customtext2", $data)) || empty($data['customtext2'])) {
-                    if(array_key_exists("customint3", $data) && ($data["customint3"] != 0)) {
-                        $errors['customtext2'] = get_string('needdiscountcode', 'enrol_payment');
+                    //Ensure that "Require discount code" is checked before showing the error
+                    if(array_key_exists("customint7", $data) && ($data["customint7"] != 0)) {
+                        //Ensure that the discount type is not "No discount".
+                        if(array_key_exists("customint3", $data) && ($data["customint3"] != 0)) {
+                            $errors['customtext2'] = get_string('needdiscountcode', 'enrol_payment');
+                        }
                     }
                 }
             }
